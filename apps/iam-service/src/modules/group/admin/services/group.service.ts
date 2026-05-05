@@ -1,9 +1,10 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { I18nContext, I18nService } from 'nestjs-i18n';
-import { parseQueryOptions } from '@package/common';
-import { PrimaryKey, toPrimaryKey } from 'src/types';
-import { GroupRepository } from '../../repositories/group.repository';
+import { I18nService } from 'nestjs-i18n';
+import { parseQueryOptions, createPaginationMeta, t } from '@package/common';
+import { PrimaryKey } from 'src/types';
+import { GroupFilter, GroupRepository } from '../../repositories/group.repository';
 import { RbacCacheService } from '../../../../rbac/services/rbac-cache.service';
+import { ListGroupsAdminQueryDto } from '../dtos/list-group.query.dto';
 import { CreateGroupDto } from '../dtos/create-group.dto';
 import { UpdateGroupDto } from '../dtos/update-group.dto';
 import { AddMemberDto } from '../dtos/add-member.dto';
@@ -16,24 +17,26 @@ export class GroupService {
     private readonly i18n: I18nService,
   ) {}
 
-  async getList(query: any) {
+  async getList(query: ListGroupsAdminQueryDto) {
     const options = parseQueryOptions(query);
-    const where: any = {};
-    if (query.type) where.type = query.type;
-    if (query.status) where.status = query.status;
-    if (query.context_id) where.context_id = toPrimaryKey(query.context_id);
+    const filter: GroupFilter = {};
+    if (query.type) filter.type = query.type;
+    if (query.status) filter.status = query.status;
+    if (query.context_id) filter.context_id = query.context_id;
+    if (query.search) filter.search = query.search;
+
+    const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
-      this.repo.findMany(where, options.skip, options.take),
-      this.repo.count(where),
+      this.repo.findMany(filter, options),
+      skipCount ? Promise.resolve(0) : this.repo.count(filter),
     ]);
-    return { data, meta: { page: options.page, limit: options.take, total, total_pages: Math.ceil(total / options.take) } };
+    return { data, meta: createPaginationMeta(options, total) };
   }
 
   async getOne(id: PrimaryKey) {
     const item = await this.repo.findById(id);
     if (!item) {
-      const lang = I18nContext.current()?.lang ?? 'en';
-      throw new NotFoundException(this.i18n.t('group.NOT_FOUND', { lang }));
+      throw new NotFoundException(t(this.i18n, 'group.NOT_FOUND'));
     }
     return item;
   }
@@ -41,18 +44,17 @@ export class GroupService {
   async create(dto: CreateGroupDto, actorId: PrimaryKey) {
     const existing = await this.repo.findByCode(dto.code);
     if (existing) {
-      const lang = I18nContext.current()?.lang ?? 'en';
-      throw new ConflictException(this.i18n.t('group.CODE_EXISTS', { lang }));
+      throw new ConflictException(t(this.i18n, 'group.CODE_EXISTS'));
     }
     const data: any = {
       type: dto.type,
       code: dto.code,
       name: dto.name,
       description: dto.description,
-      context_id: toPrimaryKey(dto.context_id),
+      context_id: dto.context_id,
       created_user_id: actorId,
     };
-    if (dto.owner_id) data.owner_id = toPrimaryKey(dto.owner_id);
+    if (dto.owner_id) data.owner_id = dto.owner_id;
     return this.repo.create(data);
   }
 
@@ -63,7 +65,7 @@ export class GroupService {
     if (dto.description !== undefined) data.description = dto.description;
     if (dto.status !== undefined) data.status = dto.status;
     if ('owner_id' in dto) {
-      data.owner_id = dto.owner_id ? toPrimaryKey(dto.owner_id) : null;
+      data.owner_id = dto.owner_id ? dto.owner_id : null;
     }
     const result = await this.repo.update(id, data);
     if (dto.status !== undefined) {
@@ -76,7 +78,7 @@ export class GroupService {
     await this.getOne(id);
     await this.repo.delete(id);
     await this.rbacCache.bumpVersion();
-    return { deleted: true };
+    return { message: t(this.i18n, 'group.DELETED') };
   }
 
   async getMembers(id: PrimaryKey, query: any) {
@@ -86,20 +88,20 @@ export class GroupService {
       this.repo.getMembers(id, options.skip, options.take),
       this.repo.countMembers(id),
     ]);
-    return { data, meta: { page: options.page, limit: options.take, total, total_pages: Math.ceil(total / options.take) } };
+    return { data, meta: createPaginationMeta(options, total) };
   }
 
   async addMember(id: PrimaryKey, dto: AddMemberDto) {
     await this.getOne(id);
-    await this.repo.addMember(id, toPrimaryKey(dto.userId));
+    await this.repo.addMember(id, dto.userId);
     await this.rbacCache.clearAllUserCaches(dto.userId);
-    return { added: true };
+    return { message: t(this.i18n, 'group.MEMBER_ADDED') };
   }
 
-  async removeMember(id: PrimaryKey, userId: string) {
+  async removeMember(id: PrimaryKey, userId: PrimaryKey) {
     await this.getOne(id);
-    await this.repo.removeMember(id, toPrimaryKey(userId));
+    await this.repo.removeMember(id, userId);
     await this.rbacCache.clearAllUserCaches(userId);
-    return { removed: true };
+    return { message: t(this.i18n, 'group.MEMBER_REMOVED') };
   }
 }

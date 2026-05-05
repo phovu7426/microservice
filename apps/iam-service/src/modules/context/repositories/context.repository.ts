@@ -1,22 +1,72 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
-import { PrimaryKey, toPrimaryKey } from 'src/types';
+import { Prisma } from 'src/generated/prisma';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { toPrimaryKey } from 'src/types';
+
+export interface ContextFilter {
+  search?: string;
+  type?: string;
+  status?: string;
+}
+
+const LIST_SELECT = {
+  id: true,
+  code: true,
+  name: true,
+  type: true,
+  status: true,
+  created_at: true,
+} satisfies Prisma.ContextSelect;
 
 @Injectable()
 export class ContextRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findMany(where: any, skip: number, take: number) {
-    return this.prisma.context.findMany({ where, skip, take, orderBy: { code: 'asc' } });
+  private buildWhere(filter: ContextFilter): Prisma.ContextWhereInput {
+    const where: Prisma.ContextWhereInput = {};
+    const andConditions: Prisma.ContextWhereInput[] = [];
+
+    if (filter.search) {
+      andConditions.push({
+        OR: [
+          { code: { startsWith: filter.search, mode: 'insensitive' } },
+          { name: { startsWith: filter.search, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (filter.status) {
+      andConditions.push({ status: filter.status });
+    }
+
+    if (filter.type) {
+      andConditions.push({ type: filter.type });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
+    }
+
+    return where;
   }
 
-  count(where: any) {
-    return this.prisma.context.count({ where });
+  findMany(filter: ContextFilter, options: { skip: number; take: number; orderBy?: any }) {
+    return this.prisma.context.findMany({
+      where: this.buildWhere(filter),
+      select: LIST_SELECT,
+      skip: options.skip,
+      take: options.take,
+      orderBy: options.orderBy ?? { code: 'asc' },
+    });
   }
 
-  findById(id: PrimaryKey) {
+  count(filter: ContextFilter) {
+    return this.prisma.context.count({ where: this.buildWhere(filter) });
+  }
+
+  findById(id: string | bigint) {
     return this.prisma.context.findUnique({
-      where: { id },
+      where: { id: toPrimaryKey(id) },
       include: {
         role_contexts: {
           include: { role: { select: { id: true, code: true, name: true } } },
@@ -33,41 +83,40 @@ export class ContextRepository {
     return this.prisma.context.create({ data });
   }
 
-  update(id: PrimaryKey, data: any) {
-    return this.prisma.context.update({ where: { id }, data });
+  update(id: string | bigint, data: any) {
+    return this.prisma.context.update({ where: { id: toPrimaryKey(id) }, data });
   }
 
-  delete(id: PrimaryKey) {
-    return this.prisma.context.delete({ where: { id } });
+  delete(id: string | bigint) {
+    return this.prisma.context.delete({ where: { id: toPrimaryKey(id) } });
   }
 
-  async syncRoles(contextId: PrimaryKey, roleIds: PrimaryKey[]) {
+  async syncRoles(contextId: string | bigint, roleIds: (string | bigint)[]) {
+    const ctxId = toPrimaryKey(contextId);
+    const pkRoleIds = roleIds.map(toPrimaryKey);
     await this.prisma.$transaction(
       async (tx) => {
         const before = await tx.roleContext.findMany({
-          where: { context_id: contextId },
+          where: { context_id: ctxId },
           select: { role_id: true },
         });
         const beforeIds = new Set(before.map((r) => String(r.role_id)));
-        const targetIds = new Set(roleIds.map((id) => String(id)));
+        const targetIds = new Set(pkRoleIds.map((id) => String(id)));
         const removed = [...beforeIds].filter((id) => !targetIds.has(id)).map((id) => toPrimaryKey(id));
 
-        await tx.roleContext.deleteMany({ where: { context_id: contextId } });
-        if (roleIds.length) {
+        await tx.roleContext.deleteMany({ where: { context_id: ctxId } });
+        if (pkRoleIds.length) {
           await tx.roleContext.createMany({
-            data: roleIds.map((rid) => ({ role_id: rid, context_id: contextId })),
+            data: pkRoleIds.map((rid) => ({ role_id: rid, context_id: ctxId })),
             skipDuplicates: true,
           });
         }
 
-        // Cascade-clean assignments: any user_role_assignments for a role that
-        // is no longer allowed in this context must be removed so the resolver
-        // doesn't keep granting them.
         if (removed.length) {
           await tx.userRoleAssignment.deleteMany({
             where: {
               role_id: { in: removed },
-              group: { context_id: contextId },
+              group: { context_id: ctxId },
             },
           });
         }
@@ -76,7 +125,7 @@ export class ContextRepository {
     );
   }
 
-  async countGroups(contextId: PrimaryKey): Promise<number> {
-    return this.prisma.group.count({ where: { context_id: contextId } });
+  async countGroups(contextId: string | bigint): Promise<number> {
+    return this.prisma.group.count({ where: { context_id: toPrimaryKey(contextId) } });
   }
 }

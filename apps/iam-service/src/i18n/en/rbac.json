@@ -3,5 +3,8 @@
   "ROLE_NOT_ALLOWED_IN_CONTEXT": "Role ID {id} is not allowed or not active in this context.",
   "PRIVILEGE_ESCALATION_BLOCKED": "Cannot grant permission '{code}' that the caller does not hold.",
   "LAST_SYSTEM_ADMIN_PROTECTED": "Cannot remove the last user holding system.manage.",
-  "USER_ROLE_ASSIGNMENT_NOT_FOUND": "User does not have this role in the specified group."
+  "USER_ROLE_ASSIGNMENT_NOT_FOUND": "User does not have this role in the specified group.",
+  "ROLE_ASSIGNED": "Role assigned successfully.",
+  "ROLE_REMOVED": "Role removed successfully.",
+  "ROLES_SYNCED": "Roles synced successfully."
 }

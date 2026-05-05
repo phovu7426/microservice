@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { I18nContext, I18nService } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
+import { t } from '@package/common';
 import { RbacCacheService } from './rbac-cache.service';
 import { RbacPermissionIndexService } from './rbac-permission-index.service';
 import { RbacRoleAssignmentService } from './rbac-role-assignment.service';
@@ -74,10 +75,10 @@ export class RbacService {
   async assertCallerCanGrantRole(
     actorId: RbacId,
     actorGroupId: NullableRbacId,
-    roleIds: bigint[],
+    roleIds: (string | bigint)[],
   ): Promise<void> {
     if (!roleIds.length) return;
-    const targetCodes = await this.rbacRepo.getPermissionCodesForRoles(roleIds);
+    const targetCodes = await this.rbacRepo.getPermissionCodesForRoles(roleIds.map(toPrimaryKey));
     if (!targetCodes.size) return;
 
     // System manage holders may grant anything.
@@ -94,15 +95,13 @@ export class RbacService {
     for (const code of targetCodes) {
       // system.* requires system scope
       if (code.startsWith('system.') && !this.permissionIndexService.matchesAssigned(systemPerms, code)) {
-        const lang = I18nContext.current()?.lang ?? 'en';
         throw new ForbiddenException(
-          this.i18n.t('rbac.PRIVILEGE_ESCALATION_BLOCKED', { lang, args: { code } }) as string,
+          t(this.i18n, 'rbac.PRIVILEGE_ESCALATION_BLOCKED', { code }),
         );
       }
       if (!this.permissionIndexService.matchesAssigned(callerEffective, code)) {
-        const lang = I18nContext.current()?.lang ?? 'en';
         throw new ForbiddenException(
-          this.i18n.t('rbac.PRIVILEGE_ESCALATION_BLOCKED', { lang, args: { code } }) as string,
+          t(this.i18n, 'rbac.PRIVILEGE_ESCALATION_BLOCKED', { code }),
         );
       }
     }
@@ -124,15 +123,13 @@ export class RbacService {
 
     for (const code of targetCodes) {
       if (code.startsWith('system.') && !this.permissionIndexService.matchesAssigned(systemPerms, code)) {
-        const lang = I18nContext.current()?.lang ?? 'en';
         throw new ForbiddenException(
-          this.i18n.t('rbac.PRIVILEGE_ESCALATION_BLOCKED', { lang, args: { code } }) as string,
+          t(this.i18n, 'rbac.PRIVILEGE_ESCALATION_BLOCKED', { code }),
         );
       }
       if (!this.permissionIndexService.matchesAssigned(callerEffective, code)) {
-        const lang = I18nContext.current()?.lang ?? 'en';
         throw new ForbiddenException(
-          this.i18n.t('rbac.PRIVILEGE_ESCALATION_BLOCKED', { lang, args: { code } }) as string,
+          t(this.i18n, 'rbac.PRIVILEGE_ESCALATION_BLOCKED', { code }),
         );
       }
     }
@@ -159,19 +156,23 @@ export class RbacService {
     skipValidation = false,
   ): Promise<void> {
     const targetIds = roleIds.map((r) => toPrimaryKey(r));
+
+    // Assert caller can grant the NEW roles
     await this.assertCallerCanGrantRole(actor.id, actor.groupId, targetIds);
-    const { before } = await this.roleAssignmentService.syncRolesInGroup(
+
+    // Assert caller can revoke the EXISTING roles BEFORE committing the sync.
+    // This prevents a low-priv actor from revoking a high-priv role by omitting it.
+    const existing = await this.rbacRepo.getExistingRoleIds(userId, groupId);
+    if (existing.length) {
+      await this.assertCallerCanGrantRole(actor.id, actor.groupId, existing);
+    }
+
+    await this.roleAssignmentService.syncRolesInGroup(
       userId,
       groupId,
       roleIds,
       skipValidation,
     );
-    // Must also confirm the actor could remove every role the user had
-    // before — otherwise a low-priv actor could revoke a high-priv role
-    // by submitting a syncRoles call that omits it.
-    if (before.length) {
-      await this.assertCallerCanGrantRole(actor.id, actor.groupId, before);
-    }
     await this.rbacCache.bumpVersion();
     await this.rbacCache.clearAllUserCaches(userId);
     await this.refreshPermissions(userId, groupId);

@@ -1,5 +1,7 @@
 {
   "NOT_FOUND": "Không tìm thấy phạm vi.",
   "CODE_EXISTS": "Mã phạm vi đã tồn tại.",
-  "IN_USE_BY_GROUPS": "Không thể xóa: phạm vi vẫn còn được sử dụng bởi nhóm."
+  "IN_USE_BY_GROUPS": "Không thể xóa: phạm vi vẫn còn được sử dụng bởi nhóm.",
+  "DELETED": "Xóa phạm vi thành công.",
+  "ROLES_SYNCED": "Đồng bộ vai trò thành công."
 }

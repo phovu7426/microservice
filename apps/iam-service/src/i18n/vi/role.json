@@ -1,5 +1,7 @@
 {
   "NOT_FOUND": "Không tìm thấy vai trò.",
   "CODE_EXISTS": "Mã vai trò đã tồn tại.",
-  "CYCLE_DETECTED": "Cha mới sẽ tạo vòng lặp trong cây vai trò."
+  "CYCLE_DETECTED": "Cha mới sẽ tạo vòng lặp trong cây vai trò.",
+  "DELETED": "Xóa vai trò thành công.",
+  "PERMISSIONS_SYNCED": "Đồng bộ quyền thành công."
 }

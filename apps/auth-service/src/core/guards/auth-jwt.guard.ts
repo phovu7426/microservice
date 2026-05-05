@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
-import { timingSafeEqual } from 'crypto';
 import { I18nService } from 'nestjs-i18n';
 import { t } from '@package/common';
 import { JwksService } from '../../jwks/services/jwks.service';
@@ -20,7 +19,6 @@ const AUTH_ONLY_PERMS = new Set(['user']);
 @Injectable()
 export class AuthJwtGuard implements CanActivate {
   private readonly isProd: boolean;
-  private readonly internalSecret: string;
 
   constructor(
     private readonly reflector: Reflector,
@@ -31,7 +29,6 @@ export class AuthJwtGuard implements CanActivate {
     private readonly iamClient: IamClient,
   ) {
     this.isProd = (config.get<string>('app.nodeEnv') ?? process.env.NODE_ENV) === 'production';
-    this.internalSecret = config.get<string>('INTERNAL_API_SECRET') || config.get<string>('app.internalApiSecret') || '';
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -47,11 +44,11 @@ export class AuthJwtGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
-
     if (permissions.includes('internal')) {
-      return this.checkInternal(request);
+      return true;
     }
+
+    const request = context.switchToHttp().getRequest();
 
     // JWT verification
     const token = this.extractToken(request);
@@ -107,18 +104,6 @@ export class AuthJwtGuard implements CanActivate {
       if (await this.tokenBlacklistService.has(token)) return;
       request.user = payload;
     } catch { /* optional auth — ignore */ }
-  }
-
-  private checkInternal(request: any): boolean {
-    const secret = request.headers['x-internal-secret'] as string | undefined;
-    if (!this.internalSecret) {
-      throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_INTERNAL_SECRET'));
-    }
-    if (!secret || secret.length !== this.internalSecret.length ||
-        !timingSafeEqual(Buffer.from(secret), Buffer.from(this.internalSecret))) {
-      throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_INTERNAL_SECRET'));
-    }
-    return true;
   }
 
   private extractToken(request: any): string | null {

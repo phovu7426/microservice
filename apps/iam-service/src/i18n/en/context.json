@@ -1,5 +1,7 @@
 {
   "NOT_FOUND": "Context not found.",
   "CODE_EXISTS": "Context code already exists.",
-  "IN_USE_BY_GROUPS": "Cannot delete: context is still used by one or more groups."
+  "IN_USE_BY_GROUPS": "Cannot delete: context is still used by one or more groups.",
+  "DELETED": "Context deleted successfully.",
+  "ROLES_SYNCED": "Roles synced successfully."
 }

@@ -1,20 +1,17 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { I18nContext, I18nService } from 'nestjs-i18n';
-import { PrismaService } from '../../database/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../core/database/prisma.service';
+import { toPrimaryKey } from 'src/types';
 import { RbacId } from '../types';
 
 function toPk(id: RbacId): bigint {
-  return BigInt(String(id));
+  return toPrimaryKey(id);
 }
 
 export const SYSTEM_CONTEXT_TYPE = 'system';
 
 @Injectable()
 export class RbacRepository {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly i18n: I18nService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   findPermissions() {
     return this.prisma.permission.findMany({
@@ -30,24 +27,26 @@ export class RbacRepository {
     });
   }
 
+  findActiveGroup(groupId: RbacId) {
+    return this.prisma.group.findFirst({
+      where: { id: toPk(groupId), status: 'active' },
+    });
+  }
+
   async syncRolesInGroup(
     userId: RbacId,
     groupId: RbacId,
     roleIds: RbacId[],
+    contextId: bigint,
     skipValidation = false,
   ): Promise<{ before: bigint[]; after: bigint[] }> {
-    const group = await this.prisma.group.findFirst({
-      where: { id: toPk(groupId), status: 'active' },
-    });
-    if (!group) {
-      const lang = I18nContext.current()?.lang ?? 'en';
-      throw new NotFoundException(this.i18n.t('rbac.GROUP_NOT_FOUND', { lang }));
-    }
-
     const normalizedRoleIds = this.normalizeRoleIds(roleIds);
 
     if (normalizedRoleIds.length && !skipValidation) {
-      await this.validateRolesForContext(normalizedRoleIds, group.context_id);
+      const invalidIds = await this.findInvalidRolesForContext(normalizedRoleIds, contextId);
+      if (invalidIds.length) {
+        return { before: [], after: [], ...{ invalidRoleIds: invalidIds } } as any;
+      }
     }
 
     return this.prisma.$transaction(
@@ -139,6 +138,15 @@ export class RbacRepository {
     });
   }
 
+  /** Get existing role IDs for a user in a group (for pre-sync validation). */
+  async getExistingRoleIds(userId: RbacId, groupId: RbacId): Promise<bigint[]> {
+    const rows = await this.prisma.userRoleAssignment.findMany({
+      where: { user_id: toPk(userId), group_id: toPk(groupId) },
+      select: { role_id: true },
+    });
+    return rows.map((r) => r.role_id);
+  }
+
   /** Number of users currently holding a given permission via any role. */
   async countUsersWithPermission(permissionCode: string): Promise<number> {
     const rows = await this.prisma.userRoleAssignment.findMany({
@@ -156,10 +164,10 @@ export class RbacRepository {
   }
 
   /** Permission codes contained in a given role (active permissions only). */
-  async getPermissionCodesForRoles(roleIds: bigint[]): Promise<Set<string>> {
+  async getPermissionCodesForRoles(roleIds: (string | bigint)[]): Promise<Set<string>> {
     if (!roleIds.length) return new Set();
     const rows = await this.prisma.roleHasPermission.findMany({
-      where: { role_id: { in: roleIds }, permission: { status: 'active' } },
+      where: { role_id: { in: roleIds.map((id) => typeof id === 'bigint' ? id : BigInt(id)) }, permission: { status: 'active' } },
       select: { permission: { select: { code: true } } },
     });
     const out = new Set<string>();
@@ -170,7 +178,8 @@ export class RbacRepository {
     return out;
   }
 
-  private async validateRolesForContext(roleIds: RbacId[], contextId: bigint): Promise<void> {
+  /** Returns role IDs that are NOT valid (not linked or inactive) for the given context. */
+  async findInvalidRolesForContext(roleIds: RbacId[], contextId: bigint): Promise<string[]> {
     const normalizedRoleIds = roleIds.map((id) => toPk(id));
     const links = await this.prisma.roleContext.findMany({
       where: {
@@ -181,17 +190,9 @@ export class RbacRepository {
       select: { role_id: true },
     });
     const validIds = new Set((links as any[]).map((l) => String(l.role_id)));
-    for (const id of normalizedRoleIds) {
-      if (!validIds.has(String(id))) {
-        const lang = I18nContext.current()?.lang ?? 'en';
-        throw new BadRequestException(
-          this.i18n.t('rbac.ROLE_NOT_ALLOWED_IN_CONTEXT', {
-            lang,
-            args: { id: String(id) },
-          }),
-        );
-      }
-    }
+    return normalizedRoleIds
+      .filter((id) => !validIds.has(String(id)))
+      .map(String);
   }
 
   private normalizeRoleIds(roleIds: RbacId[] | null | undefined): RbacId[] {

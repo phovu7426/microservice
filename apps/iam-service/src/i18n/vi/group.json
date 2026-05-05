@@ -1,4 +1,7 @@
 {
   "NOT_FOUND": "Không tìm thấy nhóm.",
-  "CODE_EXISTS": "Mã nhóm đã tồn tại."
+  "CODE_EXISTS": "Mã nhóm đã tồn tại.",
+  "DELETED": "Xóa nhóm thành công.",
+  "MEMBER_ADDED": "Thêm thành viên thành công.",
+  "MEMBER_REMOVED": "Xóa thành viên thành công."
 }

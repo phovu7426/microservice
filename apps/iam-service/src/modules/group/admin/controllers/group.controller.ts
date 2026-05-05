@@ -56,6 +56,6 @@ export class GroupController {
   @Permission('group.manage')
   @Delete(':id/members/:userId')
   removeMember(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.service.removeMember(toPrimaryKey(id), userId);
+    return this.service.removeMember(toPrimaryKey(id), toPrimaryKey(userId));
   }
 }

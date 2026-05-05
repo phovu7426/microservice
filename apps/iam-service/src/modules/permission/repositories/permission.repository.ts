@@ -1,28 +1,78 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
-import { PrimaryKey } from 'src/types';
+import { Prisma } from 'src/generated/prisma';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { toPrimaryKey } from 'src/types';
+
+export interface PermissionFilter {
+  search?: string;
+  status?: string;
+  scope?: string;
+  parent_id?: any;
+}
+
+const LIST_SELECT = {
+  id: true,
+  code: true,
+  name: true,
+  status: true,
+  parent_id: true,
+  parent: { select: { id: true, code: true, name: true } },
+  created_at: true,
+} satisfies Prisma.PermissionSelect;
 
 @Injectable()
 export class PermissionRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findMany(where: any, skip: number, take: number) {
+  private buildWhere(filter: PermissionFilter): Prisma.PermissionWhereInput {
+    const where: Prisma.PermissionWhereInput = {};
+    const andConditions: Prisma.PermissionWhereInput[] = [];
+
+    if (filter.search) {
+      andConditions.push({
+        OR: [
+          { code: { startsWith: filter.search, mode: 'insensitive' } },
+          { name: { startsWith: filter.search, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (filter.status) {
+      andConditions.push({ status: filter.status });
+    }
+
+    if (filter.scope) {
+      andConditions.push({ scope: filter.scope });
+    }
+
+    if (filter.parent_id) {
+      andConditions.push({ parent_id: toPrimaryKey(filter.parent_id) });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
+    }
+
+    return where;
+  }
+
+  findMany(filter: PermissionFilter, options: { skip: number; take: number; orderBy?: any }) {
     return this.prisma.permission.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { code: 'asc' },
-      include: { parent: { select: { id: true, code: true, name: true } } },
+      where: this.buildWhere(filter),
+      select: LIST_SELECT,
+      skip: options.skip,
+      take: options.take,
+      orderBy: options.orderBy ?? { code: 'asc' },
     });
   }
 
-  count(where: any) {
-    return this.prisma.permission.count({ where });
+  count(filter: PermissionFilter) {
+    return this.prisma.permission.count({ where: this.buildWhere(filter) });
   }
 
-  findById(id: PrimaryKey) {
+  findById(id: string | bigint) {
     return this.prisma.permission.findUnique({
-      where: { id },
+      where: { id: toPrimaryKey(id) },
       include: {
         parent: { select: { id: true, code: true, name: true } },
         children: { select: { id: true, code: true, name: true } },
@@ -38,12 +88,12 @@ export class PermissionRepository {
     return this.prisma.permission.create({ data });
   }
 
-  update(id: PrimaryKey, data: any) {
-    return this.prisma.permission.update({ where: { id }, data });
+  update(id: string | bigint, data: any) {
+    return this.prisma.permission.update({ where: { id: toPrimaryKey(id) }, data });
   }
 
-  delete(id: PrimaryKey) {
-    return this.prisma.permission.delete({ where: { id } });
+  delete(id: string | bigint) {
+    return this.prisma.permission.delete({ where: { id: toPrimaryKey(id) } });
   }
 
   async getParentId(id: bigint): Promise<bigint | null> {

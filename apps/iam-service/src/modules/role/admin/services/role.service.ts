@@ -1,11 +1,13 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { I18nContext, I18nService } from 'nestjs-i18n';
-import { parseQueryOptions } from '@package/common';
-import { PrimaryKey, toPrimaryKey } from 'src/types';
-import { RoleRepository } from '../../repositories/role.repository';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { I18nService } from 'nestjs-i18n';
+import { parseQueryOptions, createPaginationMeta, t } from '@package/common';
+import { PrimaryKey } from 'src/types';
+import { assertNoCycle } from '../../../../helpers/hierarchy.helper';
+import { RoleFilter, RoleRepository } from '../../repositories/role.repository';
 import { RbacCacheService } from '../../../../rbac/services/rbac-cache.service';
 import { RbacPermissionIndexService } from '../../../../rbac/services/rbac-permission-index.service';
 import { RbacService } from '../../../../rbac/services/rbac.service';
+import { ListRolesAdminQueryDto } from '../dtos/list-role.query.dto';
 import { CreateRoleDto } from '../dtos/create-role.dto';
 import { UpdateRoleDto } from '../dtos/update-role.dto';
 import { SyncPermissionsDto } from '../dtos/sync-permissions.dto';
@@ -20,26 +22,24 @@ export class RoleService {
     private readonly i18n: I18nService,
   ) {}
 
-  private t(key: string, args?: Record<string, unknown>): string {
-    const lang = I18nContext.current()?.lang ?? 'en';
-    return this.i18n.t(key, { lang, args }) as string;
-  }
-
-  async getList(query: any) {
+  async getList(query: ListRolesAdminQueryDto) {
     const options = parseQueryOptions(query);
-    const where: any = {};
-    if (query.status) where.status = query.status;
+    const filter: RoleFilter = {};
+    if (query.status) filter.status = query.status;
+    if (query.search) filter.search = query.search;
+
+    const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
-      this.repo.findMany(where, options.skip, options.take),
-      this.repo.count(where),
+      this.repo.findMany(filter, options),
+      skipCount ? Promise.resolve(0) : this.repo.count(filter),
     ]);
-    return { data, meta: { page: options.page, limit: options.take, total, total_pages: Math.ceil(total / options.take) } };
+    return { data, meta: createPaginationMeta(options, total) };
   }
 
   async getOne(id: PrimaryKey) {
     const item = await this.repo.findById(id);
     if (!item) {
-      throw new NotFoundException(this.t('role.NOT_FOUND'));
+      throw new NotFoundException(t(this.i18n, 'role.NOT_FOUND'));
     }
     return item;
   }
@@ -47,12 +47,12 @@ export class RoleService {
   async create(dto: CreateRoleDto, actorId: PrimaryKey) {
     const existing = await this.repo.findByCode(dto.code);
     if (existing) {
-      throw new ConflictException(this.t('role.CODE_EXISTS'));
+      throw new ConflictException(t(this.i18n, 'role.CODE_EXISTS'));
     }
     const data: any = { code: dto.code, name: dto.name, created_user_id: actorId };
     if (dto.parent_id) {
       // Check the parent exists; cycle check is N/A on create (no children yet).
-      data.parent = { connect: { id: toPrimaryKey(dto.parent_id) } };
+      data.parent = { connect: { id: dto.parent_id } };
     }
     return this.repo.create(data);
   }
@@ -60,14 +60,19 @@ export class RoleService {
   async update(id: PrimaryKey, dto: UpdateRoleDto, actorId: PrimaryKey) {
     await this.getOne(id);
     if (dto.parent_id) {
-      await this.assertNoCycle(id, toPrimaryKey(dto.parent_id));
+      await assertNoCycle(
+        id,
+        dto.parent_id,
+        (cur) => this.repo.getParentId(cur),
+        t(this.i18n, 'role.CYCLE_DETECTED'),
+      );
     }
     const data: any = { updated_user_id: actorId };
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.status !== undefined) data.status = dto.status;
     if ('parent_id' in dto) {
       data.parent = dto.parent_id
-        ? { connect: { id: toPrimaryKey(dto.parent_id) } }
+        ? { connect: { id: dto.parent_id } }
         : { disconnect: true };
     }
     const result = await this.repo.update(id, data);
@@ -80,7 +85,7 @@ export class RoleService {
     await this.getOne(id);
     await this.repo.delete(id);
     await this.rbacCache.bumpVersion();
-    return { deleted: true };
+    return { message: t(this.i18n, 'role.DELETED') };
   }
 
   async syncPermissions(
@@ -89,13 +94,9 @@ export class RoleService {
     actor: { id: string; groupId?: string | null },
   ) {
     await this.getOne(id);
-    const targetIds = dto.permissionIds.map(toPrimaryKey);
+    const targetIds = dto.permissionIds;
     // Caller must already hold every permission they want to wire onto this role.
     if (targetIds.length) {
-      // We approximate "callers can grant these permissions" by treating the
-      // role as a synthetic role containing exactly those permission codes.
-      // assertCallerCanGrantRole expects role IDs, so instead inline a check
-      // here: compare against actor's effective permissions.
       const targetCodes = await this.repo.getPermissionCodesByIds(targetIds);
       if (targetCodes.length) {
         await this.rbacService.assertCallerCanGrantPermissionCodes(
@@ -108,23 +109,7 @@ export class RoleService {
     await this.repo.syncPermissions(id, targetIds);
     await this.rbacCache.bumpVersion();
     await this.permIndex.publishRefresh();
-    return { updated: true };
+    return { message: t(this.i18n, 'role.PERMISSIONS_SYNCED') };
   }
 
-  private async assertNoCycle(roleId: PrimaryKey, candidateParentId: bigint): Promise<void> {
-    if (toPrimaryKey(roleId) === candidateParentId) {
-      throw new BadRequestException(this.t('role.CYCLE_DETECTED'));
-    }
-    const visited = new Set<string>();
-    let cur: bigint | null = candidateParentId;
-    while (cur != null) {
-      const key = String(cur);
-      if (visited.has(key)) break;
-      visited.add(key);
-      if (cur === toPrimaryKey(roleId)) {
-        throw new BadRequestException(this.t('role.CYCLE_DETECTED'));
-      }
-      cur = await this.repo.getParentId(cur);
-    }
-  }
 }

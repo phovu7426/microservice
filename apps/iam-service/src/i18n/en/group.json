@@ -1,4 +1,7 @@
 {
   "NOT_FOUND": "Group not found.",
-  "CODE_EXISTS": "Group code already exists."
+  "CODE_EXISTS": "Group code already exists.",
+  "DELETED": "Group deleted successfully.",
+  "MEMBER_ADDED": "Member added successfully.",
+  "MEMBER_REMOVED": "Member removed successfully."
 }

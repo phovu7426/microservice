@@ -9,15 +9,14 @@ import { join } from 'path';
 import { createAppConfig, createRedisConfig } from '@package/config';
 import {
   JwtGuard,
-  RbacGuard,
   GlobalExceptionFilter,
   HealthModule,
   AuditModule,
   BigIntSerializationInterceptor,
 } from '@package/common';
 import { RedisModule } from '@package/redis';
-import { envValidationSchema } from './config/env.validation';
-import { DatabaseModule } from './database/database.module';
+import { envValidationSchema } from './core/config/env.validation';
+import { CoreModule } from './core/core.module';
 import { RbacModule } from './rbac/rbac.module';
 import { InternalModule } from './internal/internal.module';
 import { PermissionModule } from './modules/permission/permission.module';
@@ -25,6 +24,7 @@ import { RoleModule } from './modules/role/role.module';
 import { ContextModule } from './modules/context/context.module';
 import { GroupModule } from './modules/group/group.module';
 import { UserRoleModule } from './modules/user-role/user-role.module';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
@@ -51,7 +51,7 @@ import { UserRoleModule } from './modules/user-role/user-role.module';
       ],
     }),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
-    DatabaseModule,
+    CoreModule,
     RedisModule,
     RbacModule,
     HealthModule.register('iam-service'),
@@ -63,27 +63,21 @@ import { UserRoleModule } from './modules/user-role/user-role.module';
     ContextModule,
     GroupModule,
     UserRoleModule,
+    KafkaModule,
   ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
     },
-    // ThrottlerGuard MUST be in APP_GUARD chain — without it, the
-    // ThrottlerModule.forRoot() rate limit never applies. This was a
-    // regression from the round-1 fixes: post/comic/marketing/intro/notif
-    // were wired but iam was not.
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-    {
+    { 
       provide: APP_GUARD,
-      useFactory: (reflector: Reflector, config: ConfigService) =>
-        new JwtGuard(reflector, config),
-      inject: [Reflector, ConfigService],
+      useClass: ThrottlerGuard
     },
     {
       provide: APP_GUARD,
       useFactory: (reflector: Reflector, config: ConfigService) =>
-        new RbacGuard(reflector, config),
+        new JwtGuard(reflector, config),
       inject: [Reflector, ConfigService],
     },
     {

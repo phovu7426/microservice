@@ -3,5 +3,8 @@
   "ROLE_NOT_ALLOWED_IN_CONTEXT": "Vai trò có ID {id} không được phép hoặc không hoạt động trong phạm vi này.",
   "PRIVILEGE_ESCALATION_BLOCKED": "Không thể cấp quyền '{code}' khi người gọi chưa có quyền này.",
   "LAST_SYSTEM_ADMIN_PROTECTED": "Không thể xóa người dùng cuối cùng đang giữ quyền system.manage.",
-  "USER_ROLE_ASSIGNMENT_NOT_FOUND": "Người dùng không có vai trò này trong nhóm đã chỉ định."
+  "USER_ROLE_ASSIGNMENT_NOT_FOUND": "Người dùng không có vai trò này trong nhóm đã chỉ định.",
+  "ROLE_ASSIGNED": "Gán vai trò thành công.",
+  "ROLE_REMOVED": "Gỡ vai trò thành công.",
+  "ROLES_SYNCED": "Đồng bộ vai trò thành công."
 }

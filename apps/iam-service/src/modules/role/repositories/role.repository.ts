@@ -1,28 +1,73 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
-import { PrimaryKey } from 'src/types';
+import { Prisma } from 'src/generated/prisma';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { toPrimaryKey } from 'src/types';
+
+export interface RoleFilter {
+  search?: string;
+  status?: string;
+  parent_id?: any;
+}
+
+const LIST_SELECT = {
+  id: true,
+  code: true,
+  name: true,
+  status: true,
+  parent_id: true,
+  parent: { select: { id: true, code: true, name: true } },
+  created_at: true,
+} satisfies Prisma.RoleSelect;
 
 @Injectable()
 export class RoleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findMany(where: any, skip: number, take: number) {
+  private buildWhere(filter: RoleFilter): Prisma.RoleWhereInput {
+    const where: Prisma.RoleWhereInput = {};
+    const andConditions: Prisma.RoleWhereInput[] = [];
+
+    if (filter.search) {
+      andConditions.push({
+        OR: [
+          { code: { startsWith: filter.search, mode: 'insensitive' } },
+          { name: { startsWith: filter.search, mode: 'insensitive' } },
+        ],
+      });
+    }
+
+    if (filter.status) {
+      andConditions.push({ status: filter.status });
+    }
+
+    if (filter.parent_id) {
+      andConditions.push({ parent_id: toPrimaryKey(filter.parent_id) });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
+    }
+
+    return where;
+  }
+
+  findMany(filter: RoleFilter, options: { skip: number; take: number; orderBy?: any }) {
     return this.prisma.role.findMany({
-      where,
-      skip,
-      take,
-      orderBy: { code: 'asc' },
-      include: { parent: { select: { id: true, code: true, name: true } } },
+      where: this.buildWhere(filter),
+      select: LIST_SELECT,
+      skip: options.skip,
+      take: options.take,
+      orderBy: options.orderBy ?? { code: 'asc' },
     });
   }
 
-  count(where: any) {
-    return this.prisma.role.count({ where });
+  count(filter: RoleFilter) {
+    return this.prisma.role.count({ where: this.buildWhere(filter) });
   }
 
-  findById(id: PrimaryKey) {
+  findById(id: string | bigint) {
     return this.prisma.role.findUnique({
-      where: { id },
+      where: { id: toPrimaryKey(id) },
       include: {
         parent: { select: { id: true, code: true, name: true } },
         permissions: {
@@ -43,21 +88,23 @@ export class RoleRepository {
     return this.prisma.role.create({ data });
   }
 
-  update(id: PrimaryKey, data: any) {
-    return this.prisma.role.update({ where: { id }, data });
+  update(id: string | bigint, data: any) {
+    return this.prisma.role.update({ where: { id: toPrimaryKey(id) }, data });
   }
 
-  delete(id: PrimaryKey) {
-    return this.prisma.role.delete({ where: { id } });
+  delete(id: string | bigint) {
+    return this.prisma.role.delete({ where: { id: toPrimaryKey(id) } });
   }
 
-  async syncPermissions(roleId: PrimaryKey, permissionIds: PrimaryKey[]) {
+  async syncPermissions(roleId: string | bigint, permissionIds: (string | bigint)[]) {
+    const pkRoleId = toPrimaryKey(roleId);
+    const pkPermIds = permissionIds.map(toPrimaryKey);
     await this.prisma.$transaction(
       async (tx) => {
-        await tx.roleHasPermission.deleteMany({ where: { role_id: roleId } });
-        if (permissionIds.length) {
+        await tx.roleHasPermission.deleteMany({ where: { role_id: pkRoleId } });
+        if (pkPermIds.length) {
           await tx.roleHasPermission.createMany({
-            data: permissionIds.map((pid) => ({ role_id: roleId, permission_id: pid })),
+            data: pkPermIds.map((pid) => ({ role_id: pkRoleId, permission_id: pid })),
             skipDuplicates: true,
           });
         }
@@ -74,10 +121,10 @@ export class RoleRepository {
     return row?.parent_id ?? null;
   }
 
-  async getPermissionCodesByIds(ids: bigint[]): Promise<string[]> {
+  async getPermissionCodesByIds(ids: (string | bigint)[]): Promise<string[]> {
     if (!ids.length) return [];
     const rows = await this.prisma.permission.findMany({
-      where: { id: { in: ids }, status: 'active' },
+      where: { id: { in: ids.map(toPrimaryKey) }, status: 'active' },
       select: { code: true },
     });
     return rows.map((r) => r.code);

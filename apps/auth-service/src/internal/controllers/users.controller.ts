@@ -1,9 +1,10 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { PrismaService } from '../../core/database/prisma.service';
-import { Internal } from '@package/common';
+import { Internal, InternalGuard } from '@package/common';
 import { toPrimaryKey } from 'src/types';
 
 @Internal()
+@UseGuards(InternalGuard)
 @Controller('internal/users')
 export class InternalUsersController {
   constructor(private readonly prisma: PrismaService) {}

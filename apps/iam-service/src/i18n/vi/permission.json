@@ -1,5 +1,6 @@
 {
   "NOT_FOUND": "Không tìm thấy quyền.",
   "CODE_EXISTS": "Mã quyền đã tồn tại.",
-  "CYCLE_DETECTED": "Cha mới sẽ tạo vòng lặp trong cây quyền."
+  "CYCLE_DETECTED": "Cha mới sẽ tạo vòng lặp trong cây quyền.",
+  "DELETED": "Xóa quyền thành công."
 }

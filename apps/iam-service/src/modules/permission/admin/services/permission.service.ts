@@ -1,10 +1,12 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { I18nContext, I18nService } from 'nestjs-i18n';
-import { parseQueryOptions } from '@package/common';
-import { PrimaryKey, toPrimaryKey } from 'src/types';
-import { PermissionRepository } from '../../repositories/permission.repository';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { I18nService } from 'nestjs-i18n';
+import { parseQueryOptions, createPaginationMeta, t } from '@package/common';
+import { PrimaryKey } from 'src/types';
+import { assertNoCycle } from '../../../../helpers/hierarchy.helper';
+import { PermissionFilter, PermissionRepository } from '../../repositories/permission.repository';
 import { RbacCacheService } from '../../../../rbac/services/rbac-cache.service';
 import { RbacPermissionIndexService } from '../../../../rbac/services/rbac-permission-index.service';
+import { ListPermissionsAdminQueryDto } from '../dtos/list-permission.query.dto';
 import { CreatePermissionDto } from '../dtos/create-permission.dto';
 import { UpdatePermissionDto } from '../dtos/update-permission.dto';
 
@@ -17,27 +19,25 @@ export class PermissionService {
     private readonly i18n: I18nService,
   ) {}
 
-  private t(key: string): string {
-    const lang = I18nContext.current()?.lang ?? 'en';
-    return this.i18n.t(key, { lang }) as string;
-  }
-
-  async getList(query: any) {
+  async getList(query: ListPermissionsAdminQueryDto) {
     const options = parseQueryOptions(query);
-    const where: any = {};
-    if (query.status) where.status = query.status;
-    if (query.scope) where.scope = query.scope;
+    const filter: PermissionFilter = {};
+    if (query.status) filter.status = query.status;
+    if (query.scope) filter.scope = query.scope;
+    if (query.search) filter.search = query.search;
+
+    const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
-      this.repo.findMany(where, options.skip, options.take),
-      this.repo.count(where),
+      this.repo.findMany(filter, options),
+      skipCount ? Promise.resolve(0) : this.repo.count(filter),
     ]);
-    return { data, meta: { page: options.page, limit: options.take, total, total_pages: Math.ceil(total / options.take) } };
+    return { data, meta: createPaginationMeta(options, total) };
   }
 
   async getOne(id: PrimaryKey) {
     const item = await this.repo.findById(id);
     if (!item) {
-      throw new NotFoundException(this.t('permission.NOT_FOUND'));
+      throw new NotFoundException(t(this.i18n, 'permission.NOT_FOUND'));
     }
     return item;
   }
@@ -45,7 +45,7 @@ export class PermissionService {
   async create(dto: CreatePermissionDto, actorId: PrimaryKey) {
     const existing = await this.repo.findByCode(dto.code);
     if (existing) {
-      throw new ConflictException(this.t('permission.CODE_EXISTS'));
+      throw new ConflictException(t(this.i18n, 'permission.CODE_EXISTS'));
     }
     const data: any = {
       code: dto.code,
@@ -53,7 +53,7 @@ export class PermissionService {
       scope: dto.scope || 'context',
       created_user_id: actorId,
     };
-    if (dto.parent_id) data.parent = { connect: { id: toPrimaryKey(dto.parent_id) } };
+    if (dto.parent_id) data.parent = { connect: { id: dto.parent_id } };
     const result = await this.repo.create(data);
     await this.rbacCache.bumpVersion();
     await this.permIndex.publishRefresh();
@@ -63,14 +63,19 @@ export class PermissionService {
   async update(id: PrimaryKey, dto: UpdatePermissionDto, actorId: PrimaryKey) {
     await this.getOne(id);
     if (dto.parent_id) {
-      await this.assertNoCycle(id, toPrimaryKey(dto.parent_id));
+      await assertNoCycle(
+        id,
+        dto.parent_id,
+        (cur) => this.repo.getParentId(cur),
+        t(this.i18n, 'permission.CYCLE_DETECTED'),
+      );
     }
     const data: any = { updated_user_id: actorId };
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.status !== undefined) data.status = dto.status;
     if ('parent_id' in dto) {
       data.parent = dto.parent_id
-        ? { connect: { id: toPrimaryKey(dto.parent_id) } }
+        ? { connect: { id: dto.parent_id } }
         : { disconnect: true };
     }
     const result = await this.repo.update(id, data);
@@ -84,23 +89,7 @@ export class PermissionService {
     await this.repo.delete(id);
     await this.rbacCache.bumpVersion();
     await this.permIndex.publishRefresh();
-    return { deleted: true };
+    return { message: t(this.i18n, 'permission.DELETED') };
   }
 
-  private async assertNoCycle(id: PrimaryKey, candidateParentId: bigint): Promise<void> {
-    if (toPrimaryKey(id) === candidateParentId) {
-      throw new BadRequestException(this.t('permission.CYCLE_DETECTED'));
-    }
-    const visited = new Set<string>();
-    let cur: bigint | null = candidateParentId;
-    while (cur != null) {
-      const key = String(cur);
-      if (visited.has(key)) break;
-      visited.add(key);
-      if (cur === toPrimaryKey(id)) {
-        throw new BadRequestException(this.t('permission.CYCLE_DETECTED'));
-      }
-      cur = await this.repo.getParentId(cur);
-    }
-  }
 }

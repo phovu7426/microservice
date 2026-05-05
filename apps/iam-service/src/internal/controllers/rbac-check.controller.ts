@@ -1,11 +1,11 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { RbacService } from '../../rbac/services/rbac.service';
 import { RbacCheckDto } from '../dtos/rbac-check.dto';
 import { RbacPermissionsQueryDto } from '../dtos/rbac-permissions-query.dto';
-import { Internal } from '@package/common';
-import { toPrimaryKey } from 'src/types';
+import { Internal, InternalGuard } from '@package/common';
 
 @Internal()
+@UseGuards(InternalGuard)
 @Controller('internal/rbac')
 export class InternalRbacController {
   constructor(private readonly rbacService: RbacService) {}
@@ -15,18 +15,9 @@ export class InternalRbacController {
     const { userId, groupId, permissions } = body;
     if (!permissions?.length) return { allowed: false };
 
-    let parsedUser: bigint;
-    let parsedGroup: bigint | null;
-    try {
-      parsedUser = toPrimaryKey(userId);
-      parsedGroup = groupId ? toPrimaryKey(groupId) : null;
-    } catch {
-      throw new BadRequestException('Invalid id');
-    }
-
     const allowed = await this.rbacService.hasPermissions(
-      parsedUser,
-      parsedGroup,
+      userId,
+      groupId ?? null,
       permissions,
     );
     return { allowed };
@@ -34,16 +25,10 @@ export class InternalRbacController {
 
   @Get('permissions')
   async getPermissions(@Query(ValidationPipe) query: RbacPermissionsQueryDto) {
-    let parsedUser: bigint;
-    let parsedGroup: bigint | null;
-    try {
-      parsedUser = toPrimaryKey(query.userId);
-      parsedGroup = query.groupId ? toPrimaryKey(query.groupId) : null;
-    } catch {
-      throw new BadRequestException('Invalid id');
-    }
-
-    const permSet = await this.rbacService.getPermissions(parsedUser, parsedGroup);
+    const permSet = await this.rbacService.getPermissions(
+      query.userId,
+      query.groupId ?? null,
+    );
     return { permissions: Array.from(permSet) };
   }
 }

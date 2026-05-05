@@ -1,14 +1,61 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../database/prisma.service';
-import { PrimaryKey } from 'src/types';
+import { Prisma } from 'src/generated/prisma';
+import { PrismaService } from '../../../core/database/prisma.service';
+import { PrimaryKey, toPrimaryKey } from 'src/types';
+
+export interface UserRoleFilter {
+  userId?: any;
+  groupId?: any;
+  roleId?: any;
+}
 
 @Injectable()
 export class UserRoleRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  getUserRoles(userId: PrimaryKey, groupId?: PrimaryKey) {
-    const where: any = { user_id: userId };
-    if (groupId !== undefined) where.group_id = groupId;
+  private buildWhere(filter: UserRoleFilter): Prisma.UserRoleAssignmentWhereInput {
+    const where: Prisma.UserRoleAssignmentWhereInput = {};
+    const andConditions: Prisma.UserRoleAssignmentWhereInput[] = [];
+
+    if (filter.userId) {
+      andConditions.push({ user_id: toPrimaryKey(filter.userId) });
+    }
+
+    if (filter.roleId) {
+      andConditions.push({ role_id: toPrimaryKey(filter.roleId) });
+    }
+
+    if (filter.groupId) {
+      andConditions.push({ group_id: toPrimaryKey(filter.groupId) });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
+    }
+
+    return where;
+  }
+
+  findMany(filter: UserRoleFilter, options: { skip: number; take: number; orderBy?: any }) {
+    return this.prisma.userRoleAssignment.findMany({
+      where: this.buildWhere(filter),
+      include: {
+        role: { select: { id: true, code: true, name: true } },
+        group: { select: { id: true, code: true, name: true } },
+      },
+      skip: options.skip,
+      take: options.take,
+      orderBy: options.orderBy ?? { created_at: 'desc' },
+    });
+  }
+
+  count(filter: UserRoleFilter) {
+    return this.prisma.userRoleAssignment.count({ where: this.buildWhere(filter) });
+  }
+
+  getUserRoles(userId: string | bigint, groupId?: string | bigint) {
+    const where: any = { user_id: toPrimaryKey(userId) };
+    if (groupId !== undefined) where.group_id = toPrimaryKey(groupId);
     return this.prisma.userRoleAssignment.findMany({
       where,
       include: {
@@ -20,12 +67,16 @@ export class UserRoleRepository {
   }
 
   async removeRole(
-    userId: PrimaryKey,
-    roleId: PrimaryKey,
-    groupId: PrimaryKey,
+    userId: string | bigint,
+    roleId: string | bigint,
+    groupId: string | bigint,
   ): Promise<number> {
     const result = await this.prisma.userRoleAssignment.deleteMany({
-      where: { user_id: userId, role_id: roleId, group_id: groupId },
+      where: {
+        user_id: toPrimaryKey(userId),
+        role_id: toPrimaryKey(roleId),
+        group_id: toPrimaryKey(groupId),
+      },
     });
     return result.count;
   }

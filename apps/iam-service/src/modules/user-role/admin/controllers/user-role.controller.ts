@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, Req } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Post, Put, Delete, Body, Param, Query, Req } from '@nestjs/common';
 import { Permission } from '@package/common';
 import { UserRoleService } from '../services/user-role.service';
 import { AssignRoleDto } from '../dtos/assign-role.dto';
@@ -11,6 +11,13 @@ function actorFromReq(req: any) {
   };
 }
 
+function validateId(value: string, name: string): string {
+  if (!value || !/^\d+$/.test(value)) {
+    throw new BadRequestException(`Invalid ${name}`);
+  }
+  return value;
+}
+
 @Controller('users')
 export class UserRoleController {
   constructor(private readonly service: UserRoleService) {}
@@ -18,13 +25,13 @@ export class UserRoleController {
   @Permission('user.role.assign')
   @Get(':userId/roles')
   getUserRoles(@Param('userId') userId: string, @Query('groupId') groupId?: string) {
-    return this.service.getUserRoles(userId, groupId);
+    return this.service.getUserRoles(validateId(userId, 'userId'), groupId);
   }
 
   @Permission('user.role.assign')
   @Post(':userId/roles')
   assignRole(@Param('userId') userId: string, @Body() dto: AssignRoleDto, @Req() req: any) {
-    return this.service.assignRole(userId, dto, actorFromReq(req));
+    return this.service.assignRole(validateId(userId, 'userId'), dto, actorFromReq(req));
   }
 
   @Permission('user.role.assign')
@@ -35,12 +42,15 @@ export class UserRoleController {
     @Query('groupId') groupId: string,
     @Req() req: any,
   ) {
+    validateId(userId, 'userId');
+    validateId(roleId, 'roleId');
+    validateId(groupId, 'groupId');
     return this.service.removeRole(userId, roleId, groupId, actorFromReq(req));
   }
 
   @Permission('user.role.assign')
   @Put(':userId/roles/sync')
   syncRoles(@Param('userId') userId: string, @Body() dto: SyncUserRolesDto, @Req() req: any) {
-    return this.service.syncRoles(userId, dto, actorFromReq(req));
+    return this.service.syncRoles(validateId(userId, 'userId'), dto, actorFromReq(req));
   }
 }

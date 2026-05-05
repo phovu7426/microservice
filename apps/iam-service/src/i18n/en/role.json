@@ -1,5 +1,7 @@
 {
   "NOT_FOUND": "Role not found.",
   "CODE_EXISTS": "Role code already exists.",
-  "CYCLE_DETECTED": "Setting this parent would create a role hierarchy cycle."
+  "CYCLE_DETECTED": "Setting this parent would create a role hierarchy cycle.",
+  "DELETED": "Role deleted successfully.",
+  "PERMISSIONS_SYNCED": "Permissions synced successfully."
 }
