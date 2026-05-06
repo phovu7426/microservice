@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException, Optional } from '@nestjs/common';
-import { I18nService, I18nContext } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
 import { RedisService } from '@package/redis';
-import { createPaginationMeta, parseQueryOptions } from '@package/common';
+import { t, createPaginationMeta, parseQueryOptions } from '@package/common';
 import { PrimaryKey } from 'src/types';
-import { NotificationRepository } from '../../repositories/notification.repository';
+import { NotificationRepository, NotificationFilter } from '../../repositories/notification.repository';
+import { ListNotificationsUserQueryDto } from '../dtos/list-notifications.query.dto';
 
 @Injectable()
 export class UserNotificationService {
@@ -13,16 +14,17 @@ export class UserNotificationService {
     @Optional() private readonly redis?: RedisService,
   ) {}
 
-  async getList(userId: string, query: any) {
+  async getList(userId: string, query: ListNotificationsUserQueryDto) {
     const options = parseQueryOptions(query);
 
-    const filter: any = { user_id: userId, status: 'active' };
+    const filter: NotificationFilter = { user_id: userId, status: 'active' };
     if (query.type) filter.type = query.type;
     if (query.is_read !== undefined) filter.is_read = query.is_read === 'true';
 
+    const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
       this.notifRepo.findMany(filter, options),
-      this.notifRepo.count(filter),
+      skipCount ? Promise.resolve(0) : this.notifRepo.count(filter),
     ]);
 
     return { data, meta: createPaginationMeta(options, total) };
@@ -45,9 +47,8 @@ export class UserNotificationService {
   }
 
   async getOne(userId: string, id: PrimaryKey) {
-    const lang = I18nContext.current()?.lang;
     const notif = await this.notifRepo.findFirst({ id, user_id: userId });
-    if (!notif) throw new NotFoundException(this.i18n.t('notification.NOT_FOUND', { lang }));
+    if (!notif) throw new NotFoundException(t(this.i18n, 'notification.NOT_FOUND'));
     return notif;
   }
 
@@ -67,7 +68,6 @@ export class UserNotificationService {
     return { updated: result.count };
   }
 
-  /** Called externally (e.g. from Kafka handlers) to bust the cached unread count. */
   async invalidateUnreadCount(userId: string): Promise<void> {
     try {
       await this.redis?.del(`notif:unread:${userId}`);

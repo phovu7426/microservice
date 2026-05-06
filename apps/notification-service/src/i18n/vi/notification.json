@@ -1,3 +1,5 @@
 {
-  "NOT_FOUND": "Không tìm thấy thông báo"
+  "NOT_FOUND": "Không tìm thấy thông báo",
+  "DELETED": "Xóa thông báo thành công",
+  "INVALID_USER_ID": "user_id phải là số"
 }

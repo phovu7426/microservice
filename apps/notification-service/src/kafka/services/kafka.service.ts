@@ -1,7 +1,8 @@
-import { Injectable, Logger, OnModuleInit, OnApplicationShutdown } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { IdempotencyService } from '@package/common';
+import { FileLogger } from '@package/bootstrap';
 
 type Consumer = KafkaJS.Consumer;
 type EachMessagePayload = KafkaJS.EachMessagePayload;
@@ -41,15 +42,11 @@ class LruSet {
   }
 }
 
-// Max times a single message is retried before being shipped to the DLQ.
-// kafkajs default `retry.retries` (8) controls broker-side retries; this
-// counter governs handler-side retries within a single replica.
 const MAX_HANDLER_ATTEMPTS = 5;
 const DLQ_TOPIC_SUFFIX = '.dlq';
 
 @Injectable()
 export class KafkaService implements OnModuleInit, OnApplicationShutdown {
-  private readonly logger = new Logger(KafkaService.name);
   private consumer: Consumer | null = null;
   private dlqProducer: Producer | null = null;
   private handlers!: Map<string, KafkaHandler>;
@@ -61,6 +58,7 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
   constructor(
     private readonly config: ConfigService,
     private readonly idempotency: IdempotencyService,
+    private readonly fileLogger: FileLogger,
     private readonly chapterPublished: ChapterPublishedHandler,
     private readonly commentCreated: CommentCreatedHandler,
     private readonly userFollowed: UserFollowedHandler,
@@ -87,10 +85,7 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
 
     const brokers = this.config.get<string[]>('kafka.brokers');
     const groupId = this.config.get<string>('kafka.groupId');
-    if (!brokers?.length) {
-      this.logger.warn('No Kafka brokers configured — consumer disabled');
-      return;
-    }
+    if (!brokers?.length) return;
 
     const kafka = new KafkaJS.Kafka({
       kafkaJS: {
@@ -110,19 +105,16 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     });
     await this.consumer!.connect();
 
-    // Dedicated producer for DLQ messages.
     this.dlqProducer = kafka.producer();
     await this.dlqProducer!.connect();
 
-    // Ensure topics exist before subscribing (librdkafka doesn't auto-create on subscribe)
     const admin = kafka.admin();
     await admin.connect();
     const topics = Array.from(this.handlers.keys());
     try {
       await admin.createTopics({ topics: topics.map((t) => ({ topic: t, numPartitions: 1, replicationFactor: 1 })) });
-    } catch (err) {
+    } catch {
       // Ignore "topic already exists" errors
-      this.logger.debug(`Topic creation result: ${(err as Error)?.message || 'ok'}`);
     }
     await admin.disconnect();
 
@@ -136,27 +128,17 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     });
   }
 
-  async onApplicationShutdown(signal?: string) {
+  async onApplicationShutdown() {
     this.shuttingDown = true;
-    this.logger.log(`Kafka consumer shutting down (signal=${signal ?? 'unknown'}, in-flight=${this.inFlight})`);
     if (!this.consumer) return;
-    try {
-      await this.consumer.stop();
-    } catch (err) {
-      this.logger.warn(`consumer.stop() failed: ${(err as Error).message}`);
-    }
+    try { await this.consumer.stop(); } catch { /* swallow */ }
+
     const drainStart = Date.now();
     while (this.inFlight > 0 && Date.now() - drainStart < 25_000) {
       await new Promise((r) => setTimeout(r, 100));
     }
-    if (this.inFlight > 0) {
-      this.logger.warn(`shutdown timeout: ${this.inFlight} in-flight messages will not commit`);
-    }
-    try {
-      await this.consumer.disconnect();
-    } catch (err) {
-      this.logger.warn(`consumer.disconnect() failed: ${(err as Error).message}`);
-    }
+
+    try { await this.consumer.disconnect(); } catch { /* swallow */ }
     this.consumer = null;
 
     if (this.dlqProducer) {
@@ -165,30 +147,26 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     }
   }
 
-  /**
-   * Dispatch a single Kafka message.
-   *
-   * - Hard size cap on the JSON value to bound memory.
-   * - Malformed JSON: poison message → log + SKIP (retrying blocks the partition).
-   * - Handler errors: log AND RETHROW so kafkajs does not commit the offset.
-   *   The previous `try/catch {}` silently committed on every failure,
-   *   permanently dropping events.
-   * - In-memory LRU keyed on (topic, partition, offset) suppresses immediate
-   *   redelivery within a single replica. For cross-replica dedup, downstream
-   *   idempotency keys (Bull job id from event_id) are still required.
-   */
   private async dispatch({ topic, partition, message }: EachMessagePayload): Promise<void> {
     if (this.shuttingDown) return;
     if (!message.value) return;
+
+    const log = this.fileLogger.create(`kafka/${topic}`, {
+      topic, partition, offset: message.offset,
+    });
+
     if (message.value.length > MAX_PAYLOAD_BYTES) {
-      this.logger.warn(`Skipping oversize message on ${topic} (${message.value.length}B)`);
+      log.addDebug('skipped oversize message', { size: message.value.length });
+      log.save();
       return;
     }
 
-    // In-process LRU first (cheap fast-path for the same replica re-receiving
-    // a message during a brief redelivery).
     const dedupKey = `${topic}:${partition}:${message.offset}`;
-    if (this.seen.has(dedupKey)) return;
+    if (this.seen.has(dedupKey)) {
+      log.addDebug('skipped duplicate (in-memory LRU)');
+      log.save();
+      return;
+    }
 
     const handler = this.handlers.get(topic);
     if (!handler) return;
@@ -197,59 +175,52 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     try {
       payload = JSON.parse(message.value.toString());
     } catch (err) {
-      this.logger.warn(
-        `Malformed JSON on ${topic} offset ${message.offset}: ${(err as Error).message}`,
-      );
+      log.addException(err);
+      log.addDebug('skipped malformed JSON');
+      log.save();
       return;
     }
     this.seen.add(dedupKey);
 
-    // Cross-replica dedup: claim ownership of the event by id (or fall back
-    // to the topic+offset fingerprint when payload has no business id). The
-    // first replica to call SET NX EX wins; siblings short-circuit. Falls
-    // open when Redis is down so we don't stall message processing.
     const eventId =
       payload?.id?.toString() ||
       payload?.event_id?.toString() ||
       `${partition}:${message.offset}`;
     const claimed = await this.idempotency.claim(topic, eventId);
     if (!claimed) {
-      this.logger.debug(`Skip ${topic}:${eventId} — already claimed by peer`);
+      log.addDebug('skipped duplicate (Redis idempotency)', { eventId });
+      log.save();
       return;
     }
 
     this.inFlight++;
     try {
+      log.addDebug('handler started');
       await handler.handle(payload);
       this.attempts.delete(dedupKey);
+      log.addDebug('handler succeeded');
+      log.save();
     } catch (err) {
       const attempt = (this.attempts.get(dedupKey) ?? 0) + 1;
       this.attempts.set(dedupKey, attempt);
-      this.logger.error(
-        `Handler ${topic} failed at offset ${message.offset} (attempt ${attempt}/${MAX_HANDLER_ATTEMPTS}): ${(err as Error).message}`,
-        (err as Error).stack,
-      );
+      log.addException(err);
+      log.addDebug('handler failed', { attempt, maxAttempts: MAX_HANDLER_ATTEMPTS });
 
       if (attempt >= MAX_HANDLER_ATTEMPTS) {
+        log.addDebug('shipped to DLQ');
         await this.shipToDlq(topic, partition, message, payload, err as Error);
         this.attempts.delete(dedupKey);
-        // Returning normally lets kafkajs commit the offset so we don't
-        // re-process this poison pill on next rebalance.
+        log.save();
         return;
       }
 
-      // Re-throw so kafkajs withholds the commit and re-delivers the message.
+      log.save();
       throw err;
     } finally {
       this.inFlight--;
     }
   }
 
-  /**
-   * Send a permanently-failed message to <topic>.dlq with diagnostic envelope.
-   * Logged-and-swallowed: if the DLQ publish itself fails we'd rather drop the
-   * poison pill than block the partition forever.
-   */
   private async shipToDlq(
     topic: string,
     partition: number,
@@ -258,10 +229,8 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     err: Error,
   ): Promise<void> {
     const dlqTopic = `${topic}${DLQ_TOPIC_SUFFIX}`;
-    if (!this.dlqProducer) {
-      this.logger.error(`DLQ producer not initialised — DROPPING poison message ${topic}@${message.offset}`);
-      return;
-    }
+    if (!this.dlqProducer) return;
+
     const envelope = {
       original_topic: topic,
       partition,
@@ -276,11 +245,12 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
         topic: dlqTopic,
         messages: [{ key: message.key ?? undefined, value: JSON.stringify(envelope) }],
       });
-      this.logger.warn(`Poison message ${topic}@${message.offset} → ${dlqTopic}`);
     } catch (dlqErr) {
-      this.logger.error(
-        `DLQ publish to ${dlqTopic} failed — dropping ${topic}@${message.offset}: ${(dlqErr as Error).message}`,
-      );
+      const log = this.fileLogger.create('kafka/dlq-failed', {
+        topic, dlqTopic, offset: message.offset,
+      });
+      log.addException(dlqErr);
+      log.save();
     }
   }
 }

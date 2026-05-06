@@ -48,10 +48,6 @@ export const envValidationSchema = Joi.object({
     then: Joi.string().uri().required(),
     otherwise: Joi.string().uri().optional().allow(''),
   }),
-  // INTERNAL_API_SECRET is the canonical name (matches config-service +
-  // every other service). `INTERNAL_SECRET` is the legacy alias still
-  // accepted by `MailService.reloadConfig()` for backwards compat — keep
-  // it optional, no length check, so existing deploys don't break.
   INTERNAL_SECRET: Joi.string().optional().allow(''),
   INTERNAL_API_SECRET: Joi.alternatives().conditional('NODE_ENV', {
     is: isProd,

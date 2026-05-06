@@ -1,14 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException, Optional } from '@nestjs/common';
-import { I18nService, I18nContext } from 'nestjs-i18n';
+import { I18nService } from 'nestjs-i18n';
 import { RedisService } from '@package/redis';
-import { createPaginationMeta, parseQueryOptions } from '@package/common';
+import { t, createPaginationMeta, parseQueryOptions } from '@package/common';
 import { PrimaryKey } from 'src/types';
-import { NotificationRepository } from '../../repositories/notification.repository';
+import { NotificationRepository, NotificationFilter } from '../../repositories/notification.repository';
 import { SendNotificationDto } from '../dtos/send-notification.dto';
+import { ListNotificationsAdminQueryDto } from '../dtos/list-notifications.query.dto';
 
 const NUMERIC_RE = /^\d{1,20}$/;
-const ALLOWED_TYPES = new Set(['info', 'success', 'warning', 'error']);
-const ALLOWED_STATUSES = new Set(['active', 'archived', 'deleted']);
 
 @Injectable()
 export class AdminNotificationService {
@@ -18,35 +17,24 @@ export class AdminNotificationService {
     @Optional() private readonly redis?: RedisService,
   ) {}
 
-  async getList(query: any) {
+  async getList(query: ListNotificationsAdminQueryDto) {
     const options = parseQueryOptions(query);
 
-    const filter: any = {};
-    // Validate at the service boundary: surface bad values as 400 instead
-    // of a 500 from `BigInt('abc')` deep in the repo.
+    const filter: NotificationFilter = {};
     if (query.user_id) {
       if (!NUMERIC_RE.test(String(query.user_id))) {
-        throw new BadRequestException('user_id must be numeric');
+        throw new BadRequestException(t(this.i18n, 'notification.INVALID_USER_ID'));
       }
       filter.user_id = String(query.user_id);
     }
-    if (query.type) {
-      if (!ALLOWED_TYPES.has(String(query.type))) {
-        throw new BadRequestException('Invalid notification type');
-      }
-      filter.type = query.type;
-    }
-    if (query.status) {
-      if (!ALLOWED_STATUSES.has(String(query.status))) {
-        throw new BadRequestException('Invalid notification status');
-      }
-      filter.status = query.status;
-    }
+    if (query.type) filter.type = query.type;
+    if (query.status) filter.status = query.status;
     if (query.is_read !== undefined) filter.is_read = query.is_read === 'true';
 
+    const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
       this.notifRepo.findMany(filter, options),
-      this.notifRepo.count(filter),
+      skipCount ? Promise.resolve(0) : this.notifRepo.count(filter),
     ]);
 
     return { data, meta: createPaginationMeta(options, total) };
@@ -68,11 +56,10 @@ export class AdminNotificationService {
   }
 
   async delete(id: PrimaryKey) {
-    const lang = I18nContext.current()?.lang;
     const notif = await this.notifRepo.findById(id);
-    if (!notif) throw new NotFoundException(this.i18n.t('notification.NOT_FOUND', { lang }));
+    if (!notif) throw new NotFoundException(t(this.i18n, 'notification.NOT_FOUND'));
     await this.notifRepo.delete(id);
-    return { success: true };
+    return true;
   }
 
   // --- internal methods called from Kafka events ---

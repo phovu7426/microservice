@@ -1,3 +1,5 @@
 {
-  "NOT_FOUND": "Notification not found"
+  "NOT_FOUND": "Notification not found",
+  "DELETED": "Notification deleted successfully",
+  "INVALID_USER_ID": "user_id must be numeric"
 }
