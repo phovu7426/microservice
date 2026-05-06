@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import emailConfigData from '../data/email-configs.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const emailConfigData = JSON.parse(
+  readFileSync(join(__dirname, '../data/email-configs.json'), 'utf-8'),
+);
 
 export async function seedEmailConfig(prisma: PrismaClient) {
   const existing = await prisma.emailConfig.findFirst();

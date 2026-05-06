@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import usersData from '../data/users.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const usersData = JSON.parse(
+  readFileSync(join(__dirname, '../data/users.json'), 'utf-8'),
+);
 
 interface UserEntry {
   user_id: number;

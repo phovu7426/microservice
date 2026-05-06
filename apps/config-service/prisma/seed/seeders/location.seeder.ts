@@ -1,7 +1,16 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import countriesData from '../data/address/countries.json';
-import provincesData from '../data/address/provinces.json';
-import wardsData from '../data/address/wards.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const countriesData = JSON.parse(
+  readFileSync(join(__dirname, '../data/address/countries.json'), 'utf-8'),
+);
+const provincesData = JSON.parse(
+  readFileSync(join(__dirname, '../data/address/provinces.json'), 'utf-8'),
+);
+const wardsData = JSON.parse(
+  readFileSync(join(__dirname, '../data/address/wards.json'), 'utf-8'),
+);
 
 interface CountryEntry {
   code: string;

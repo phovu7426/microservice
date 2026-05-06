@@ -1,5 +1,10 @@
-import { PrismaClient } from '../../../src/generated/prisma';
-import templatesData from '../data/content-templates.json';
+import { PrismaClient, Prisma } from '../../../src/generated/prisma';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const templatesData = JSON.parse(
+  readFileSync(join(__dirname, '../data/content-templates.json'), 'utf-8'),
+);
 
 interface TemplateEntry {
   code: string;
@@ -28,7 +33,7 @@ export async function seedContentTemplates(prisma: PrismaClient) {
         category: t.category,
         type: t.type,
         content: t.content,
-        metadata: t.metadata ?? null,
+        metadata: (t.metadata as Prisma.InputJsonValue) ?? Prisma.JsonNull,
         status: t.status,
       },
     });

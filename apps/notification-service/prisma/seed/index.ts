@@ -1,7 +1,7 @@
 import { PrismaClient } from '../../src/generated/prisma';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as dotenv from 'dotenv';
-import { seedContentTemplates, seedNotifications, seedComicFollowers } from './seeders';
+import { seedContentTemplates } from './seeders';
 
 dotenv.config();
 
@@ -13,14 +13,6 @@ async function main() {
 
   console.log('1. Seeding content templates...');
   await seedContentTemplates(prisma);
-  console.log();
-
-  console.log('2. Seeding sample notifications...');
-  await seedNotifications(prisma);
-  console.log();
-
-  console.log('3. Seeding comic followers projection...');
-  await seedComicFollowers(prisma);
   console.log();
 
   console.log('=== Notification Seeding complete ===');

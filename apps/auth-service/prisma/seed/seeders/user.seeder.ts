@@ -1,6 +1,11 @@
 import { PrismaClient } from '../../../src/generated/prisma';
 import * as bcrypt from 'bcryptjs';
-import usersData from '../data/users.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const usersData = JSON.parse(
+  readFileSync(join(__dirname, '../data/users.json'), 'utf-8'),
+);
 
 const BCRYPT_ROUNDS = 12;
 const DEFAULT_PASSWORD = 'Password@123';

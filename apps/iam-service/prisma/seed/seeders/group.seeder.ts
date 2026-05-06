@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import groupsData from '../data/groups.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const groupsData = JSON.parse(
+  readFileSync(join(__dirname, '../data/groups.json'), 'utf-8'),
+);
 
 interface GroupEntry {
   type: string;

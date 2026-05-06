@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import contextsData from '../data/contexts.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const contextsData = JSON.parse(
+  readFileSync(join(__dirname, '../data/contexts.json'), 'utf-8'),
+);
 
 interface ContextEntry {
   type: string;

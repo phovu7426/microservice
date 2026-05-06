@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import rolesData from '../data/roles.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const rolesData = JSON.parse(
+  readFileSync(join(__dirname, '../data/roles.json'), 'utf-8'),
+);
 
 interface RoleEntry {
   code: string;

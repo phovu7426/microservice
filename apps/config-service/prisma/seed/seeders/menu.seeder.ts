@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import menuData from '../data/menus.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const menuData = JSON.parse(
+  readFileSync(join(__dirname, '../data/menus.json'), 'utf-8'),
+);
 
 interface MenuEntry {
   code: string;

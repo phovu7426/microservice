@@ -1,5 +1,10 @@
 import { PrismaClient } from '../../../src/generated/prisma';
-import permissionsData from '../data/permissions.json';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+const permissionsData = JSON.parse(
+  readFileSync(join(__dirname, '../data/permissions.json'), 'utf-8'),
+);
 
 interface PermEntry {
   code: string;
