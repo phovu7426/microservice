@@ -1,0 +1,79 @@
+[
+  { "code": "system.manage", "name": "Quyền tối cao (Super Admin)", "status": "active", "parent_code": null },
+  { "code": "dashboard.manage", "name": "Dashboard quản trị", "status": "active", "parent_code": null },
+
+  { "code": "config.manage", "name": "Quản lý cấu hình hệ thống", "status": "active", "parent_code": null },
+  { "code": "system.config.view", "name": "Xem cấu hình website", "status": "active", "parent_code": "config.manage" },
+  { "code": "system.config.update", "name": "Lưu cấu hình website", "status": "active", "parent_code": "config.manage" },
+
+  { "code": "banner.manage", "name": "Quản lý banner quảng cáo", "status": "active", "parent_code": null },
+  { "code": "banner_location.manage", "name": "Quản lý vị trí banner", "status": "active", "parent_code": "banner.manage" },
+
+  { "code": "role.manage", "name": "Quản lý vai trò (IAM)", "status": "active", "parent_code": null },
+  { "code": "role.view", "name": "Xem danh sách vai trò", "status": "active", "parent_code": "role.manage" },
+  { "code": "role.create", "name": "Tạo vai trò mới", "status": "active", "parent_code": "role.manage" },
+  { "code": "role.update", "name": "Sửa thông tin vai trò", "status": "active", "parent_code": "role.manage" },
+  { "code": "role.delete", "name": "Xóa vai trò", "status": "active", "parent_code": "role.manage" },
+
+  { "code": "permission.manage", "name": "Quản lý danh mục quyền", "status": "active", "parent_code": null },
+  { "code": "permission.view", "name": "Xem danh mục quyền", "status": "active", "parent_code": "permission.manage" },
+  { "code": "permission.sync", "name": "Đồng bộ quyền từ code", "status": "active", "parent_code": "permission.manage" },
+
+  { "code": "assignment.manage", "name": "Quản lý gán vai trò cho người dùng", "status": "active", "parent_code": null },
+  { "code": "assignment.view", "name": "Xem danh sách cấp quyền", "status": "active", "parent_code": "assignment.manage" },
+
+  { "code": "user.manage", "name": "Quản lý tài khoản người dùng", "status": "active", "parent_code": null },
+  { "code": "user.view", "name": "Xem danh sách người dùng", "status": "active", "parent_code": "user.manage" },
+  { "code": "user.create", "name": "Tạo tài khoản quản trị", "status": "active", "parent_code": "user.manage" },
+  { "code": "user.update", "name": "Sửa thông tin cơ bản", "status": "active", "parent_code": "user.manage" },
+  { "code": "user.delete", "name": "Xóa tài khoản", "status": "active", "parent_code": "user.manage" },
+  { "code": "user.status", "name": "Khóa/Mở khóa tài khoản", "status": "active", "parent_code": "user.manage" },
+  { "code": "profile.view", "name": "Xem hồ sơ chi tiết", "status": "active", "parent_code": "user.manage" },
+  { "code": "profile.update", "name": "Sửa hồ sơ cá nhân", "status": "active", "parent_code": "user.manage" },
+
+  { "code": "group.manage", "name": "Quản lý nhóm & context", "status": "active", "parent_code": null },
+  { "code": "group.member.manage", "name": "Quản lý thành viên nhóm", "status": "active", "parent_code": "group.manage" },
+  { "code": "group.member.add", "name": "Thêm thành viên nhóm", "status": "active", "parent_code": "group.member.manage" },
+  { "code": "group.member.remove", "name": "Xóa thành viên nhóm", "status": "active", "parent_code": "group.member.manage" },
+
+  { "code": "comic.manage", "name": "Quản lý truyện & chương (admin)", "status": "active", "parent_code": null },
+  { "code": "comic.view", "name": "Xem danh sách truyện", "status": "active", "parent_code": "comic.manage" },
+  { "code": "comic.create", "name": "Tạo truyện mới", "status": "active", "parent_code": "comic.manage" },
+  { "code": "comic.update", "name": "Sửa thông tin truyện", "status": "active", "parent_code": "comic.manage" },
+  { "code": "comic.delete", "name": "Xóa truyện", "status": "active", "parent_code": "comic.manage" },
+  { "code": "comic.approve", "name": "Phê duyệt truyện lên sàn", "status": "active", "parent_code": "comic.manage" },
+  { "code": "chapter.view", "name": "Xem danh sách chương", "status": "active", "parent_code": "comic.manage" },
+  { "code": "chapter.create", "name": "Đăng chương mới", "status": "active", "parent_code": "comic.manage" },
+  { "code": "chapter.update", "name": "Sửa nội dung chương", "status": "active", "parent_code": "comic.manage" },
+  { "code": "chapter.delete", "name": "Xóa chương truyện", "status": "active", "parent_code": "comic.manage" },
+
+  { "code": "menu.manage", "name": "Quản lý menu", "status": "active", "parent_code": null },
+  { "code": "menu.view", "name": "Xem cấu hình Menu", "status": "active", "parent_code": "menu.manage" },
+
+  { "code": "location.manage", "name": "Quản lý địa lý (tổng)", "status": "active", "parent_code": null },
+  { "code": "location.view", "name": "Xem danh mục địa lý", "status": "active", "parent_code": "location.manage" },
+  { "code": "country.manage", "name": "Quản lý quốc gia", "status": "active", "parent_code": "location.manage" },
+  { "code": "province.manage", "name": "Quản lý tỉnh/thành", "status": "active", "parent_code": "location.manage" },
+  { "code": "ward.manage", "name": "Quản lý phường/xã", "status": "active", "parent_code": "location.manage" },
+
+  { "code": "notification.manage", "name": "Quản lý thông báo", "status": "active", "parent_code": null },
+  { "code": "notification.view", "name": "Xem lịch sử thông báo", "status": "active", "parent_code": "notification.manage" },
+  { "code": "notification.send", "name": "Gửi thông báo hệ thống", "status": "active", "parent_code": "notification.manage" },
+
+  { "code": "content_template.manage", "name": "Quản lý mẫu nội dung", "status": "active", "parent_code": null },
+
+  { "code": "post.manage", "name": "Quản lý bài viết", "status": "active", "parent_code": null },
+  { "code": "post_category.manage", "name": "Quản lý danh mục bài viết", "status": "active", "parent_code": "post.manage" },
+  { "code": "post_tag.manage", "name": "Quản lý thẻ bài viết", "status": "active", "parent_code": "post.manage" },
+
+  { "code": "contact.manage", "name": "Quản lý liên hệ", "status": "active", "parent_code": null },
+
+  { "code": "project.manage", "name": "Quản lý dự án (giới thiệu)", "status": "active", "parent_code": null },
+  { "code": "about.manage", "name": "Quản lý nội dung About", "status": "active", "parent_code": null },
+  { "code": "staff.manage", "name": "Quản lý nhân sự", "status": "active", "parent_code": null },
+  { "code": "testimonial.manage", "name": "Quản lý đánh giá khách hàng", "status": "active", "parent_code": null },
+  { "code": "partner.manage", "name": "Quản lý đối tác", "status": "active", "parent_code": null },
+  { "code": "gallery.manage", "name": "Quản lý thư viện ảnh", "status": "active", "parent_code": null },
+  { "code": "certificate.manage", "name": "Quản lý chứng chỉ", "status": "active", "parent_code": null },
+  { "code": "faq.manage", "name": "Quản lý FAQ", "status": "active", "parent_code": null }
+]

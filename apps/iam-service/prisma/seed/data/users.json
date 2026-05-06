@@ -1,0 +1,62 @@
+[
+  {
+    "user_id": 1,
+    "username": "admin",
+    "group_code": "system",
+    "role_code": "super_admin"
+  },
+  {
+    "user_id": 2,
+    "username": "moderator",
+    "group_code": "group_demo",
+    "role_code": "group_owner"
+  },
+  {
+    "user_id": 3,
+    "username": "tranthimai",
+    "group_code": "group_demo",
+    "role_code": "group_editor"
+  },
+  {
+    "user_id": 4,
+    "username": "levanhoang",
+    "group_code": "group_demo",
+    "role_code": "group_uploader"
+  },
+  {
+    "user_id": 5,
+    "username": "phamthilan",
+    "group_code": "",
+    "role_code": ""
+  },
+  {
+    "user_id": 6,
+    "username": "nguyenvanduc",
+    "group_code": "",
+    "role_code": ""
+  },
+  {
+    "user_id": 7,
+    "username": "vothihuong",
+    "group_code": "",
+    "role_code": ""
+  },
+  {
+    "user_id": 8,
+    "username": "dangquocbao",
+    "group_code": "",
+    "role_code": ""
+  },
+  {
+    "user_id": 9,
+    "username": "locked_user",
+    "group_code": "",
+    "role_code": ""
+  },
+  {
+    "user_id": 10,
+    "username": "inactive_user",
+    "group_code": "",
+    "role_code": ""
+  }
+]

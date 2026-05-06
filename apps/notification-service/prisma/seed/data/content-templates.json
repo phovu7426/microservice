@@ -1,0 +1,50 @@
+[
+  {
+    "code": "registration_success",
+    "name": "Đăng ký thành công",
+    "type": "email",
+    "category": "render",
+    "status": "active",
+    "content": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n    <h2 style=\"color: #2c3e50;\">Đăng Ký Tài Khoản Thành Công</h2>\n    <p>Xin chào <strong>{{name}}</strong>,</p>\n    <p>Chúc mừng bạn đã đăng ký thành công tài khoản tại hệ thống của chúng tôi.</p>\n    <div style=\"background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;\">\n        <p style=\"margin: 5px 0;\"><strong>Tên đăng nhập:</strong> {{username}}</p>\n        <p style=\"margin: 5px 0;\"><strong>Email:</strong> {{email}}</p>\n    </div>\n    <p>Bây giờ bạn có thể đăng nhập và trải nghiệm đầy đủ các tính năng.</p>\n    <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"{{loginUrl}}\" style=\"background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;\">Đăng Nhập Ngay</a>\n    </div>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\" />\n    <p style=\"font-size: 12px; color: #7f8c8d;\">Đây là email tự động, vui lòng không trả lời email này.</p>\n</div>",
+    "metadata": {
+      "subject": "Chào mừng bạn đến với hệ thống - Đăng ký thành công",
+      "variables": ["name", "username", "email", "loginUrl"]
+    }
+  },
+  {
+    "code": "reset_password_success",
+    "name": "Đặt lại mật khẩu thành công",
+    "type": "email",
+    "category": "render",
+    "status": "active",
+    "content": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n    <h2 style=\"color: #27ae60;\">Thay Đổi Mật Khẩu Thành Công</h2>\n    <p>Xin chào <strong>{{name}}</strong>,</p>\n    <p>Mật khẩu cho tài khoản của bạn đã được thay đổi thành công vào lúc <strong>{{time}}</strong>.</p>\n    <p>Nếu bạn thực hiện thay đổi này, bạn có thể bỏ qua email này.</p>\n    <div style=\"background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin: 20px 0; border: 1px solid #ffeeba;\">\n        <strong>Cảnh báo:</strong> Nếu bạn KHÔNG thực hiện yêu cầu này, vui lòng liên hệ với quản trị viên hoặc thực hiện khôi phục mật khẩu ngay lập tức để bảo vệ tài khoản của bạn.\n    </div>\n    <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"{{loginUrl}}\" style=\"background-color: #3498db; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;\">Truy cập Hệ thống</a>\n    </div>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\" />\n    <p style=\"font-size: 12px; color: #7f8c8d;\">Đây là email tự động, vui lòng không trả lời email này.</p>\n</div>",
+    "metadata": {
+      "subject": "Thông báo thay đổi mật khẩu thành công",
+      "variables": ["name", "time", "loginUrl"]
+    }
+  },
+  {
+    "code": "send_otp_register",
+    "name": "Gửi mã xác thực đăng ký",
+    "type": "email",
+    "category": "render",
+    "status": "active",
+    "content": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n    <h2 style=\"color: #2c3e50;\">Mã Xác Thực Đăng Ký</h2>\n    <p>Xin chào,</p>\n    <p>Bạn vừa yêu cầu đăng ký tài khoản tại hệ thống. Để hoàn tất đăng ký, vui lòng sử dụng mã xác thực dưới đây:</p>\n    <div style=\"background-color: #e8f0fe; font-size: 24px; font-weight: bold; text-align: center; padding: 15px; border-radius: 5px; margin: 20px 0; color: #1a73e8; letter-spacing: 5px;\">\n        {{otp}}\n    </div>\n    <p>Mã này có hiệu lực trong vòng <strong>5 phút</strong>. Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\" />\n    <p style=\"font-size: 12px; color: #7f8c8d;\">Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.</p>\n</div>",
+    "metadata": {
+      "subject": "Mã xác thực đăng ký tài khoản",
+      "variables": ["otp"]
+    }
+  },
+  {
+    "code": "send_otp_forgot_password",
+    "name": "Gửi mã xác thực quên mật khẩu",
+    "type": "email",
+    "category": "render",
+    "status": "active",
+    "content": "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">\n    <h2 style=\"color: #c0392b;\">Yêu Cầu Đặt Lại Mật Khẩu</h2>\n    <p>Xin chào,</p>\n    <p>Chúng tôi vừa nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với email này.</p>\n    <p>Mã xác thực của bạn là:</p>\n    <div style=\"background-color: #ffebee; font-size: 24px; font-weight: bold; text-align: center; padding: 15px; border-radius: 5px; margin: 20px 0; color: #d32f2f; letter-spacing: 5px;\">\n        {{otp}}\n    </div>\n    <p>Mã này có hiệu lực trong vòng <strong>5 phút</strong>.</p>\n    <hr style=\"border: none; border-top: 1px solid #eee; margin: 20px 0;\" />\n    <p style=\"font-size: 12px; color: #7f8c8d;\">Nếu bạn không yêu cầu đặt lại mật khẩu, tài khoản của bạn vẫn an toàn, vui lòng bỏ qua email này.</p>\n</div>",
+    "metadata": {
+      "subject": "Mã OTP xác thực khôi phục mật khẩu",
+      "variables": ["otp"]
+    }
+  }
+]

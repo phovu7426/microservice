@@ -11,7 +11,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:seed": "ts-node -P tsconfig.seed.json prisma/seed.ts",
+    "prisma:seed": "ts-node -P tsconfig.seed.json prisma/seed/index.ts",
     "seed": "npm run prisma:seed"
   },
   "dependencies": {

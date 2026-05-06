@@ -1,0 +1,70 @@
+{
+  "site_name": "Cổng Truyện Tranh",
+  "site_description": "Cổng Truyện Tranh - Đọc truyện tranh online miễn phí, cập nhật mới nhất, đa dạng thể loại.",
+  "site_logo": null,
+  "site_favicon": null,
+  "site_email": "contact@comicportal.com",
+  "site_phone": "19001234",
+  "site_address": "123 Đường Sách, TP.HCM",
+  "site_copyright": "© 2024 Comic Portal. All rights reserved.",
+  "timezone": "Asia/Ho_Chi_Minh",
+  "locale": "vi",
+  "currency": "VND",
+  "contact_channels": [
+    {
+      "type": "hotline",
+      "value": "19001234",
+      "label": "Hotline Hỗ Trợ",
+      "icon": "/icons/phone.png",
+      "url_template": "tel:{value}",
+      "enabled": true,
+      "sort_order": 1
+    },
+    {
+      "type": "zalo",
+      "value": "0123456789",
+      "label": "Hỗ Trợ Zalo",
+      "icon": "/icons/zalo.png",
+      "url_template": "https://zalo.me/{value}",
+      "enabled": true,
+      "sort_order": 2
+    },
+    {
+      "type": "messenger",
+      "value": "your-page-id",
+      "label": "Facebook Messenger",
+      "icon": "/icons/messenger.png",
+      "url_template": "https://m.me/{value}",
+      "enabled": true,
+      "sort_order": 3
+    },
+    {
+      "type": "whatsapp",
+      "value": "84123456789",
+      "label": "WhatsApp",
+      "icon": "/icons/whatsapp.png",
+      "url_template": "https://wa.me/{value}",
+      "enabled": false,
+      "sort_order": 4
+    },
+    {
+      "type": "telegram",
+      "value": "@yourusername",
+      "label": "Telegram",
+      "icon": "/icons/telegram.png",
+      "url_template": "https://t.me/{value}",
+      "enabled": false,
+      "sort_order": 5
+    }
+  ],
+  "meta_title": "Cổng Truyện Tranh - Đọc Truyện Online Miễn Phí",
+  "meta_keywords": "truyện tranh, đọc truyện online, truyện hay, comic online, manga, manhwa, manhua",
+  "og_title": "Cổng Truyện Tranh - Đọc Truyện Online Miễn Phí",
+  "og_description": "Cổng Truyện Tranh - Nơi đọc các tập truyện mới nhất, đa dạng thể loại, tốc độ tải nhanh và hoàn toàn miễn phí.",
+  "og_image": null,
+  "canonical_url": "https://comicportal.com",
+  "google_analytics_id": null,
+  "google_search_console": null,
+  "facebook_pixel_id": null,
+  "twitter_site": null
+}

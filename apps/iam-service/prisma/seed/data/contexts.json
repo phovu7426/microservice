@@ -1,0 +1,16 @@
+[
+  {
+    "type": "system",
+    "ref_id": null,
+    "name": "Toàn hệ thống (System)",
+    "code": "system",
+    "status": "active"
+  },
+  {
+    "type": "group",
+    "ref_id": null,
+    "name": "Nội bộ Nhóm (Group)",
+    "code": "group",
+    "status": "active"
+  }
+]

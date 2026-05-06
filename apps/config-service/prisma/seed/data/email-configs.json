@@ -1,0 +1,10 @@
+{
+  "smtp_host": "smtp.gmail.com",
+  "smtp_port": 587,
+  "smtp_secure": true,
+  "smtp_username": "test@gmail.com",
+  "smtp_password": "wxqmolbvransywhq",
+  "from_email": "noreply@example.com",
+  "from_name": "My Website",
+  "reply_to_email": "test@gmail.com"
+}

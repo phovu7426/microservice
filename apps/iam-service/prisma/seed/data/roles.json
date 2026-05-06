@@ -1,0 +1,6 @@
+[
+  { "code": "super_admin", "name": "Siêu quản trị (Super Admin)", "status": "active", "parent_code": null },
+  { "code": "group_owner", "name": "Chủ sở hữu Nhóm (Group Owner)", "status": "active", "parent_code": null },
+  { "code": "group_editor", "name": "Biên tập viên Nhóm (Group Editor)", "status": "active", "parent_code": null },
+  { "code": "group_uploader", "name": "Người đăng tải (Uploader)", "status": "active", "parent_code": null }
+]
