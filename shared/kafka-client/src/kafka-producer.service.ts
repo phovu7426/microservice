@@ -14,18 +14,23 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
   private readonly MAX_RETRIES = 3;
   private readonly RETRY_BASE_MS = 200;
 
+  private readonly enabled: boolean;
+
   constructor(
     @Inject('KAFKA_OPTIONS') options: KafkaClientOptions,
   ) {
+    this.enabled = options.enabled ?? true;
     this.kafka = createKafkaInstance(options);
     this.producer = this.kafka.producer();
   }
 
   async onModuleInit() {
+    if (!this.enabled) return;
     await this.producer.connect();
   }
 
   async onModuleDestroy() {
+    if (!this.enabled) return;
     await this.producer.disconnect();
   }
 

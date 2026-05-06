@@ -11,6 +11,7 @@ import { OutboxCronService } from './services/outbox-relay.service';
       useFactory: (config: ConfigService) => ({
         clientId: config.get<string>('kafka.clientId', 'comic-service'),
         brokers: config.get<string[]>('kafka.brokers', ['localhost:9093']),
+        enabled: config.get<boolean>('kafka.enabled'),
         ssl: config.get('kafka.ssl'),
       }),
       inject: [ConfigService],

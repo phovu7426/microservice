@@ -11,6 +11,7 @@ export interface KafkaSslOptions {
 export interface KafkaClientOptions {
   brokers: string[];
   clientId: string;
+  enabled?: boolean;
   ssl?: KafkaSslOptions;
 }
 

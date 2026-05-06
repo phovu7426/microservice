@@ -14,6 +14,7 @@ import { RbacEventPublisher } from './services/rbac-event-publisher.service';
       useFactory: (config: ConfigService) => ({
         clientId: config.get<string>('kafka.clientId', 'iam-service'),
         brokers: config.get<string[]>('kafka.brokers', ['localhost:9093']),
+        enabled: config.get<boolean>('kafka.enabled'),
         ssl: config.get('kafka.ssl'),
       }),
       inject: [ConfigService],
