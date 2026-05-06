@@ -1,0 +1,25 @@
+[
+  {
+    "name": "ISO 27001",
+    "image": "https://placehold.co/300x200",
+    "issued_by": "International Organization for Standardization",
+    "issued_date": "2023-01-15T00:00:00.000Z",
+    "expiry_date": "2026-01-15T00:00:00.000Z",
+    "certificate_number": "ISO27001-2023-001",
+    "description": "Chứng nhận hệ thống quản lý an toàn thông tin",
+    "type": "security",
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "name": "AWS Partner",
+    "image": "https://placehold.co/300x200",
+    "issued_by": "Amazon Web Services",
+    "issued_date": "2023-06-01T00:00:00.000Z",
+    "certificate_number": "AWS-PARTNER-2023",
+    "description": "Đối tác được chứng nhận của AWS",
+    "type": "partnership",
+    "status": "active",
+    "sort_order": 2
+  }
+]

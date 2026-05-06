@@ -1,0 +1,29 @@
+[
+  {
+    "title": "Văn phòng công ty",
+    "slug": "van-phong-cong-ty",
+    "description": "Hình ảnh văn phòng và không gian làm việc",
+    "cover_image": "https://placehold.co/800x400",
+    "images": [
+      { "url": "https://placehold.co/800x600", "caption": "Sảnh chính" },
+      { "url": "https://placehold.co/800x600", "caption": "Phòng họp" },
+      { "url": "https://placehold.co/800x600", "caption": "Không gian làm việc" }
+    ],
+    "featured": true,
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "title": "Hoạt động team building",
+    "slug": "hoat-dong-team-building",
+    "description": "Hình ảnh các hoạt động team building của công ty",
+    "cover_image": "https://placehold.co/800x400",
+    "images": [
+      { "url": "https://placehold.co/800x600", "caption": "Team building 2024" },
+      { "url": "https://placehold.co/800x600", "caption": "Year-end party" }
+    ],
+    "featured": false,
+    "status": "active",
+    "sort_order": 2
+  }
+]

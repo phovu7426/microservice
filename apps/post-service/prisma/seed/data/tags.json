@@ -1,0 +1,12 @@
+[
+  { "name": "Manga", "slug": "manga", "is_active": true },
+  { "name": "Anime", "slug": "anime", "is_active": true },
+  { "name": "Light Novel", "slug": "light-novel", "is_active": true },
+  { "name": "Review", "slug": "review", "is_active": true },
+  { "name": "Top List", "slug": "top-list", "is_active": true },
+  { "name": "Cosplay", "slug": "cosplay", "is_active": true },
+  { "name": "Japan", "slug": "japan", "is_active": true },
+  { "name": "Korea", "slug": "korea", "is_active": true },
+  { "name": "China", "slug": "china", "is_active": true },
+  { "name": "Hot", "slug": "hot", "is_active": true }
+]

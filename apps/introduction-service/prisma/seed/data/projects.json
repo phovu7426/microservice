@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Website Thương mại điện tử",
+    "slug": "website-thuong-mai-dien-tu",
+    "description": "Xây dựng hệ thống thương mại điện tử hoàn chỉnh với đầy đủ tính năng quản lý sản phẩm, đơn hàng, thanh toán.",
+    "short_description": "Hệ thống e-commerce đầy đủ tính năng",
+    "cover_image": "https://placehold.co/800x400",
+    "location": "Hồ Chí Minh",
+    "status": "active",
+    "client_name": "ABC Corp",
+    "featured": true,
+    "sort_order": 1
+  },
+  {
+    "name": "Ứng dụng quản lý nội bộ",
+    "slug": "ung-dung-quan-ly-noi-bo",
+    "description": "Phát triển ứng dụng quản lý nhân sự, chấm công, và workflow nội bộ cho doanh nghiệp.",
+    "short_description": "App quản lý HR và workflow",
+    "cover_image": "https://placehold.co/800x400",
+    "location": "Hà Nội",
+    "status": "active",
+    "client_name": "XYZ Tech",
+    "featured": false,
+    "sort_order": 2
+  }
+]

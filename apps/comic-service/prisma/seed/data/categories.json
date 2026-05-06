@@ -1,0 +1,17 @@
+[
+  { "name": "Action", "slug": "action", "description": "Thể loại hành động, chiến đấu" },
+  { "name": "Adventure", "slug": "adventure", "description": "Thể loại phiêu lưu, khám phá" },
+  { "name": "Comedy", "slug": "comedy", "description": "Thể loại hài hước, vui nhộn" },
+  { "name": "Drama", "slug": "drama", "description": "Thể loại chính kịch, tâm lý" },
+  { "name": "Fantasy", "slug": "fantasy", "description": "Thể loại giả tưởng, huyền ảo" },
+  { "name": "Horror", "slug": "horror", "description": "Thể loại kinh dị, rùng rợn" },
+  { "name": "Romance", "slug": "romance", "description": "Thể loại tình cảm, lãng mạn" },
+  { "name": "Sci-Fi", "slug": "sci-fi", "description": "Thể loại khoa học viễn tưởng" },
+  { "name": "Slice of Life", "slug": "slice-of-life", "description": "Thể loại đời thường" },
+  { "name": "Sports", "slug": "sports", "description": "Thể loại thể thao" },
+  { "name": "Supernatural", "slug": "supernatural", "description": "Thể loại siêu nhiên" },
+  { "name": "Mystery", "slug": "mystery", "description": "Thể loại bí ẩn, trinh thám" },
+  { "name": "Historical", "slug": "historical", "description": "Thể loại lịch sử" },
+  { "name": "Martial Arts", "slug": "martial-arts", "description": "Thể loại võ thuật" },
+  { "name": "School Life", "slug": "school-life", "description": "Thể loại học đường" }
+]

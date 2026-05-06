@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Giới thiệu công ty",
+    "slug": "gioi-thieu-cong-ty",
+    "content": "<h2>Về chúng tôi</h2><p>Chúng tôi là đội ngũ đam mê công nghệ, chuyên cung cấp giải pháp phần mềm chất lượng cao.</p>",
+    "section_type": "about",
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "title": "Tầm nhìn & Sứ mệnh",
+    "slug": "tam-nhin-su-menh",
+    "content": "<h2>Tầm nhìn</h2><p>Trở thành công ty công nghệ hàng đầu trong khu vực.</p><h2>Sứ mệnh</h2><p>Mang đến giải pháp công nghệ tốt nhất cho khách hàng.</p>",
+    "section_type": "mission",
+    "status": "active",
+    "sort_order": 2
+  },
+  {
+    "title": "Giá trị cốt lõi",
+    "slug": "gia-tri-cot-loi",
+    "content": "<h2>Giá trị cốt lõi</h2><ul><li>Chất lượng</li><li>Sáng tạo</li><li>Trách nhiệm</li><li>Hợp tác</li></ul>",
+    "section_type": "values",
+    "status": "active",
+    "sort_order": 3
+  }
+]

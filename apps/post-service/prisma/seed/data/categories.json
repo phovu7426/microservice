@@ -1,0 +1,8 @@
+[
+  { "name": "Tin tức", "slug": "tin-tuc", "description": "Tin tức mới nhất", "is_active": true, "sort_order": 1 },
+  { "name": "Tin Manga", "slug": "tin-manga", "description": "Tin tức về manga", "is_active": true, "sort_order": 1, "parent_slug": "tin-tuc" },
+  { "name": "Tin Anime", "slug": "tin-anime", "description": "Tin tức về anime", "is_active": true, "sort_order": 2, "parent_slug": "tin-tuc" },
+  { "name": "Đánh giá", "slug": "danh-gia", "description": "Đánh giá và review", "is_active": true, "sort_order": 2 },
+  { "name": "Hướng dẫn", "slug": "huong-dan", "description": "Các bài hướng dẫn", "is_active": true, "sort_order": 3 },
+  { "name": "Sự kiện", "slug": "su-kien", "description": "Các sự kiện nổi bật", "is_active": true, "sort_order": 4 }
+]

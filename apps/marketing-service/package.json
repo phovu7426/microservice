@@ -10,7 +10,9 @@
     "start:prod": "node -r tsconfig-paths/register dist/main.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:migrate:deploy": "prisma migrate deploy"
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:seed": "ts-node -P tsconfig.seed.json prisma/seed/index.ts",
+    "seed": "npm run prisma:seed"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.19",
@@ -24,11 +26,13 @@
     "@package/common": "*",
     "@package/config": "*",
     "@package/tracing": "*",
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "joi": "^18.1.2",
     "jose": "^6.2.3",
+    "pg": "^8.20.0",
     "prisma": "^7.8.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",

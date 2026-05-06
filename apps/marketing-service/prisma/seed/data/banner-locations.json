@@ -1,0 +1,7 @@
+[
+  { "code": "hero", "name": "Hero Banner", "description": "Banner chính trang chủ", "status": "active" },
+  { "code": "sidebar", "name": "Sidebar Banner", "description": "Banner thanh bên", "status": "active" },
+  { "code": "footer", "name": "Footer Banner", "description": "Banner chân trang", "status": "active" },
+  { "code": "popup", "name": "Popup Banner", "description": "Banner popup", "status": "active" },
+  { "code": "comic_detail", "name": "Comic Detail Banner", "description": "Banner trang chi tiết truyện", "status": "active" }
+]

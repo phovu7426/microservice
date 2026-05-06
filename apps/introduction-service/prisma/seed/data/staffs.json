@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Nguyễn Văn A",
+    "position": "CEO",
+    "department": "Ban giám đốc",
+    "bio": "Hơn 15 năm kinh nghiệm trong lĩnh vực công nghệ thông tin.",
+    "avatar": "https://placehold.co/200x200",
+    "email": "nguyenvana@example.com",
+    "phone": "0901234567",
+    "social_links": { "linkedin": "https://linkedin.com/in/nguyenvana", "facebook": "https://facebook.com/nguyenvana" },
+    "experience": 15,
+    "expertise": "Quản lý dự án, Chiến lược kinh doanh",
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "name": "Trần Thị B",
+    "position": "CTO",
+    "department": "Ban giám đốc",
+    "bio": "Chuyên gia về kiến trúc phần mềm và cloud computing.",
+    "avatar": "https://placehold.co/200x200",
+    "email": "tranthib@example.com",
+    "phone": "0901234568",
+    "social_links": { "linkedin": "https://linkedin.com/in/tranthib" },
+    "experience": 12,
+    "expertise": "Cloud Architecture, DevOps, Microservices",
+    "status": "active",
+    "sort_order": 2
+  },
+  {
+    "name": "Lê Văn C",
+    "position": "Lead Developer",
+    "department": "Phát triển phần mềm",
+    "bio": "Full-stack developer với đam mê về UI/UX.",
+    "avatar": "https://placehold.co/200x200",
+    "email": "levanc@example.com",
+    "phone": "0901234569",
+    "social_links": { "github": "https://github.com/levanc" },
+    "experience": 8,
+    "expertise": "React, NestJS, PostgreSQL",
+    "status": "active",
+    "sort_order": 3
+  }
+]

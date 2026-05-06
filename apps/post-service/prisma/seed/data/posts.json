@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Top 10 manga hay nhất 2024",
+    "slug": "top-10-manga-hay-nhat-2024",
+    "excerpt": "Tổng hợp 10 bộ manga được yêu thích nhất năm 2024",
+    "content": "<h2>Top 10 Manga hay nhất 2024</h2><p>Dưới đây là danh sách 10 bộ manga được đánh giá cao nhất trong năm 2024...</p>",
+    "image": "https://placehold.co/800x400",
+    "status": "published",
+    "post_type": "text",
+    "is_featured": true,
+    "is_pinned": false,
+    "published_at": "2024-01-15T00:00:00.000Z",
+    "categories": ["tin-tuc", "tin-manga"],
+    "tags": ["manga", "top-list"]
+  },
+  {
+    "name": "Hướng dẫn đọc manga cho người mới",
+    "slug": "huong-dan-doc-manga-cho-nguoi-moi",
+    "excerpt": "Hướng dẫn cơ bản để bắt đầu đọc manga",
+    "content": "<h2>Hướng dẫn đọc manga</h2><p>Nếu bạn mới bắt đầu tìm hiểu về manga, đây là những điều bạn cần biết...</p>",
+    "image": "https://placehold.co/800x400",
+    "status": "published",
+    "post_type": "text",
+    "is_featured": false,
+    "is_pinned": false,
+    "published_at": "2024-02-01T00:00:00.000Z",
+    "categories": ["huong-dan"],
+    "tags": ["manga"]
+  },
+  {
+    "name": "Review One Piece arc Egghead",
+    "slug": "review-one-piece-arc-egghead",
+    "excerpt": "Đánh giá chi tiết arc Egghead trong One Piece",
+    "content": "<h2>Review One Piece - Arc Egghead</h2><p>Arc Egghead mang đến nhiều bất ngờ cho người hâm mộ One Piece...</p>",
+    "image": "https://placehold.co/800x400",
+    "status": "published",
+    "post_type": "text",
+    "is_featured": true,
+    "is_pinned": true,
+    "published_at": "2024-03-01T00:00:00.000Z",
+    "categories": ["danh-gia"],
+    "tags": ["manga", "review"]
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Công ty hoạt động trong lĩnh vực gì?",
+    "answer": "Chúng tôi chuyên cung cấp giải pháp phần mềm, phát triển ứng dụng web và mobile.",
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "question": "Làm thế nào để liên hệ?",
+    "answer": "Bạn có thể liên hệ qua email hoặc số điện thoại trên trang liên hệ, hoặc gửi form liên hệ trực tiếp trên website.",
+    "status": "active",
+    "sort_order": 2
+  },
+  {
+    "question": "Công ty có nhận dự án outsource không?",
+    "answer": "Có, chúng tôi nhận các dự án outsource từ quy mô nhỏ đến lớn. Vui lòng liên hệ để được tư vấn chi tiết.",
+    "status": "active",
+    "sort_order": 3
+  },
+  {
+    "question": "Quy trình làm việc như thế nào?",
+    "answer": "Quy trình gồm: Tư vấn → Phân tích yêu cầu → Thiết kế → Phát triển → Testing → Bàn giao → Bảo trì.",
+    "status": "active",
+    "sort_order": 4
+  },
+  {
+    "question": "Có hỗ trợ bảo trì sau khi bàn giao không?",
+    "answer": "Có, chúng tôi cung cấp dịch vụ bảo trì và hỗ trợ kỹ thuật sau khi bàn giao sản phẩm.",
+    "status": "active",
+    "sort_order": 5
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "title": "Chào mừng đến với MangaHub",
+    "subtitle": "Đọc manga miễn phí, cập nhật nhanh nhất",
+    "image": "https://placehold.co/1200x400",
+    "mobile_image": "https://placehold.co/600x400",
+    "link": "/",
+    "link_target": "SELF",
+    "description": "Banner chính trang chủ",
+    "button_text": "Khám phá ngay",
+    "button_color": "#FF6B00",
+    "text_color": "#FFFFFF",
+    "location_code": "hero",
+    "sort_order": 1,
+    "status": "active",
+    "start_date": "2024-01-01T00:00:00.000Z",
+    "end_date": "2025-12-31T23:59:59.000Z"
+  },
+  {
+    "title": "Manga mới cập nhật",
+    "subtitle": "Xem ngay những chapter mới nhất",
+    "image": "https://placehold.co/1200x400",
+    "mobile_image": "https://placehold.co/600x400",
+    "link": "/new",
+    "link_target": "SELF",
+    "button_text": "Xem ngay",
+    "button_color": "#2196F3",
+    "text_color": "#FFFFFF",
+    "location_code": "hero",
+    "sort_order": 2,
+    "status": "active",
+    "start_date": "2024-01-01T00:00:00.000Z",
+    "end_date": "2025-12-31T23:59:59.000Z"
+  },
+  {
+    "title": "Quảng cáo sidebar",
+    "image": "https://placehold.co/300x250",
+    "link": "#",
+    "link_target": "SELF",
+    "location_code": "sidebar",
+    "sort_order": 1,
+    "status": "active"
+  }
+]

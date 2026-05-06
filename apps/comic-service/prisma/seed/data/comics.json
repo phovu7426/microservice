@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "one-piece",
+    "title": "One Piece",
+    "description": "Câu chuyện về Monkey D. Luffy và hành trình trở thành Vua Hải Tặc",
+    "cover_image": "https://placehold.co/300x400",
+    "author": "Eiichiro Oda",
+    "status": "active",
+    "is_featured": true,
+    "categories": ["action", "adventure", "comedy"]
+  },
+  {
+    "slug": "naruto",
+    "title": "Naruto",
+    "description": "Câu chuyện về Naruto Uzumaki và giấc mơ trở thành Hokage",
+    "cover_image": "https://placehold.co/300x400",
+    "author": "Masashi Kishimoto",
+    "status": "active",
+    "is_featured": true,
+    "categories": ["action", "adventure", "martial-arts"]
+  },
+  {
+    "slug": "dragon-ball",
+    "title": "Dragon Ball",
+    "description": "Câu chuyện về Son Goku và hành trình tìm kiếm ngọc rồng",
+    "cover_image": "https://placehold.co/300x400",
+    "author": "Akira Toriyama",
+    "status": "active",
+    "is_featured": false,
+    "categories": ["action", "adventure", "comedy", "martial-arts"]
+  }
+]

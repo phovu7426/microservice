@@ -1,0 +1,32 @@
+[
+  {
+    "client_name": "Phạm Văn D",
+    "client_position": "CEO",
+    "client_company": "ABC Corp",
+    "content": "Đội ngũ làm việc rất chuyên nghiệp, sản phẩm chất lượng cao và đúng tiến độ.",
+    "rating": 5,
+    "featured": true,
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "client_name": "Hoàng Thị E",
+    "client_position": "CTO",
+    "client_company": "XYZ Tech",
+    "content": "Giải pháp công nghệ phù hợp với nhu cầu, hỗ trợ sau bán hàng tốt.",
+    "rating": 4,
+    "featured": true,
+    "status": "active",
+    "sort_order": 2
+  },
+  {
+    "client_name": "Vũ Minh F",
+    "client_position": "Product Manager",
+    "client_company": "DEF Solutions",
+    "content": "Rất hài lòng với dịch vụ và chất lượng sản phẩm. Sẽ tiếp tục hợp tác.",
+    "rating": 5,
+    "featured": false,
+    "status": "active",
+    "sort_order": 3
+  }
+]

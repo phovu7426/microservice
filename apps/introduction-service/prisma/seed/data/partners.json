@@ -1,0 +1,29 @@
+[
+  {
+    "name": "Google",
+    "logo": "https://placehold.co/200x80",
+    "website": "https://google.com",
+    "description": "Đối tác công nghệ",
+    "type": "technology",
+    "status": "active",
+    "sort_order": 1
+  },
+  {
+    "name": "Amazon Web Services",
+    "logo": "https://placehold.co/200x80",
+    "website": "https://aws.amazon.com",
+    "description": "Đối tác cloud computing",
+    "type": "technology",
+    "status": "active",
+    "sort_order": 2
+  },
+  {
+    "name": "Microsoft",
+    "logo": "https://placehold.co/200x80",
+    "website": "https://microsoft.com",
+    "description": "Đối tác chiến lược",
+    "type": "strategic",
+    "status": "active",
+    "sort_order": 3
+  }
+]
