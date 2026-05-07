@@ -37,106 +37,31 @@ npm test                                 # Test
 ## Chuan muc code (ap dung cho chuc nang moi)
 
 ### Controller
-
-```typescript
-@Controller('admin/comics')
-export class AdminComicController {
-  constructor(private readonly service: AdminComicService) {}
-
-  @Permission('comic.manage')
-  @AuditLog({ action: 'comic.create' })
-  @Post()
-  async create(@Body() dto: CreateComicDto, @Req() req: Request) {
-    const actorId = req.user?.sub ? toPrimaryKey(req.user.sub) : undefined;
-    return this.service.create(dto, actorId);
-  }
-}
-```
-
 - `@Permission()` cho admin, `@Public()` cho public, `@Internal()` + `@UseGuards(InternalGuard)` cho noi bo
 - `@AuditLog({ action })` cho create/update/delete (shared/common)
 - `ParseBigIntPipe` cho route param: `@Param('id', ParseBigIntPipe) id: bigint`
 - Lay user tu `req.user.sub`, truyen actorId xuong service
 
-### Service — ke thua BaseService
-
-```typescript
-@Injectable()
-export class AdminComicService extends BaseService<Comic, ComicRepository> {
-  constructor(repo: ComicRepository, private readonly i18n: I18nService) {
-    super(repo);
-  }
-
-  // Override lifecycle hooks
-  async beforeCreate(data) { /* slug, validate */ }
-  async afterCreate(entity, data) { /* sync relations, clear cache */ }
-  async beforeUpdate(id, data) { /* verify, refresh slug */ }
-  async beforeDelete(id) { /* verify ton tai */ }
-  prepareFilters(filter) { /* buildWhere logic */ }
-  transform(entity) { /* format response */ }
-}
-```
-
-- BaseService co san trong `@package/common`: getList, getOne, create, update, delete
-- Override hooks thay vi viet lai toan bo method
+### Service
+- Ke thua `BaseService` tu `@package/common` (co san getList, getOne, create, update, delete)
+- Override lifecycle hooks: `beforeCreate`, `afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete`, `afterDelete`, `prepareFilters`, `transform`
 - Tra ve ResponseUtil format tu dong qua TransformInterceptor
 
-### Repository — ke thua PrismaRepository
-
-```typescript
-@Injectable()
-export class ComicRepository extends PrismaRepository<Comic> {
-  constructor(prisma: PrismaService) {
-    super(prisma, 'comic');  // ten model trong Prisma
-  }
-
-  buildWhere(filter) { /* convert filter → Prisma where */ }
-}
-```
-
-- PrismaRepository co san: findAll, findById, create, update, delete, count, exists
+### Repository
+- Ke thua `PrismaRepository` tu `@package/common` (co san findAll, findById, create, update, delete, count, exists)
 - Override `buildWhere()` cho filter logic rieng
 
 ### DTO
-
-```typescript
-export class CreateComicDto {
-  @IsString() @MaxLength(255) title: string;
-  @IsOptional() @IsString() @Matches(SLUG_RE) slug?: string;
-  @IsOptional() @IsString() @MaxLength(20_000) description?: string;
-}
-
-export class ListComicsQueryDto extends BaseListQueryDto {
-  @IsOptional() @IsEnum(ComicStatus) status?: ComicStatus;
-}
-```
-
 - Ke thua `BaseListQueryDto` cho list endpoint (page, limit, search, sort, skipCount)
 - class-validator decorators, @MaxLength cho string
 
 ### Response
-
-TransformInterceptor tu dong wrap thanh:
-```json
-{ "success": true, "data": {...}, "meta": {...}, "timestamp": "..." }
-```
-
-Hoac dung ResponseUtil khi can custom:
-```typescript
-return ResponseUtil.success(data);
-return ResponseUtil.paginated(items, page, limit, total);
-return ResponseUtil.created(entity);
-return ResponseUtil.deleted();
-```
+- TransformInterceptor tu dong wrap: `{ success, data, meta, timestamp }`
+- Hoac dung ResponseUtil khi can custom: success, paginated, created, deleted
 
 ### Error
-
-```typescript
-throw new NotFoundException(t(this.i18n, 'comic.NOT_FOUND'));
-throw new BadRequestException(t(this.i18n, 'comic.SLUG_IN_USE'));
-```
-
-GlobalExceptionFilter bat tat ca, wrap thanh ApiResponse.
+- Dung NestJS exceptions + i18n: `throw new NotFoundException(t(this.i18n, 'domain.NOT_FOUND'))`
+- GlobalExceptionFilter bat tat ca, wrap thanh ApiResponse
 
 ## Shared packages co san
 
@@ -154,6 +79,7 @@ GlobalExceptionFilter bat tat ca, wrap thanh ApiResponse.
 
 ## Quy tac
 
+- Code xong PHAI viet unit test. Test dat trong `apps/<service>/tests/`, mirror theo cau truc `src/modules/`. File test dat ten `*.spec.ts`. Mock dependencies (Prisma, Redis, external services) — KHONG goi DB/Redis that. Chay `npm test -w apps/<service>` xac nhan PASS truoc khi coi la hoan thanh.
 - File .env trong `apps/<service>/.env` — KHONG o root
 - INTERNAL_API_SECRET giong nhau tren moi service
 - Build shared truoc: `npm run build:shared`
