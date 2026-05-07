@@ -13,6 +13,7 @@
       "Bash(npm -w shared/bootstrap run build)",
       "Bash(npm -w shared/common run build)",
       "Bash(docker --version)",
+      "Bash(docker version *)",
       "Bash(docker info *)",
       "Bash(DOCKER_BUILDKIT=1 docker build -f infrastructure/docker/Dockerfile.service --build-arg SERVICE_NAME=auth-service --build-arg SERVICE_PORT=3002 -t comic-auth-service:test .)",
       "Bash(npm ci *)",
