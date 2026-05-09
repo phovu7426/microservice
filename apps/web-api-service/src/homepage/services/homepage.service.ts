@@ -8,7 +8,7 @@ const TTL = {
   POPULAR: 1200, // 20 min
   NEWEST: 120, // 2 min
   RECENT_UPDATED: 120,
-  CATEGORIES: 43200, // 12 h
+  CATEGORIES: 3600, // 1 h
   LATEST_POSTS: 300, // 5 min
 };
 
