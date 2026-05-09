@@ -13,6 +13,10 @@ export interface KafkaClientOptions {
   clientId: string;
   enabled?: boolean;
   ssl?: KafkaSslOptions;
+  // Producer batching options
+  lingerMs?: number;       // queue.buffering.max.ms — batch window in ms (default 5)
+  batchSize?: number;      // batch.size — max bytes per batch (default 16384)
+  compression?: 'none' | 'gzip' | 'snappy' | 'lz4' | 'zstd'; // compression.codec
 }
 
 export interface KafkaClientAsyncOptions {

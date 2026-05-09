@@ -15,18 +15,39 @@ export class KafkaProducerService implements OnModuleInit, OnModuleDestroy {
   private readonly RETRY_BASE_MS = 200;
 
   private readonly enabled: boolean;
+  private readonly producerOptions: Pick<KafkaClientOptions, 'lingerMs' | 'batchSize' | 'compression'>;
   private connected = false;
 
   constructor(
     @Inject('KAFKA_OPTIONS') options: KafkaClientOptions,
   ) {
     this.enabled = options.enabled ?? true;
+    this.producerOptions = {
+      lingerMs: options.lingerMs,
+      batchSize: options.batchSize,
+      compression: options.compression,
+    };
     this.kafka = createKafkaInstance(options);
-    this.producer = this.kafka.producer();
+    this.producer = this.kafka.producer(); // placeholder, overridden in onModuleInit
   }
 
   async onModuleInit() {
     if (!this.enabled) return;
+    const producerConfig: any = {};
+    if (this.producerOptions.lingerMs !== undefined) {
+      producerConfig['queue.buffering.max.ms'] = this.producerOptions.lingerMs;
+    }
+    if (this.producerOptions.batchSize !== undefined) {
+      producerConfig['batch.size'] = this.producerOptions.batchSize;
+    }
+    if (this.producerOptions.compression) {
+      producerConfig['compression.codec'] = this.producerOptions.compression;
+    }
+
+    this.producer = Object.keys(producerConfig).length > 0
+      ? this.kafka.producer(producerConfig)
+      : this.kafka.producer();
+
     await this.producer.connect();
     this.connected = true;
   }
