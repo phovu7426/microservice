@@ -484,7 +484,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
       GLOBAL_PREFIX: api/auth
-      DATABASE_URL: postgresql://postgres:postgres@auth-db:5432/auth_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@auth-db:5432/auth_db?connection_limit=20&pool_timeout=60
       REDIS_URL: redis://auth-redis:6379
       JWT_PRIVATE_KEY_PEM: ${JWT_PRIVATE_KEY_PEM:-}
       JWT_PUBLIC_KEY_PEM: ${JWT_PUBLIC_KEY_PEM:-}
@@ -532,7 +532,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3003
       GLOBAL_PREFIX: api/config
-      DATABASE_URL: postgresql://postgres:postgres@config-db:5432/config_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@config-db:5432/config_db?connection_limit=20&pool_timeout=60
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:?INTERNAL_API_SECRET must be set (>=32 chars)}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
@@ -598,7 +598,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3009
       GLOBAL_PREFIX: api/comics
-      DATABASE_URL: postgresql://postgres:postgres@comic-db:5432/comic_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@comic-db:5432/comic_db?connection_limit=20&pool_timeout=60
       REDIS_URL: redis://comic-redis:6379
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       KAFKA_BROKERS: kafka:9092
@@ -634,7 +634,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3005
       GLOBAL_PREFIX: api/notifications
-      DATABASE_URL: postgresql://postgres:postgres@notification-db:5432/notification_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@notification-db:5432/notification_db?connection_limit=20&pool_timeout=60
       REDIS_URL: redis://notification-redis:6379
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       KAFKA_BROKERS: kafka:9092
@@ -675,7 +675,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3008
       GLOBAL_PREFIX: api/posts
-      DATABASE_URL: postgresql://postgres:postgres@post-db:5432/post_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@post-db:5432/post_db?connection_limit=20&pool_timeout=60
       REDIS_URL: redis://post-redis:6379
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       KAFKA_BROKERS: kafka:9092
@@ -707,7 +707,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3007
       GLOBAL_PREFIX: api/introduction
-      DATABASE_URL: postgresql://postgres:postgres@introduction-db:5432/introduction_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@introduction-db:5432/introduction_db?connection_limit=20&pool_timeout=60
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
     ports:
@@ -738,7 +738,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3006
       GLOBAL_PREFIX: api/marketing
-      DATABASE_URL: postgresql://postgres:postgres@marketing-db:5432/marketing_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@marketing-db:5432/marketing_db?connection_limit=20&pool_timeout=60
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       KAFKA_BROKERS: kafka:9092
       EVENT_DRIVER: ${EVENT_DRIVER:-local}
@@ -771,7 +771,7 @@ services:
       NODE_ENV: ${NODE_ENV:-development}
       PORT: 3002
       GLOBAL_PREFIX: api/iam
-      DATABASE_URL: postgresql://postgres:postgres@iam-db:5432/iam_db?connection_limit=5&pool_timeout=30
+      DATABASE_URL: postgresql://postgres:postgres@iam-db:5432/iam_db?connection_limit=20&pool_timeout=60
       REDIS_URL: redis://iam-redis:6379
       AUTH_JWKS_URL: http://auth-service:3001/.well-known/jwks.json
       RBAC_CACHE_TTL: ${RBAC_CACHE_TTL:-86400}

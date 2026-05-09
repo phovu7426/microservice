@@ -114,7 +114,8 @@
       "Bash([ -f \"/d/Sources/microservice/apps/$service/prisma/schema.prisma\" ])",
       "Bash(xargs wc *)",
       "Bash(node -e 'try{JSON.parse\\(require\\('\\\\''fs'\\\\''\\).readFileSync\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''utf8'\\\\''\\)\\);console.log\\('\\\\''OK'\\\\''\\)}catch\\(e\\){console.log\\('\\\\''ERROR: '\\\\''+e.message\\)}')",
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\MANH HOANG\\\\.claude\\\\projects\" -Recurse | Where-Object { $_.Extension -eq \".jsonl\" } | Sort-Object LastWriteTime -Descending | Select-Object -First 50 -ExpandProperty FullName)"
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\MANH HOANG\\\\.claude\\\\projects\" -Recurse | Where-Object { $_.Extension -eq \".jsonl\" } | Sort-Object LastWriteTime -Descending | Select-Object -First 50 -ExpandProperty FullName)",
+      "Bash(git commit *)"
     ]
   }
 }
