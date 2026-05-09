@@ -34,18 +34,18 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'country_id must be a numeric string.' })
-  country_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'countryId must be a numeric string.' })
+  countryId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'province_id must be a numeric string.' })
-  province_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'provinceId must be a numeric string.' })
+  provinceId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'ward_id must be a numeric string.' })
-  ward_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'wardId must be a numeric string.' })
+  wardId?: string;
 
   @IsOptional()
   @IsString()

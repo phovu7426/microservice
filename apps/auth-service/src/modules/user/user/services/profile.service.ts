@@ -35,9 +35,9 @@ export class ProfileService {
     if (dto.birthday !== undefined) profileData.birthday = dto.birthday;
     if (dto.gender !== undefined) profileData.gender = dto.gender;
     if (dto.address !== undefined) profileData.address = dto.address;
-    if (dto.country_id !== undefined) profileData.country_id = dto.country_id;
-    if (dto.province_id !== undefined) profileData.province_id = dto.province_id;
-    if (dto.ward_id !== undefined) profileData.ward_id = dto.ward_id;
+    if (dto.countryId !== undefined) profileData.country_id = dto.countryId;
+    if (dto.provinceId !== undefined) profileData.province_id = dto.provinceId;
+    if (dto.wardId !== undefined) profileData.ward_id = dto.wardId;
     if (dto.about !== undefined) profileData.about = dto.about;
 
     await this.userRepo.updateWithProfile(userId, userData, profileData);
@@ -55,7 +55,7 @@ export class ProfileService {
       );
     }
 
-    const isMatch = await bcrypt.compare(dto.old_password, user.password);
+    const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
     if (!isMatch) {
       throw new BadRequestException('Old password is incorrect.');
     }

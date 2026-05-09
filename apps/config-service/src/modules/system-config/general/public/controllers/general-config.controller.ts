@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { Public } from '@package/common';
 import { PublicGeneralConfigService } from '../services/general-config.service';
 
-@Controller('config/general')
+@Controller('general')
 export class PublicGeneralConfigController {
   constructor(private readonly service: PublicGeneralConfigService) {}
 

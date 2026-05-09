@@ -23,15 +23,15 @@ export class ProfileDto {
 
   @IsOptional()
   @IsString()
-  country_id?: string;
+  countryId?: string;
 
   @IsOptional()
   @IsString()
-  province_id?: string;
+  provinceId?: string;
 
   @IsOptional()
   @IsString()
-  ward_id?: string;
+  wardId?: string;
 
   @IsOptional()
   @IsString()

@@ -10,7 +10,7 @@ import { MatchConstraint } from '../../../auth/dto/register.dto';
 export class ChangePasswordDto {
   @IsNotEmpty({ message: 'Old password cannot be empty.' })
   @IsString()
-  old_password: string;
+  oldPassword: string;
 
   @IsNotEmpty({ message: 'Password cannot be empty.' })
   @IsString()
