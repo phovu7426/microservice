@@ -8,6 +8,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client: Redis | null = null;
   private subscriberClient: Redis | null = null;
   private readonly channelCallbacks = new Map<string, Array<(message: string) => void>>();
+  private readonly inflightMap = new Map<string, Promise<any>>();
   private enabled = false;
 
   constructor(private readonly config: ConfigService) {}
@@ -276,6 +277,43 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     `;
     const result = await this.client.eval(script, 1, key, token) as number;
     return result === 1;
+  }
+
+  async getOrSet<T>(
+    key: string,
+    factory: () => Promise<T>,
+    ttlSeconds: number,
+  ): Promise<T> {
+    try {
+      if (this.client) {
+        const raw = await this.client.get(key);
+        if (raw) return JSON.parse(raw) as T;
+      }
+    } catch {}
+
+    const existing = this.inflightMap.get(key);
+    if (existing) return existing as Promise<T>;
+
+    if (this.inflightMap.size >= 1000) this.inflightMap.clear();
+
+    const promise = factory().then(async (result) => {
+      try {
+        if (this.client) {
+          await this.client.set(
+            key,
+            JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? Number(v) : v)),
+            'EX',
+            ttlSeconds,
+          );
+        }
+      } catch {}
+      return result;
+    }).finally(() => {
+      this.inflightMap.delete(key);
+    });
+
+    this.inflightMap.set(key, promise);
+    return promise;
   }
 
   async getOrSetWithLock<T>(

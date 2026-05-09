@@ -20,7 +20,7 @@ export class PublicTestimonialService {
     if (existing) return existing;
     const promise = loader().then(async (result) => {
       this.inflight.delete(key);
-      await this.redis?.set(key, JSON.stringify(result), ttl).catch(() => {});
+      await this.redis?.set(key, JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? Number(v) : v)), ttl).catch(() => {});
       return result;
     }).catch((err) => {
       this.inflight.delete(key);

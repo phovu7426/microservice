@@ -22,7 +22,7 @@ export class PublicBannerService {
     const promise = loader().then(async (result) => {
       this.inflight.delete(key);
       if (this.redis?.isEnabled()) {
-        await this.redis.set(key, JSON.stringify(result), ttl).catch(() => {});
+        await this.redis.set(key, JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? Number(v) : v)), ttl).catch(() => {});
       }
       return result;
     }).catch((err) => {
