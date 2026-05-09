@@ -47,17 +47,30 @@ export class CountryRepository {
   }
 
   create(data: Record<string, any>) {
-    return this.prisma.country.create({ data: data as Prisma.CountryCreateInput });
+    return this.prisma.country.create({ data: this.normalizePayload(data) as Prisma.CountryCreateInput });
   }
 
   update(id: any, data: Record<string, any>) {
     return this.prisma.country.update({
       where: { id: toPrimaryKey(id) },
-      data: data as Prisma.CountryUpdateInput,
+      data: this.normalizePayload(data) as Prisma.CountryUpdateInput,
     });
   }
 
   delete(id: any) {
     return this.prisma.country.delete({ where: { id: toPrimaryKey(id) } });
+  }
+
+  private normalizePayload(data: Record<string, any>): Record<string, any> {
+    const payload: any = { ...data };
+
+    // Map camelCase DTO fields → snake_case Prisma fields
+    if (payload.codeAlpha3 !== undefined) { payload.code_alpha3 = payload.codeAlpha3; delete payload.codeAlpha3; }
+    if (payload.officialName !== undefined) { payload.official_name = payload.officialName; delete payload.officialName; }
+    if (payload.phoneCode !== undefined) { payload.phone_code = payload.phoneCode; delete payload.phoneCode; }
+    if (payload.currencyCode !== undefined) { payload.currency_code = payload.currencyCode; delete payload.currencyCode; }
+    if (payload.flagEmoji !== undefined) { payload.flag_emoji = payload.flagEmoji; delete payload.flagEmoji; }
+
+    return payload;
   }
 }

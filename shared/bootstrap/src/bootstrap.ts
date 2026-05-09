@@ -7,6 +7,7 @@ import { TransformInterceptor } from '@package/common';
 import { randomUUID } from 'crypto';
 import helmet from 'helmet';
 import { json, urlencoded } from 'express';
+import cookieParser from 'cookie-parser';
 import { JsonLogger } from './json-logger';
 
 // Permitted set of inbound `x-request-id` header values. Anything outside
@@ -49,6 +50,7 @@ export async function createApp(options: BootstrapOptions): Promise<NestExpressA
     app.setGlobalPrefix(prefix);
   }
 
+  app.use(cookieParser());
   app.use(json({ limit: '1mb' }));
   app.use(urlencoded({ extended: true, limit: '1mb' }));
 

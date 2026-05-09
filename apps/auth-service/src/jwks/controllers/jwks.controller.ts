@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { JwksService } from '../services/jwks.service';
 import { Public } from '@package/common';
 
@@ -8,7 +9,8 @@ export class JwksController {
 
   @Get('jwks.json')
   @Public()
-  async getJwks() {
-    return this.jwksService.getJwkSet();
+  async getJwks(@Res() res: Response) {
+    const jwks = await this.jwksService.getJwkSet();
+    res.json(jwks);
   }
 }

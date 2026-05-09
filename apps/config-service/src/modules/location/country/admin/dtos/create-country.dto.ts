@@ -9,7 +9,7 @@ export class CreateCountryDto {
   @IsOptional()
   @IsString()
   @MaxLength(10)
-  code_alpha3?: string;
+  codeAlpha3?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -19,22 +19,22 @@ export class CreateCountryDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  official_name?: string;
+  officialName?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  phone_code?: string;
+  phoneCode?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  currency_code?: string;
+  currencyCode?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  flag_emoji?: string;
+  flagEmoji?: string;
 
   @IsOptional()
   @IsIn(['active', 'inactive'])

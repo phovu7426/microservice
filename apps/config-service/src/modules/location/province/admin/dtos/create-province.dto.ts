@@ -26,12 +26,12 @@ export class CreateProvinceDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  phone_code?: string;
+  phoneCode?: string;
 
   @IsNotEmpty()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'country_id must be numeric.' })
-  country_id: string;
+  @Matches(/^\d{1,20}$/, { message: 'countryId must be numeric.' })
+  countryId: string;
 
   @IsOptional()
   @IsIn(['active', 'inactive'])
@@ -45,10 +45,10 @@ export class CreateProvinceDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  code_bnv?: string;
+  codeBnv?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  code_tms?: string;
+  codeTms?: string;
 }

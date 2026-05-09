@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 
 export class UpdateProvinceDto {
   @IsOptional()
@@ -19,27 +19,29 @@ export class UpdateProvinceDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  phone_code?: string;
-
-  @IsOptional()
-  country_id?: any;
+  phoneCode?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(30)
+  @Matches(/^\d{1,20}$/, { message: 'countryId must be numeric.' })
+  countryId?: string;
+
+  @IsOptional()
+  @IsIn(['active', 'inactive'])
   status?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   note?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  code_bnv?: string;
+  codeBnv?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(20)
-  code_tms?: string;
+  codeTms?: string;
 }

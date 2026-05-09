@@ -23,44 +23,44 @@ export class UpdateEmailConfigDto {
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  @Matches(SMTP_HOST_RE, { message: 'smtp_host must be a public hostname.' })
-  smtp_host?: string;
+  @Matches(SMTP_HOST_RE, { message: 'smtpHost must be a public hostname.' })
+  smtpHost?: string;
 
   @IsInt()
   @IsOptional()
   @Min(1)
   @Max(65535)
   @Type(() => Number)
-  smtp_port?: number;
+  smtpPort?: number;
 
   @IsBoolean()
   @IsOptional()
   @Transform(toBool)
-  smtp_secure?: boolean;
+  smtpSecure?: boolean;
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  smtp_username?: string;
+  smtpUsername?: string;
 
   @IsString()
   @IsOptional()
   @MinLength(6)
   @MaxLength(500)
-  smtp_password?: string;
+  smtpPassword?: string;
 
   @IsEmail()
   @IsOptional()
   @MaxLength(255)
-  from_email?: string;
+  fromEmail?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  from_name?: string;
+  fromName?: string;
 
   @IsEmail()
   @IsOptional()
   @MaxLength(255)
-  reply_to_email?: string;
+  replyToEmail?: string;
 }

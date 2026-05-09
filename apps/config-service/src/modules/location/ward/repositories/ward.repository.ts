@@ -7,7 +7,7 @@ export interface WardFilter {
   name?: string;
   code?: string;
   status?: string;
-  province_id?: any;
+  provinceId?: any;
 }
 
 @Injectable()
@@ -19,8 +19,8 @@ export class WardRepository {
     if (filter.name) where.name = { contains: filter.name, mode: 'insensitive' };
     if (filter.code) where.code = filter.code;
     if (filter.status) where.status = filter.status;
-    if (filter.province_id !== undefined && filter.province_id !== null) {
-      where.province_id = toPrimaryKey(filter.province_id);
+    if (filter.provinceId !== undefined && filter.provinceId !== null) {
+      where.province_id = toPrimaryKey(filter.provinceId);
     }
     return where;
   }
@@ -42,18 +42,12 @@ export class WardRepository {
   }
 
   create(data: Record<string, any>) {
-    const payload: any = { ...data };
-    if (payload.province_id !== undefined && payload.province_id !== null) {
-      payload.province_id = toPrimaryKey(payload.province_id);
-    }
+    const payload = this.normalizePayload(data);
     return this.prisma.ward.create({ data: payload as Prisma.WardCreateInput });
   }
 
   update(id: any, data: Record<string, any>) {
-    const payload: any = { ...data };
-    if (payload.province_id !== undefined && payload.province_id !== null) {
-      payload.province_id = toPrimaryKey(payload.province_id);
-    }
+    const payload = this.normalizePayload(data);
     return this.prisma.ward.update({
       where: { id: toPrimaryKey(id) },
       data: payload as Prisma.WardUpdateInput,
@@ -62,5 +56,22 @@ export class WardRepository {
 
   delete(id: any) {
     return this.prisma.ward.delete({ where: { id: toPrimaryKey(id) } });
+  }
+
+  private normalizePayload(data: Record<string, any>): Record<string, any> {
+    const payload: any = { ...data };
+
+    // Map camelCase DTO field → snake_case Prisma field
+    if (payload.provinceId !== undefined) {
+      payload.province_id = payload.provinceId;
+      delete payload.provinceId;
+    }
+
+    // Convert BigInt fields
+    if (payload.province_id !== undefined && payload.province_id !== null) {
+      payload.province_id = toPrimaryKey(payload.province_id);
+    }
+
+    return payload;
   }
 }

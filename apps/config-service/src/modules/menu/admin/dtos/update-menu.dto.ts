@@ -35,7 +35,7 @@ export class UpdateMenuDto {
   @IsOptional()
   @IsString()
   @MaxLength(255, { message: 'API path must not exceed 255 characters' })
-  api_path?: string;
+  apiPath?: string;
 
   @IsOptional()
   @IsString()
@@ -52,29 +52,29 @@ export class UpdateMenuDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^(\d{1,20})?$/, { message: 'parent_id must be numeric or empty.' })
-  parent_id?: string | null;
+  @Matches(/^(\d{1,20})?$/, { message: 'parentId must be numeric or empty.' })
+  parentId?: string | null;
 
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 
   @IsOptional()
   @IsBoolean()
   @Transform(toBool)
-  is_public?: boolean;
+  isPublic?: boolean;
 
   @IsOptional()
   @IsBoolean()
   @Transform(toBool)
-  show_in_menu?: boolean;
+  showInMenu?: boolean;
 
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  required_permission_code?: string;
+  requiredPermissionCode?: string;
 
   @IsOptional()
   @IsString()

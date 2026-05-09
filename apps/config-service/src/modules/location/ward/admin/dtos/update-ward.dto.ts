@@ -1,8 +1,10 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 
 export class UpdateWardDto {
   @IsOptional()
-  province_id?: any;
+  @IsString()
+  @Matches(/^\d{1,20}$/, { message: 'provinceId must be numeric.' })
+  provinceId?: string;
 
   @IsOptional()
   @IsString()
@@ -20,7 +22,6 @@ export class UpdateWardDto {
   code?: string;
 
   @IsOptional()
-  @IsString()
-  @MaxLength(30)
+  @IsIn(['active', 'inactive'])
   status?: string;
 }

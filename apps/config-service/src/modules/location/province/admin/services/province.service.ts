@@ -19,7 +19,7 @@ export class ProvinceService {
     if (query.name) filter.name = query.name;
     if (query.status) filter.status = query.status;
     if (query.code) filter.code = query.code;
-    if (query.country_id) filter.country_id = query.country_id;
+    if (query.countryId) filter.countryId = query.countryId;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([

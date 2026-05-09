@@ -28,12 +28,9 @@ export class MenuService {
     const options = parseQueryOptions(query);
 
     const filter: MenuFilter = {};
-    // Accept both `q` (DTO field) and `search` (legacy)
-    const search = query.q ?? query.search;
-    if (search) filter.search = search;
+    if (query.search) filter.search = query.search;
     if (query.status) filter.status = query.status;
     if (query.type) filter.type = query.type;
-    if (query.parent_id !== undefined) filter.parent_id = query.parent_id;
     if (query.parentId !== undefined) filter.parentId = query.parentId;
     if (query.group) filter.group = query.group;
 
@@ -65,8 +62,8 @@ export class MenuService {
     if (dto.code && (await this.menuRepo.findByCode(dto.code))) {
       throw new BadRequestException(this.t('menu.CODE_EXISTS'));
     }
-    if (dto.parent_id) {
-      const parent = await this.menuRepo.findById(dto.parent_id);
+    if (dto.parentId) {
+      const parent = await this.menuRepo.findById(dto.parentId);
       if (!parent) throw new BadRequestException(this.t('menu.PARENT_NOT_FOUND'));
     }
     try {
@@ -94,9 +91,9 @@ export class MenuService {
         throw new BadRequestException(this.t('menu.CODE_EXISTS'));
       }
     }
-    if (dto.parent_id !== undefined && dto.parent_id !== null && dto.parent_id !== '') {
-      await this.assertNoCycle(id, dto.parent_id);
-      const parent = await this.menuRepo.findById(dto.parent_id);
+    if (dto.parentId !== undefined && dto.parentId !== null && dto.parentId !== '') {
+      await this.assertNoCycle(id, dto.parentId);
+      const parent = await this.menuRepo.findById(dto.parentId);
       if (!parent) throw new BadRequestException(this.t('menu.PARENT_NOT_FOUND'));
     }
     try {
@@ -133,7 +130,7 @@ export class MenuService {
   }
 
   /**
-   * Reject parent_id pointing at the menu itself or any of its descendants —
+   * Reject parentId pointing at the menu itself or any of its descendants —
    * doing so would create an infinite loop in tree traversal.
    */
   private async assertNoCycle(menuId: any, candidateParentId: any): Promise<void> {

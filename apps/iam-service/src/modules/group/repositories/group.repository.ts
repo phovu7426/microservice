@@ -117,6 +117,29 @@ export class GroupRepository {
     });
   }
 
+  findUserGroups(userId: string | bigint) {
+    const uid = toPrimaryKey(userId);
+    return this.prisma.userGroup.findMany({
+      where: { user_id: uid },
+      include: {
+        group: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            type: true,
+            status: true,
+            description: true,
+            context_id: true,
+            owner_id: true,
+            metadata: true,
+          },
+        },
+      },
+      orderBy: { joined_at: 'asc' },
+    });
+  }
+
   removeMember(groupId: string | bigint, userId: string | bigint) {
     const gid = toPrimaryKey(groupId);
     const uid = toPrimaryKey(userId);

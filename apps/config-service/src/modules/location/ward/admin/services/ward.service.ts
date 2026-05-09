@@ -19,7 +19,7 @@ export class WardService {
     if (query.name) filter.name = query.name;
     if (query.status) filter.status = query.status;
     if (query.code) filter.code = query.code;
-    if (query.province_id) filter.province_id = query.province_id;
+    if (query.provinceId) filter.provinceId = query.provinceId;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([

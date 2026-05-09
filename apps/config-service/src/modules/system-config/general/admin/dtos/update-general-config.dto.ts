@@ -34,69 +34,69 @@ class ContactChannelDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  url_template?: string;
+  urlTemplate?: string;
 
   @IsBoolean()
   enabled: boolean;
 
   @IsOptional()
   @IsNumber()
-  sort_order?: number;
+  sortOrder?: number;
 }
 
 export class UpdateGeneralConfigDto {
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  site_name?: string;
+  siteName?: string;
 
   @IsString()
   @IsOptional()
-  site_description?: string;
+  siteDescription?: string;
 
   @IsOptional()
   @IsUrl({ require_protocol: true, protocols: ['http', 'https'] })
   @MaxLength(500)
-  site_logo?: string;
+  siteLogo?: string;
 
   @IsOptional()
   @IsUrl({ require_protocol: true, protocols: ['http', 'https'] })
   @MaxLength(500)
-  site_favicon?: string;
+  siteFavicon?: string;
 
   @IsEmail()
   @IsOptional()
   @MaxLength(255)
-  site_email?: string;
+  siteEmail?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(20)
-  site_phone?: string;
+  sitePhone?: string;
 
   @IsString()
   @IsOptional()
-  site_address?: string;
+  siteAddress?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(NUMERIC_ID_RE, { message: 'site_country_id must be numeric.' })
-  site_country_id?: string;
+  @Matches(NUMERIC_ID_RE, { message: 'siteCountryId must be numeric.' })
+  siteCountryId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(NUMERIC_ID_RE, { message: 'site_province_id must be numeric.' })
-  site_province_id?: string;
+  @Matches(NUMERIC_ID_RE, { message: 'siteProvinceId must be numeric.' })
+  siteProvinceId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(NUMERIC_ID_RE, { message: 'site_ward_id must be numeric.' })
-  site_ward_id?: string;
+  @Matches(NUMERIC_ID_RE, { message: 'siteWardId must be numeric.' })
+  siteWardId?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  site_copyright?: string;
+  siteCopyright?: string;
 
   @IsString()
   @IsOptional()
@@ -117,53 +117,53 @@ export class UpdateGeneralConfigDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ContactChannelDto)
-  contact_channels?: ContactChannelDto[];
+  contactChannels?: ContactChannelDto[];
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  meta_title?: string;
+  metaTitle?: string;
 
   @IsString()
   @IsOptional()
-  meta_keywords?: string;
+  metaKeywords?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  og_title?: string;
+  ogTitle?: string;
 
   @IsString()
   @IsOptional()
-  og_description?: string;
+  ogDescription?: string;
 
   @IsOptional()
   @IsUrl({ require_protocol: true, protocols: ['http', 'https'] })
   @MaxLength(500)
-  og_image?: string;
+  ogImage?: string;
 
   @IsOptional()
   @IsUrl({ require_protocol: true, protocols: ['http', 'https'] })
   @MaxLength(500)
-  canonical_url?: string;
+  canonicalUrl?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(50)
-  google_analytics_id?: string;
+  googleAnalyticsId?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(255)
-  google_search_console?: string;
+  googleSearchConsole?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(50)
-  facebook_pixel_id?: string;
+  facebookPixelId?: string;
 
   @IsString()
   @IsOptional()
   @MaxLength(50)
-  twitter_site?: string;
+  twitterSite?: string;
 }

@@ -18,6 +18,6 @@ export class ListProvincesAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'country_id must be numeric.' })
-  country_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'countryId must be numeric.' })
+  countryId?: string;
 }

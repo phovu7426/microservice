@@ -41,15 +41,15 @@ export class EmailConfigService {
 
     // If the client echoes back the masked placeholder, treat it as
     // "unchanged" — never persist `'******'` as the real password.
-    if (dto.smtp_password === MASKED || (existing && !dto.smtp_password)) {
-      delete (dto as any).smtp_password;
+    if (dto.smtpPassword === MASKED || (existing && !dto.smtpPassword)) {
+      delete (dto as any).smtpPassword;
     }
 
     const payload = buildConfigPayload(dto, [], userId, existing);
 
     if (!existing) {
       // First-write must include all required fields.
-      const required = ['smtp_host', 'smtp_username', 'smtp_password', 'from_email', 'from_name'];
+      const required = ['smtpHost', 'smtpUsername', 'smtpPassword', 'fromEmail', 'fromName'];
       for (const field of required) {
         if (!payload[field]) {
           throw new BadRequestException(this.t(`system-config.EMAIL_${field.toUpperCase()}_REQUIRED`));
@@ -57,21 +57,21 @@ export class EmailConfigService {
       }
     }
 
-    const result = await this.emailConfigRepo.upsert(
-      {
-        smtp_host: payload.smtp_host,
-        smtp_port: payload.smtp_port ?? 587,
-        smtp_secure: payload.smtp_secure ?? true,
-        smtp_username: payload.smtp_username,
-        smtp_password: payload.smtp_password,
-        from_email: payload.from_email,
-        from_name: payload.from_name,
-        reply_to_email: payload.reply_to_email,
-        created_user_id: payload.created_user_id,
-        updated_user_id: payload.updated_user_id,
-      },
-      payload,
-    );
+    // Map camelCase payload → snake_case Prisma fields
+    const dbPayload = {
+      smtp_host: payload.smtpHost,
+      smtp_port: payload.smtpPort ?? 587,
+      smtp_secure: payload.smtpSecure ?? true,
+      smtp_username: payload.smtpUsername,
+      smtp_password: payload.smtpPassword,
+      from_email: payload.fromEmail,
+      from_name: payload.fromName,
+      reply_to_email: payload.replyToEmail,
+      created_user_id: payload.created_user_id,
+      updated_user_id: payload.updated_user_id,
+    };
+
+    const result = await this.emailConfigRepo.upsert(dbPayload, dbPayload);
 
     if (!result) {
       throw new InternalServerErrorException(this.t('system-config.EMAIL_UPDATE_FAILED'));

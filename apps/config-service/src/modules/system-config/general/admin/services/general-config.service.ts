@@ -21,21 +21,59 @@ export class GeneralConfigService {
   async updateConfig(dto: UpdateGeneralConfigDto, userId?: any): Promise<any> {
     const existing = await this.generalConfigRepo.getConfig();
 
-    const bigIntFields = ['site_country_id', 'site_province_id', 'site_ward_id'];
+    const bigIntFields = ['siteCountryId', 'siteProvinceId', 'siteWardId'];
     const payload = buildConfigPayload(dto, bigIntFields, userId, existing);
+
+    // Map camelCase payload → snake_case Prisma fields
+    const dbPayload: any = {};
+    const fieldMap: Record<string, string> = {
+      siteName: 'site_name',
+      siteDescription: 'site_description',
+      siteLogo: 'site_logo',
+      siteFavicon: 'site_favicon',
+      siteEmail: 'site_email',
+      sitePhone: 'site_phone',
+      siteAddress: 'site_address',
+      siteCountryId: 'site_country_id',
+      siteProvinceId: 'site_province_id',
+      siteWardId: 'site_ward_id',
+      siteCopyright: 'site_copyright',
+      timezone: 'timezone',
+      locale: 'locale',
+      currency: 'currency',
+      contactChannels: 'contact_channels',
+      metaTitle: 'meta_title',
+      metaKeywords: 'meta_keywords',
+      ogTitle: 'og_title',
+      ogDescription: 'og_description',
+      ogImage: 'og_image',
+      canonicalUrl: 'canonical_url',
+      googleAnalyticsId: 'google_analytics_id',
+      googleSearchConsole: 'google_search_console',
+      facebookPixelId: 'facebook_pixel_id',
+      twitterSite: 'twitter_site',
+      // Internal fields set by buildConfigPayload (already snake_case)
+      created_user_id: 'created_user_id',
+      updated_user_id: 'updated_user_id',
+    };
+
+    for (const [camel, snake] of Object.entries(fieldMap)) {
+      if (payload[camel] !== undefined) {
+        dbPayload[snake] = payload[camel];
+      }
+    }
 
     // Atomic upsert avoids the race in which two concurrent first-writes
     // both pass `existing == null` and create duplicate config rows.
-    const result = await this.generalConfigRepo.upsert(
-      {
-        ...payload,
-        site_name: payload.site_name || 'My Website',
-        timezone: payload.timezone || 'Asia/Ho_Chi_Minh',
-        locale: payload.locale || 'vi',
-        currency: payload.currency || 'VND',
-      },
-      payload,
-    );
+    const createPayload = {
+      ...dbPayload,
+      site_name: dbPayload.site_name || 'My Website',
+      timezone: dbPayload.timezone || 'Asia/Ho_Chi_Minh',
+      locale: dbPayload.locale || 'vi',
+      currency: dbPayload.currency || 'VND',
+    };
+
+    const result = await this.generalConfigRepo.upsert(createPayload, dbPayload);
 
     if (!result) {
       const lang = I18nContext.current()?.lang ?? 'en';

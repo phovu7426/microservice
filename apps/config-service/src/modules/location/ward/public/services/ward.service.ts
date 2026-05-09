@@ -22,7 +22,7 @@ export class PublicWardService extends CachedService {
     return this.getOrSet(`config:public:wards:${provinceId}`, 86400, async () => {
       return this.wardService.getList({
         ...query,
-        province_id: provinceId,
+        provinceId,
         status: 'active',
       });
     });

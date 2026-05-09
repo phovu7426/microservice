@@ -122,7 +122,9 @@ export class JwtGuard implements CanActivate {
   private extractToken(context: ExecutionContext): string | null {
     const request = context.switchToHttp().getRequest();
     const auth = request.headers?.authorization as string | undefined;
-    if (!auth?.startsWith('Bearer ')) return null;
-    return auth.slice(7);
+    if (auth?.startsWith('Bearer ')) return auth.slice(7);
+    // Also accept HttpOnly cookie set by auth-service (browser clients)
+    const cookie = request.cookies?.auth_token as string | undefined;
+    return cookie ?? null;
   }
 }

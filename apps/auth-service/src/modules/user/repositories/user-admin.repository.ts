@@ -155,7 +155,7 @@ export class UserAdminRepository {
   }
 
   upsertProfile(userId: PrimaryKey, data: Record<string, any>, tx: Tx = this.prisma) {
-    const normalized = this.normalizeProfileData(data);
+    const normalized = this.normalizePayload(data);
     return tx.profile.upsert({
       where: { user_id: userId },
       create: { user_id: userId, ...normalized } as Prisma.ProfileUncheckedCreateInput,
@@ -235,12 +235,19 @@ export class UserAdminRepository {
     return where;
   }
 
-  private normalizeProfileData(data: Record<string, any>): Record<string, any> {
+  private normalizePayload(data: Record<string, any>): Record<string, any> {
     const result = { ...data };
+
+    // Map camelCase DTO fields → snake_case Prisma fields
+    if (result.countryId !== undefined) { result.country_id = result.countryId; delete result.countryId; }
+    if (result.provinceId !== undefined) { result.province_id = result.provinceId; delete result.provinceId; }
+    if (result.wardId !== undefined) { result.ward_id = result.wardId; delete result.wardId; }
+
     if (result.birthday) result.birthday = new Date(result.birthday);
     if (result.country_id) result.country_id = toPrimaryKey(result.country_id);
     if (result.province_id) result.province_id = toPrimaryKey(result.province_id);
     if (result.ward_id) result.ward_id = toPrimaryKey(result.ward_id);
+
     return result;
   }
 

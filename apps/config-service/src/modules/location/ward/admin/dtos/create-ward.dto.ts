@@ -10,8 +10,8 @@ import {
 export class CreateWardDto {
   @IsNotEmpty()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'province_id must be numeric.' })
-  province_id: string;
+  @Matches(/^\d{1,20}$/, { message: 'provinceId must be numeric.' })
+  provinceId: string;
 
   @IsNotEmpty()
   @IsString()

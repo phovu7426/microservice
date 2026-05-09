@@ -24,7 +24,7 @@ export class PublicCountryService extends CachedService {
     return this.getOrSet(`config:public:provinces:${countryId}`, 86400, async () => {
       return this.provinceService.getList({
         ...query,
-        country_id: countryId,
+        countryId,
         status: 'active',
       });
     });

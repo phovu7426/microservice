@@ -7,7 +7,6 @@ export interface MenuFilter {
   search?: string;
   status?: string;
   parentId?: any;
-  parent_id?: any;
   type?: string;
   group?: string;
 }
@@ -47,9 +46,8 @@ export class MenuRepository {
     }
     if (filter.status) where.status = filter.status as any;
     if (filter.type) where.type = filter.type as any;
-    const parentId = filter.parentId !== undefined ? filter.parentId : filter.parent_id;
-    if (parentId !== undefined) {
-      where.parent_id = parentId === null ? null : toPrimaryKey(parentId);
+    if (filter.parentId !== undefined) {
+      where.parent_id = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
     }
     if (filter.group) where.group = filter.group;
     return where;
@@ -114,12 +112,26 @@ export class MenuRepository {
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload = { ...data };
+
+    // Map camelCase DTO fields → snake_case Prisma fields
+    if (payload.apiPath !== undefined) { payload.api_path = payload.apiPath; delete payload.apiPath; }
+    if (payload.parentId !== undefined) { payload.parent_id = payload.parentId; delete payload.parentId; }
+    if (payload.sortOrder !== undefined) { payload.sort_order = payload.sortOrder; delete payload.sortOrder; }
+    if (payload.isPublic !== undefined) { payload.is_public = payload.isPublic; delete payload.isPublic; }
+    if (payload.showInMenu !== undefined) { payload.show_in_menu = payload.showInMenu; delete payload.showInMenu; }
+    if (payload.requiredPermissionCode !== undefined) {
+      payload.required_permission_code = payload.requiredPermissionCode;
+      delete payload.requiredPermissionCode;
+    }
+
+    // Convert BigInt fields
     const bigIntFields = ['parent_id', 'created_user_id', 'updated_user_id'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;
       payload[field] = value === null || value === '' ? null : toPrimaryKey(value);
     }
+
     return payload;
   }
 }
