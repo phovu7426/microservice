@@ -258,4 +258,73 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       }
     }
   }
+
+  async acquireLock(key: string, token: string, ttlSeconds: number): Promise<boolean> {
+    if (!this.client) return false;
+    const result = await this.client.set(key, token, 'EX', ttlSeconds, 'NX');
+    return result === 'OK';
+  }
+
+  async releaseLock(key: string, token: string): Promise<boolean> {
+    if (!this.client) return false;
+    const script = `
+      if redis.call("get", KEYS[1]) == ARGV[1] then
+        return redis.call("del", KEYS[1])
+      else
+        return 0
+      end
+    `;
+    const result = await this.client.eval(script, 1, key, token) as number;
+    return result === 1;
+  }
+
+  async getOrSetWithLock<T>(
+    key: string,
+    factory: () => Promise<T>,
+    ttlSeconds: number,
+    lockTtlSeconds = 10,
+  ): Promise<T> {
+    // 1. Try cache first
+    try {
+      if (this.client) {
+        const raw = await this.client.get(key);
+        if (raw) return JSON.parse(raw) as T;
+      }
+    } catch {}
+
+    // 2. Try to acquire distributed lock
+    const lockKey = `lock:${key}`;
+    const token = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const acquired = await this.acquireLock(lockKey, token, lockTtlSeconds);
+
+    if (!acquired) {
+      // Another instance is loading — wait briefly then try cache again
+      await new Promise<void>((resolve) => setTimeout(resolve, 50));
+      try {
+        if (this.client) {
+          const raw = await this.client.get(key);
+          if (raw) return JSON.parse(raw) as T;
+        }
+      } catch {}
+      // If still no cache (lock holder failed), fall through to fetch
+    }
+
+    // 3. Fetch from source and populate cache
+    try {
+      const result = await factory();
+      try {
+        if (this.client) {
+          await this.client.set(
+            key,
+            JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? Number(v) : v)),
+            'EX',
+            ttlSeconds,
+          );
+        }
+      } catch {}
+      return result;
+    } finally {
+      if (acquired) await this.releaseLock(lockKey, token);
+    }
+  }
 }
