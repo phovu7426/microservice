@@ -138,7 +138,22 @@
       "Bash(git worktree *)",
       "Bash(xargs git *)",
       "Bash(grep -r 'transaction\\\\|$transaction' /d/Sources/microservice/apps/comic-service/src '--include=*.ts')",
-      "Bash(grep -r \"maxConnections\\\\|pool\\\\|DATABASE_URL\" /d/Sources/microservice -type f -name \"*.env*\")"
+      "Bash(grep -r \"maxConnections\\\\|pool\\\\|DATABASE_URL\" /d/Sources/microservice -type f -name \"*.env*\")",
+      "Bash(git push *)",
+      "Bash(git branch *)",
+      "Bash(curl -sS -o /dev/null -w \"direct 3003 /api/config/general -> HTTP %{http_code}\\\\n\" http://localhost:3003/api/config/general)",
+      "Bash(curl -sS -o /dev/null -w \"nginx     /api/config/general -> HTTP %{http_code}\\\\n\" http://localhost/api/config/general)",
+      "Bash(curl -sS -o /dev/null -w \"nginx /api/config/admin/general -> HTTP %{http_code}\\\\n\" http://localhost/api/config/admin/general)",
+      "Bash(docker exec *)",
+      "Bash(curl -sS -o /dev/null -w \"GET  /api/config/admin/general -> HTTP %{http_code}\\\\n\" http://localhost/api/config/admin/general)",
+      "Bash(curl -sS -X PUT -o /dev/null -w \"PUT  /api/config/admin/general -> HTTP %{http_code}\\\\n\" -H \"Content-Type: application/json\" -d \"{}\" http://localhost/api/config/admin/general)",
+      "Bash(curl -sS -o /dev/null -w \"GET  direct 3003 /api/config/admin/general -> HTTP %{http_code}\\\\n\" http://localhost:3003/api/config/admin/general)",
+      "Bash(curl -sS -X PUT -o /dev/null -w \"PUT  direct 3003 /api/config/admin/general -> HTTP %{http_code}\\\\n\" -H \"Content-Type: application/json\" -d \"{}\" http://localhost:3003/api/config/admin/general)",
+      "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: GET\" http://localhost:3003/api/config/general)",
+      "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\" http://localhost:3001/api/auth/login)",
+      "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\" http://localhost/api/auth/login)",
+      "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type,x-group-id\" http://localhost/api/auth/login)",
+      "Bash(curl -sS -o /dev/null -D - -X POST -H \"Origin: http://localhost:3000\" -H \"Content-Type: application/json\" -H \"X-Group-Id: 1\" -H \"Accept: application/json\" -d '{\"email\":\"x@y.z\",\"password\":\"x\"}' http://localhost/api/auth/login)"
     ]
   }
 }

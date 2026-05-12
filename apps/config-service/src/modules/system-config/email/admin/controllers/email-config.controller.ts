@@ -8,7 +8,7 @@ import { EmailConfigService } from '../services/email-config.service';
 import { UpdateEmailConfigDto } from '../dtos/update-email-config.dto';
 import { Permission, session } from '@package/common';
 
-@Controller('config/email')
+@Controller('admin/email')
 export class AdminEmailConfigController {
   constructor(
     private readonly emailConfigService: EmailConfigService,
