@@ -175,7 +175,16 @@ export class PublicComicService {
       this.inflight.delete(key);
     });
 
-    if (this.inflight.size >= 1000) this.inflight.clear();
+    if (this.inflight.size >= 1000) {
+      // Evict oldest 25% instead of clearing all — prevents thundering herd
+      const evictCount = 250;
+      const keys = this.inflight.keys();
+      for (let i = 0; i < evictCount; i++) {
+        const next = keys.next();
+        if (next.done) break;
+        this.inflight.delete(next.value);
+      }
+    }
     this.inflight.set(key, promise);
     return promise;
   }

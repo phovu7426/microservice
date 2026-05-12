@@ -92,12 +92,11 @@ export abstract class BaseService<T, R extends IRepository<T>> {
       : filter;
 
     const result = await this.repository.findAll(normalized);
-    const transformedData = await Promise.all(
-      result.data.map((row) => {
-        const t = this.transform(row);
-        return t instanceof Promise ? t : Promise.resolve(t as T | null);
-      }),
-    );
+    const rawTransforms = result.data.map((row) => this.transform(row));
+    const hasAsync = rawTransforms.some((t) => t instanceof Promise);
+    const transformedData = hasAsync
+      ? await Promise.all(rawTransforms.map((t) => (t instanceof Promise ? t : Promise.resolve(t))))
+      : (rawTransforms as (T | null)[]);
     result.data = transformedData as T[];
     return this.afterGetList(result);
   }

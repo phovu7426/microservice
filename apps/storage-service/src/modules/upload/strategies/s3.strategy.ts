@@ -13,6 +13,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
+import { Readable } from 'stream';
 import {
   FileMetadata,
   IUploadStrategy,
@@ -88,7 +89,7 @@ export class S3StorageStrategy implements IUploadStrategy {
     const command = new PutObjectCommand({
       Bucket: this.bucket,
       Key: filename,
-      Body: file.buffer,
+      Body: Readable.from(file.buffer),
       ContentType: 'application/octet-stream',
       ContentDisposition: `attachment; filename="${filename}"`,
     });

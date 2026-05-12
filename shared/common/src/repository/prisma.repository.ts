@@ -90,6 +90,7 @@ export abstract class PrismaRepository<
   OrderByInput = any,
 > {
   protected isSoftDelete = false;
+  protected skipCountByDefault = false;
   protected defaultSelect: any = undefined;
   protected defaultInclude: any = undefined;
   protected defaultDetailSelect: any = undefined;
@@ -116,7 +117,7 @@ export abstract class PrismaRepository<
       include: this.defaultInclude,
     });
 
-    const skipCount = (options as any).skipCount === true;
+    const skipCount = (options as any).skipCount ?? this.skipCountByDefault;
 
     const [data, total] = await Promise.all([
       this.delegate.findMany({

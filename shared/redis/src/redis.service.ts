@@ -294,14 +294,23 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     const existing = this.inflightMap.get(key);
     if (existing) return existing as Promise<T>;
 
-    if (this.inflightMap.size >= 1000) this.inflightMap.clear();
+    if (this.inflightMap.size >= 1000) {
+      // Evict oldest 25% instead of clearing all — prevents thundering herd
+      const evictCount = 250;
+      const keys = this.inflightMap.keys();
+      for (let i = 0; i < evictCount; i++) {
+        const next = keys.next();
+        if (next.done) break;
+        this.inflightMap.delete(next.value);
+      }
+    }
 
     const promise = factory().then(async (result) => {
       try {
         if (this.client) {
           await this.client.set(
             key,
-            JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? Number(v) : v)),
+            JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? String(v) : v)),
             'EX',
             ttlSeconds,
           );
@@ -354,7 +363,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         if (this.client) {
           await this.client.set(
             key,
-            JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? Number(v) : v)),
+            JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? String(v) : v)),
             'EX',
             ttlSeconds,
           );

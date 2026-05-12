@@ -1,12 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from 'src/generated/prisma';
+import { RedisService } from '@package/redis';
 import { StatsRepository } from '../../repositories/stats.repository';
 
 @Injectable()
 export class AdminStatsService {
-  constructor(private readonly statsRepo: StatsRepository) {}
+  constructor(
+    private readonly statsRepo: StatsRepository,
+    private readonly redis: RedisService,
+  ) {}
 
   async getDashboard() {
+    if (this.redis?.isEnabled()) {
+      const cached = await this.redis.get('comic:admin:dashboard');
+      if (cached) return JSON.parse(cached);
+    }
+
     const [totalComics, totalViews, totalFollows] = await Promise.all([
       this.statsRepo.countComics(),
       this.statsRepo.aggregateViews(),
@@ -15,12 +24,22 @@ export class AdminStatsService {
 
     const topComics = await this.statsRepo.findTopComics({ stats: { view_count: 'desc' } }, 10);
 
-    return {
+    const result = {
       total_comics: totalComics,
       total_views: totalViews._sum?.view_count || 0,
       total_follows: totalFollows._sum?.follow_count || 0,
       top_comics: topComics,
     };
+
+    if (this.redis?.isEnabled()) {
+      await this.redis.set(
+        'comic:admin:dashboard',
+        JSON.stringify(result, (_, v) => (typeof v === 'bigint' ? String(v) : v)),
+        60,
+      );
+    }
+
+    return result;
   }
 
   async getTopComics(query: any) {

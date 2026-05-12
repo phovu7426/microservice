@@ -8,10 +8,30 @@ import {
 
 @Injectable()
 export class UploadService {
+  private static readonly UPLOAD_CONCURRENCY = 3;
+
   constructor(
     @Inject('UPLOAD_STRATEGY') private readonly strategy: IUploadStrategy,
     private readonly i18n: I18nService,
   ) {}
+
+  /**
+   * Process items with limited concurrency to reduce peak memory usage.
+   * Instead of uploading all files simultaneously, processes them in batches.
+   */
+  private async processWithConcurrency<T>(
+    items: T[],
+    concurrency: number,
+    fn: (item: T) => Promise<any>,
+  ): Promise<PromiseSettledResult<any>[]> {
+    const results: PromiseSettledResult<any>[] = [];
+    for (let i = 0; i < items.length; i += concurrency) {
+      const batch = items.slice(i, i + concurrency);
+      const batchResults = await Promise.allSettled(batch.map(fn));
+      results.push(...batchResults);
+    }
+    return results;
+  }
 
   async uploadFile(file: any): Promise<UploadResult> {
     if (!file) {
@@ -31,8 +51,12 @@ export class UploadService {
     // Best-effort cleanup on partial failure: if any single upload throws,
     // delete the ones that already succeeded so we don't leave orphaned
     // blobs in S3/disk/Cloudinary while the caller sees an error.
-    const results = await Promise.allSettled(
-      files.map((file) => this.strategy.upload(file)),
+    // Process files with limited concurrency to reduce peak memory usage.
+    // Only N files are being uploaded simultaneously instead of all at once.
+    const results = await this.processWithConcurrency(
+      files,
+      UploadService.UPLOAD_CONCURRENCY,
+      (file) => this.strategy.upload(file),
     );
     const successes: UploadResult[] = [];
     const errors: unknown[] = [];

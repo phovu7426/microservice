@@ -163,6 +163,7 @@ model UserRoleAssignment {
 
   @@unique([user_id, role_id, group_id], map: "user_role_assignments_idx_user_role_group_unique")
   @@index([user_id, group_id], map: "user_role_assignments_idx_user_group")
+  @@index([group_id, user_id], map: "user_role_assignments_idx_group_user")
   @@index([group_id], map: "user_role_assignments_idx_user_role_assignments_group_id")
   @@index([role_id], map: "user_role_assignments_idx_user_role_assignments_role_id")
   @@map("user_role_assignments")

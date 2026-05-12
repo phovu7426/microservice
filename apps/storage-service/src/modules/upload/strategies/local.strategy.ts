@@ -4,6 +4,8 @@ import { I18nContext, I18nService } from 'nestjs-i18n';
 import { randomUUID } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Readable } from 'stream';
+import { pipeline } from 'stream/promises';
 import {
   FileMetadata,
   IUploadStrategy,
@@ -82,13 +84,11 @@ export class LocalStorageStrategy implements IUploadStrategy {
       const filename = `${Date.now()}-${randomUUID()}${ext}`;
       const filePath = this.safePath(filename);
       try {
-        await new Promise<void>((resolve, reject) => {
-          const stream = fs.createWriteStream(filePath, { flags: 'wx' });
-          stream.on('finish', () => resolve());
-          stream.on('error', reject);
-          stream.write(file.buffer);
-          stream.end();
-        });
+        // Use pipeline for proper backpressure handling instead of manual write
+        await pipeline(
+          Readable.from(file.buffer),
+          fs.createWriteStream(filePath, { flags: 'wx' }),
+        );
         return {
           path: filePath,
           url: this.buildUrl(filename),

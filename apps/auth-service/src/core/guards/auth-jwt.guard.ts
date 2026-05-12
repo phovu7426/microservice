@@ -50,26 +50,32 @@ export class AuthJwtGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
 
-    // JWT verification
-    const token = this.extractToken(request);
-    if (!token) throw new UnauthorizedException(t(this.i18n, 'auth.TOKEN_REQUIRED'));
+    // Reuse verified JWT from trySetUser() to avoid double verification
+    if (request._jwtVerified && request.user) {
+      // JWT already verified and blacklist checked — skip to RBAC
+    } else {
+      // JWT verification
+      const token = this.extractToken(request);
+      if (!token) throw new UnauthorizedException(t(this.i18n, 'auth.TOKEN_REQUIRED'));
 
-    let payload: any;
-    try {
-      payload = await this.jwksService.verifyToken(token);
-    } catch {
-      throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_TOKEN'));
+      let payload: any;
+      try {
+        payload = await this.jwksService.verifyToken(token);
+      } catch {
+        throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_TOKEN'));
+      }
+
+      if (payload?.type === 'refresh') {
+        throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_TOKEN'));
+      }
+
+      if (await this.tokenBlacklistService.has(token)) {
+        throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_TOKEN'));
+      }
+
+      request.user = payload;
+      request._jwtVerified = true;
     }
-
-    if (payload?.type === 'refresh') {
-      throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_TOKEN'));
-    }
-
-    if (await this.tokenBlacklistService.has(token)) {
-      throw new UnauthorizedException(t(this.i18n, 'auth.INVALID_TOKEN'));
-    }
-
-    request.user = payload;
 
     // Auth-only permissions (e.g. 'user') — skip IAM
     if (permissions.every((p) => AUTH_ONLY_PERMS.has(p))) {
@@ -84,7 +90,7 @@ export class AuthJwtGuard implements CanActivate {
 
     const groupId = (request.headers['x-group-id'] as string) || undefined;
     try {
-      const allowed = await this.iamClient.checkPermissions(String(payload.sub), permissions, groupId);
+      const allowed = await this.iamClient.checkPermissions(String(request.user.sub), permissions, groupId);
       if (!allowed) throw new ForbiddenException(t(this.i18n, 'auth.PERMISSION_DENIED'));
     } catch (err) {
       if (err instanceof ForbiddenException) throw err;
@@ -96,6 +102,7 @@ export class AuthJwtGuard implements CanActivate {
 
   private async trySetUser(context: ExecutionContext): Promise<void> {
     const request = context.switchToHttp().getRequest();
+    if (request._jwtVerified && request.user) return;
     const token = this.extractToken(request);
     if (!token) return;
     try {
@@ -103,6 +110,7 @@ export class AuthJwtGuard implements CanActivate {
       if ((payload as any)?.type === 'refresh') return;
       if (await this.tokenBlacklistService.has(token)) return;
       request.user = payload;
+      request._jwtVerified = true;
     } catch { /* optional auth — ignore */ }
   }
 

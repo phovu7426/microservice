@@ -80,10 +80,18 @@ export class NotificationRepository {
     });
   }
 
-  createMany(data: CreateNotificationData[]) {
-    return this.prisma.notification.createMany({
-      data: data.map((d) => ({ ...d, user_id: BigInt(d.user_id) })),
-    });
+  async createMany(data: CreateNotificationData[]) {
+    const BATCH_SIZE = 500;
+    let totalCount = 0;
+    for (let i = 0; i < data.length; i += BATCH_SIZE) {
+      const batch = data.slice(i, i + BATCH_SIZE).map((d) => ({ ...d, user_id: BigInt(d.user_id) }));
+      const result = await this.prisma.notification.createMany({
+        data: batch,
+        skipDuplicates: true,
+      });
+      totalCount += result.count;
+    }
+    return { count: totalCount };
   }
 
   update(id: PrimaryKey, data: Prisma.NotificationUpdateInput) {
