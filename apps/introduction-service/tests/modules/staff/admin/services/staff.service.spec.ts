@@ -17,7 +17,7 @@ describe('AdminStaffService', () => {
   let staffRepo: Record<string, jest.Mock>;
   let redis: Record<string, jest.Mock>;
 
-  const mockItem = { id: 1n, name: 'John Doe', status: 'active', sort_order: 0, social_links: {} };
+  const mockItem = { id: 1n, name: 'John Doe', status: 'active', sortOrder: 0, socialLinks: {} };
 
   beforeEach(() => {
     staffRepo = {
@@ -82,7 +82,7 @@ describe('AdminStaffService', () => {
       const result = await service.create(dto as any);
       expect(result).toEqual(mockItem);
       expect(staffRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'John Doe', social_links: {}, status: 'active', sort_order: 0 }),
+        expect.objectContaining({ name: 'John Doe', socialLinks: {}, status: 'active', sortOrder: 0 }),
       );
       expect(redis.del).toHaveBeenCalled();
     });
@@ -92,7 +92,7 @@ describe('AdminStaffService', () => {
     it('should update and clear cache', async () => {
       const result = await service.update(1n, { name: 'Jane Doe' } as any);
       expect(result).toEqual(mockItem);
-      expect(staffRepo.update).toHaveBeenCalledWith(1n, { name: 'Jane Doe' });
+      expect(staffRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ name: 'Jane Doe' }));
       expect(redis.del).toHaveBeenCalled();
     });
 

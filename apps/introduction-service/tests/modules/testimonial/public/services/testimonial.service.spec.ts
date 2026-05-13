@@ -17,7 +17,7 @@ describe('PublicTestimonialService', () => {
   let testimonialRepo: Record<string, jest.Mock>;
   let redis: Record<string, jest.Mock>;
 
-  const mockItem = { id: 1, client_name: 'Client A', content: 'Great!', status: 'active' };
+  const mockItem = { id: 1, clientName: 'Client A', content: 'Great!', status: 'active' };
 
   beforeEach(() => {
     testimonialRepo = {

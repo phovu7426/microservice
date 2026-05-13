@@ -58,7 +58,26 @@ export class AdminProjectService {
       findOne: (filter: any) => this.projectRepo.findBySlug(filter.slug),
     });
     try {
-      const result = await this.projectRepo.create({ ...dto, slug, images: dto.images ?? [] });
+      const result = await this.projectRepo.create({
+        name: dto.name,
+        slug,
+        description: dto.description,
+        shortDescription: dto.shortDescription,
+        coverImage: dto.coverImage,
+        location: dto.location,
+        area: dto.area,
+        startDate: dto.startDate,
+        endDate: dto.endDate,
+        status: dto.status,
+        clientName: dto.clientName,
+        budget: dto.budget,
+        images: dto.images ?? [],
+        featured: dto.featured,
+        sortOrder: dto.sortOrder,
+        seoTitle: dto.seoTitle,
+        seoDescription: dto.seoDescription,
+        seoKeywords: dto.seoKeywords,
+      });
       await this.clearCache();
       return result;
     } catch (err) {
@@ -70,7 +89,25 @@ export class AdminProjectService {
   async update(id: PrimaryKey, dto: UpdateProjectDto) {
     const current = await this.getOne(id);
 
-    const data: Record<string, any> = { ...dto };
+    const data: Record<string, any> = {
+      name: dto.name,
+      description: dto.description,
+      shortDescription: dto.shortDescription,
+      coverImage: dto.coverImage,
+      location: dto.location,
+      area: dto.area,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+      status: dto.status,
+      clientName: dto.clientName,
+      budget: dto.budget,
+      images: dto.images,
+      featured: dto.featured,
+      sortOrder: dto.sortOrder,
+      seoTitle: dto.seoTitle,
+      seoDescription: dto.seoDescription,
+      seoKeywords: dto.seoKeywords,
+    };
     // Only regenerate slug when the source actually changed.
     const nameChanged = dto.name !== undefined && dto.name !== (current as any).name;
     if (dto.slug || nameChanged) {

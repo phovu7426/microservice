@@ -8,7 +8,7 @@ export interface TestimonialFilter {
   search?: string;
   status?: string;
   featured?: boolean;
-  project_id?: any;
+  projectId?: any;
 }
 
 const PROJECT_SELECT = { id: true, name: true, slug: true } as const;
@@ -21,14 +21,14 @@ export class TestimonialRepository {
     const where: Prisma.TestimonialWhereInput = {};
     if (filter.search) {
       where.OR = [
-        { client_name: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
-        { client_company: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
+        { clientName: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
+        { clientCompany: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
         { content: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
       ];
     }
     if (filter.status) where.status = filter.status;
     if (filter.featured !== undefined) where.featured = filter.featured;
-    if (filter.project_id !== undefined) where.project_id = toPrimaryKey(filter.project_id);
+    if (filter.projectId !== undefined) where.projectId = toPrimaryKey(filter.projectId);
     return where;
   }
 
@@ -36,7 +36,7 @@ export class TestimonialRepository {
     return this.prisma.testimonial.findMany({
       where: this.buildWhere(filter),
       include: { project: { select: PROJECT_SELECT } },
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });
@@ -81,10 +81,10 @@ export class TestimonialRepository {
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload = { ...data };
-    if (payload.project_id !== undefined) {
-      payload.project_id = payload.project_id === null || payload.project_id === ''
+    if (payload.projectId !== undefined) {
+      payload.projectId = payload.projectId === null || payload.projectId === ''
         ? null
-        : toPrimaryKey(payload.project_id);
+        : toPrimaryKey(payload.projectId);
     }
     return payload;
   }

@@ -149,7 +149,7 @@ describe('GroupService', () => {
         BigInt(100),
       );
       expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ owner_id: BigInt(50) }),
+        expect.objectContaining({ ownerId: BigInt(50) }),
       );
     });
   });
@@ -191,7 +191,7 @@ describe('GroupService', () => {
       await service.update(BigInt(1), { owner_id: null } as any, BigInt(100));
       expect(repo.update).toHaveBeenCalledWith(
         BigInt(1),
-        expect.objectContaining({ owner_id: null }),
+        expect.objectContaining({ ownerId: null }),
       );
     });
   });

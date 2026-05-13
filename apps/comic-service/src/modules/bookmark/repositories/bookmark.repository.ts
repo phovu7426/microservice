@@ -4,8 +4,8 @@ import { toPrimaryKey } from 'src/types';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface BookmarkFilter {
-  user_id?: any;
-  chapter_id?: any;
+  userId?: any;
+  chapterId?: any;
 }
 
 @Injectable()
@@ -14,8 +14,8 @@ export class BookmarkRepository {
 
   private buildWhere(filter: BookmarkFilter): Prisma.BookmarkWhereInput {
     const where: Prisma.BookmarkWhereInput = {};
-    if (filter.user_id !== undefined) where.user_id = toPrimaryKey(filter.user_id);
-    if (filter.chapter_id !== undefined) where.chapter_id = toPrimaryKey(filter.chapter_id);
+    if (filter.userId !== undefined) where.userId = toPrimaryKey(filter.userId);
+    if (filter.chapterId !== undefined) where.chapterId = toPrimaryKey(filter.chapterId);
     return where;
   }
 
@@ -27,12 +27,12 @@ export class BookmarkRepository {
           select: {
             id: true,
             title: true,
-            chapter_index: true,
+            chapterIndex: true,
             comic: { select: { id: true, title: true, slug: true } },
           },
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -47,27 +47,27 @@ export class BookmarkRepository {
   }
 
   /**
-   * Upsert keyed on (user_id, chapter_id, page_number). Idempotent — a
+   * Upsert keyed on (userId, chapterId, pageNumber). Idempotent — a
    * double-tap from the client returns the same row instead of inserting a
    * duplicate. Requires the @@unique migration on the Bookmark model.
    */
-  upsert(data: { user_id: any; chapter_id: any; page_number: number }) {
-    const uid = toPrimaryKey(data.user_id);
-    const cid = toPrimaryKey(data.chapter_id);
+  upsert(data: { userId: any; chapterId: any; pageNumber: number }) {
+    const uid = toPrimaryKey(data.userId);
+    const cid = toPrimaryKey(data.chapterId);
     return this.prisma.bookmark.upsert({
       where: {
-        user_id_chapter_id_page_number: {
-          user_id: uid,
-          chapter_id: cid,
-          page_number: data.page_number,
+        userId_chapterId_pageNumber: {
+          userId: uid,
+          chapterId: cid,
+          pageNumber: data.pageNumber,
         },
       },
       create: {
-        user_id: uid,
-        chapter_id: cid,
-        page_number: data.page_number,
+        userId: uid,
+        chapterId: cid,
+        pageNumber: data.pageNumber,
       },
-      // No fields actually need updating — refresh `created_at` would be a
+      // No fields actually need updating — refresh `createdAt` would be a
       // semantic change. Empty update is a no-op.
       update: {},
     });

@@ -57,7 +57,7 @@ export class PublicProjectService {
 
       await this.projectRepo.incrementViewCount(item.id);
 
-      return { ...item, view_count: item.view_count + 1 };
+      return { ...item, viewCount: item.viewCount + 1 };
     });
   }
 }

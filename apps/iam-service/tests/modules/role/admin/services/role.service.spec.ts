@@ -152,7 +152,7 @@ describe('RoleService', () => {
       );
       expect(result).toEqual(created);
       expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ code: 'editor', name: 'Editor', created_user_id: BigInt(100) }),
+        expect.objectContaining({ code: 'editor', name: 'Editor', createdUserId: BigInt(100) }),
       );
     });
 

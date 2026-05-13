@@ -7,8 +7,8 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'slug',
   'description',
-  'created_user_id',
-  'updated_user_id',
+  'createdUserId',
+  'updatedUserId',
 ]);
 
 export interface CategoryFilter {
@@ -80,7 +80,7 @@ export class CategoryRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    const bigIntFields = ['created_user_id', 'updated_user_id'];
+    const bigIntFields = ['createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

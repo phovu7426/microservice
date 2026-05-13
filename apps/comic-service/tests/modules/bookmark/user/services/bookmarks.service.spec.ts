@@ -75,19 +75,19 @@ describe('UserBookmarkService', () => {
 
       expect(result.data).toEqual(bookmarks);
       expect(bookmarkRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: 1n }),
+        expect.objectContaining({ userId: 1n }),
         expect.anything(),
       );
     });
 
-    it('filters by chapter_id when provided', async () => {
+    it('filters by chapterId when provided', async () => {
       const { service, bookmarkRepo } = buildService();
       bookmarkRepo.findMany.mockResolvedValue([]);
 
-      await service.getList(1n, { chapter_id: 100n });
+      await service.getList(1n, { chapterId: 100n });
 
       expect(bookmarkRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ chapter_id: 100n }),
+        expect.objectContaining({ chapterId: 100n }),
         expect.anything(),
       );
     });
@@ -99,13 +99,13 @@ describe('UserBookmarkService', () => {
       const bookmark = { id: 1n, user_id: 1n, chapter_id: 10n, page_number: 5 };
       bookmarkRepo.upsert.mockResolvedValue(bookmark);
 
-      const result = await service.create(1n, { chapter_id: 10n, page_number: 5 } as any);
+      const result = await service.create(1n, { chapterId: 10n, pageNumber: 5 } as any);
 
       expect(result).toEqual(bookmark);
       expect(bookmarkRepo.upsert).toHaveBeenCalledWith({
-        user_id: 1n,
-        chapter_id: 10n,
-        page_number: 5,
+        userId: 1n,
+        chapterId: 10n,
+        pageNumber: 5,
       });
     });
   });

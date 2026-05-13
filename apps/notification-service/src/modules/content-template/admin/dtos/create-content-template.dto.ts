@@ -43,7 +43,7 @@ export class CreateContentTemplateDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  file_path?: string;
+  filePath?: string;
 
   // `metadata` typically holds `subject` etc.; constrain to an object so
   // callers can't dump huge arrays / scalars here.

@@ -54,8 +54,8 @@ export class SocialAuthService {
         name: fullName,
         image: profile.picture ?? null,
         googleId: profile.googleId,
-        email_verified_at: existing.email_verified_at ?? now,
-        last_login_at: now,
+        emailVerifiedAt: existing.emailVerifiedAt ?? now,
+        lastLoginAt: now,
       });
     } else {
       log.addDebug('creating new user');
@@ -109,8 +109,8 @@ export class SocialAuthService {
               image: picture ?? null,
               googleId,
               status: UserStatus.active,
-              email_verified_at: now,
-              last_login_at: now,
+              emailVerifiedAt: now,
+              lastLoginAt: now,
             },
             tx,
           );

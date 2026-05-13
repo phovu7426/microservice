@@ -73,12 +73,12 @@ function createService(overrides: Record<string, any> = {}) {
 //   comic (root) -> comic.manage (child) -> comic.view (grandchild)
 function samplePermissions() {
   return [
-    { id: BigInt(1), code: 'system.manage', parent_id: null },
-    { id: BigInt(2), code: 'role', parent_id: null },
-    { id: BigInt(3), code: 'role.view', parent_id: BigInt(2) },
-    { id: BigInt(4), code: 'comic', parent_id: null },
-    { id: BigInt(5), code: 'comic.manage', parent_id: BigInt(4) },
-    { id: BigInt(6), code: 'comic.view', parent_id: BigInt(5) },
+    { id: BigInt(1), code: 'system.manage', parentId: null },
+    { id: BigInt(2), code: 'role', parentId: null },
+    { id: BigInt(3), code: 'role.view', parentId: BigInt(2) },
+    { id: BigInt(4), code: 'comic', parentId: null },
+    { id: BigInt(5), code: 'comic.manage', parentId: BigInt(4) },
+    { id: BigInt(6), code: 'comic.view', parentId: BigInt(5) },
   ];
 }
 

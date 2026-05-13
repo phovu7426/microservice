@@ -22,12 +22,12 @@ describe('AdminNotificationService', () => {
 
   const mockNotification = {
     id: 1n,
-    user_id: 100n,
+    userId: 100n,
     title: 'Test',
     message: 'Hello',
     type: 'info',
     status: 'active',
-    is_read: false,
+    isRead: false,
   };
 
   beforeEach(() => {
@@ -72,18 +72,18 @@ describe('AdminNotificationService', () => {
       expect(result).toHaveProperty('meta');
     });
 
-    it('should apply user_id filter when valid', async () => {
-      const query = { user_id: '123' } as any;
+    it('should apply userId filter when valid', async () => {
+      const query = { userId: '123' } as any;
       await service.getList(query);
 
       expect(notifRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: '123' }),
+        expect.objectContaining({ userId: '123' }),
         expect.any(Object),
       );
     });
 
-    it('should throw BadRequestException for invalid user_id', async () => {
-      const query = { user_id: 'abc' } as any;
+    it('should throw BadRequestException for invalid userId', async () => {
+      const query = { userId: 'abc' } as any;
 
       await expect(service.getList(query)).rejects.toThrow(BadRequestException);
     });
@@ -98,22 +98,22 @@ describe('AdminNotificationService', () => {
       );
     });
 
-    it('should apply is_read filter when set to "true"', async () => {
-      const query = { is_read: 'true' } as any;
+    it('should apply isRead filter when set to "true"', async () => {
+      const query = { isRead: 'true' } as any;
       await service.getList(query);
 
       expect(notifRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ is_read: true }),
+        expect.objectContaining({ isRead: true }),
         expect.any(Object),
       );
     });
 
-    it('should apply is_read=false filter when set to "false"', async () => {
-      const query = { is_read: 'false' } as any;
+    it('should apply isRead=false filter when set to "false"', async () => {
+      const query = { isRead: 'false' } as any;
       await service.getList(query);
 
       expect(notifRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ is_read: false }),
+        expect.objectContaining({ isRead: false }),
         expect.any(Object),
       );
     });
@@ -127,9 +127,9 @@ describe('AdminNotificationService', () => {
   });
 
   describe('send', () => {
-    it('should create notifications for all user_ids', async () => {
+    it('should create notifications for all userIds', async () => {
       const dto = {
-        user_ids: ['1', '2'],
+        userIds: ['1', '2'],
         title: 'Hello',
         message: 'World',
         type: 'info',
@@ -139,13 +139,13 @@ describe('AdminNotificationService', () => {
       await service.send(dto as any);
 
       expect(notifRepo.createMany).toHaveBeenCalledWith([
-        { user_id: '1', title: 'Hello', message: 'World', type: 'info', data: { url: '/test' }, status: 'active' },
-        { user_id: '2', title: 'Hello', message: 'World', type: 'info', data: { url: '/test' }, status: 'active' },
+        { userId: '1', title: 'Hello', message: 'World', type: 'info', data: { url: '/test' }, status: 'active' },
+        { userId: '2', title: 'Hello', message: 'World', type: 'info', data: { url: '/test' }, status: 'active' },
       ]);
     });
 
-    it('should invalidate unread cache for all user_ids', async () => {
-      const dto = { user_ids: ['1', '2'], title: 'T', message: 'M' };
+    it('should invalidate unread cache for all userIds', async () => {
+      const dto = { userIds: ['1', '2'], title: 'T', message: 'M' };
 
       await service.send(dto as any);
 
@@ -154,7 +154,7 @@ describe('AdminNotificationService', () => {
     });
 
     it('should return createMany result', async () => {
-      const dto = { user_ids: ['1'], title: 'T', message: 'M' };
+      const dto = { userIds: ['1'], title: 'T', message: 'M' };
       const result = await service.send(dto as any);
 
       expect(result).toEqual({ count: 2 });
@@ -183,17 +183,17 @@ describe('AdminNotificationService', () => {
     it('should create a single notification with status active', async () => {
       notifRepo.create!.mockResolvedValue(mockNotification);
 
-      await service.create({ user_id: '1', title: 'T', message: 'M', type: 'info' });
+      await service.create({ userId: '1', title: 'T', message: 'M', type: 'info' });
 
       expect(notifRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: '1', title: 'T', message: 'M', type: 'info', status: 'active' }),
+        expect.objectContaining({ userId: '1', title: 'T', message: 'M', type: 'info', status: 'active' }),
       );
     });
 
     it('should invalidate unread cache after create', async () => {
       notifRepo.create!.mockResolvedValue(mockNotification);
 
-      await service.create({ user_id: '42', title: 'T', message: 'M' });
+      await service.create({ userId: '42', title: 'T', message: 'M' });
 
       expect(redis.del).toHaveBeenCalledWith('notif:unread:42');
     });
@@ -202,23 +202,23 @@ describe('AdminNotificationService', () => {
   describe('createMany', () => {
     it('should create multiple notifications with status active', async () => {
       const notifications = [
-        { user_id: '1', title: 'A', message: 'B' },
-        { user_id: '2', title: 'C', message: 'D' },
+        { userId: '1', title: 'A', message: 'B' },
+        { userId: '2', title: 'C', message: 'D' },
       ];
 
       await service.createMany(notifications);
 
       expect(notifRepo.createMany).toHaveBeenCalledWith([
-        { user_id: '1', title: 'A', message: 'B', status: 'active' },
-        { user_id: '2', title: 'C', message: 'D', status: 'active' },
+        { userId: '1', title: 'A', message: 'B', status: 'active' },
+        { userId: '2', title: 'C', message: 'D', status: 'active' },
       ]);
     });
 
-    it('should deduplicate user_ids for cache invalidation', async () => {
+    it('should deduplicate userIds for cache invalidation', async () => {
       const notifications = [
-        { user_id: '1', title: 'A', message: 'B' },
-        { user_id: '1', title: 'C', message: 'D' },
-        { user_id: '2', title: 'E', message: 'F' },
+        { userId: '1', title: 'A', message: 'B' },
+        { userId: '1', title: 'C', message: 'D' },
+        { userId: '2', title: 'E', message: 'F' },
       ];
 
       await service.createMany(notifications);
@@ -237,14 +237,14 @@ describe('AdminNotificationService', () => {
         undefined,
       );
 
-      const dto = { user_ids: ['1'], title: 'T', message: 'M' };
+      const dto = { userIds: ['1'], title: 'T', message: 'M' };
       await expect(serviceNoRedis.send(dto as any)).resolves.not.toThrow();
     });
 
     it('should not throw when redis.del fails', async () => {
       redis.del.mockRejectedValue(new Error('Redis down'));
 
-      const dto = { user_ids: ['1'], title: 'T', message: 'M' };
+      const dto = { userIds: ['1'], title: 'T', message: 'M' };
       await expect(service.send(dto as any)).resolves.not.toThrow();
     });
   });

@@ -8,17 +8,17 @@ export class StatsRepository {
 
   upsertStats(postId: PrimaryKey, count: number) {
     return this.prisma.stats.upsert({
-      where: { post_id: postId },
-      create: { post_id: postId, view_count: BigInt(count) },
-      update: { view_count: { increment: BigInt(count) } },
+      where: { postId: postId },
+      create: { postId: postId, viewCount: BigInt(count) },
+      update: { viewCount: { increment: BigInt(count) } },
     });
   }
 
   upsertDailyStats(postId: PrimaryKey, date: Date, count: number) {
     return this.prisma.dailyStats.upsert({
-      where: { post_id_stat_date: { post_id: postId, stat_date: date } },
-      create: { post_id: postId, stat_date: date, view_count: BigInt(count) },
-      update: { view_count: { increment: BigInt(count) } },
+      where: { postId_statDate: { postId: postId, statDate: date } },
+      create: { postId: postId, statDate: date, viewCount: BigInt(count) },
+      update: { viewCount: { increment: BigInt(count) } },
     });
   }
 }

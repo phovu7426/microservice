@@ -13,6 +13,6 @@ export class UpdateRoleDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^(\d{1,20})?$/, { message: 'parent_id must be numeric or empty.' })
-  parent_id?: string | null;
+  @Matches(/^(\d{1,20})?$/, { message: 'parentId must be numeric or empty.' })
+  parentId?: string | null;
 }

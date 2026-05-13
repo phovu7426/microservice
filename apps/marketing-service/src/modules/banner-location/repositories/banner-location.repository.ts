@@ -19,8 +19,8 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'code',
-  'created_at',
-  'updated_at',
+  'createdAt',
+  'updatedAt',
   'status',
 ]);
 
@@ -42,9 +42,9 @@ export class BannerLocationRepository {
   }
 
   private buildOrderBy(sort?: string): Prisma.BannerLocationOrderByWithRelationInput {
-    if (!sort) return { created_at: 'desc' };
+    if (!sort) return { createdAt: 'desc' };
     const [field, dirRaw] = sort.split(':');
-    if (!field || !SORTABLE_FIELDS.has(field)) return { created_at: 'desc' };
+    if (!field || !SORTABLE_FIELDS.has(field)) return { createdAt: 'desc' };
     const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
     return { [field]: dir } as Prisma.BannerLocationOrderByWithRelationInput;
   }
@@ -80,7 +80,7 @@ export class BannerLocationRepository {
   }
 
   countBanners(locationId: any) {
-    return this.prisma.banner.count({ where: { location_id: toPrimaryKey(locationId) } });
+    return this.prisma.banner.count({ where: { locationId: toPrimaryKey(locationId) } });
   }
 
   create(data: Record<string, any>) {

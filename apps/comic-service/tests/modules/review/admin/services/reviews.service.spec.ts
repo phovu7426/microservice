@@ -105,12 +105,12 @@ describe('AdminReviewService', () => {
       const { service, reviewRepo } = buildService();
       reviewRepo.findMany.mockResolvedValue([]);
 
-      await service.getList({ comic_id: 10n, user_id: 1n, rating: '5' });
+      await service.getList({ comicId: 10n, userId: 1n, rating: '5' });
 
       expect(reviewRepo.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          comic_id: 10n,
-          user_id: 1n,
+          comicId: 10n,
+          userId: 1n,
           rating: 5,
         }),
         expect.anything(),

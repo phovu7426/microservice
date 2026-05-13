@@ -36,9 +36,9 @@ export class CreateComicDto {
   description?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'cover_image must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'coverImage must be an http(s) URL.' })
   @MaxLength(500)
-  cover_image?: string;
+  coverImage?: string;
 
   @IsOptional()
   @IsString()
@@ -56,9 +56,9 @@ export class CreateComicDto {
   @IsInt({ each: true })
   @Min(1, { each: true })
   @IsNumber({}, { each: true })
-  category_ids?: number[];
+  categoryIds?: number[];
 
   @IsOptional()
   @IsBoolean()
-  is_featured?: boolean;
+  isFeatured?: boolean;
 }

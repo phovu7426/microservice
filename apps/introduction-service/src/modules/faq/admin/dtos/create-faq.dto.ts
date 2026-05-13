@@ -17,5 +17,5 @@ export class CreateFaqDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

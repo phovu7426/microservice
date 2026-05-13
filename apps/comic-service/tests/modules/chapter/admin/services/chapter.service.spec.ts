@@ -111,11 +111,11 @@ describe('AdminChapterService', () => {
       chapterRepo.findMany.mockResolvedValue([sampleChapter]);
       chapterRepo.count.mockResolvedValue(1);
 
-      const result = await service.getList({ comic_id: 10n });
+      const result = await service.getList({ comicId: 10n });
 
       expect(result.data).toHaveLength(1);
       expect(chapterRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ comic_id: 10n }),
+        expect.objectContaining({ comicId: 10n }),
         expect.anything(),
       );
     });
@@ -134,20 +134,20 @@ describe('AdminChapterService', () => {
   // getSimpleList()
   // -----------------------------------------------------------------------
   describe('getSimpleList()', () => {
-    it('returns simple list filtered by comic_id', async () => {
+    it('returns simple list filtered by comicId', async () => {
       const { service, chapterRepo } = buildService();
       chapterRepo.findSimpleMany.mockResolvedValue([sampleChapter]);
 
-      const result = await service.getSimpleList({ comic_id: 10n });
+      const result = await service.getSimpleList({ comicId: 10n });
 
       expect(result.data).toEqual([sampleChapter]);
       expect(chapterRepo.findSimpleMany).toHaveBeenCalledWith(
-        expect.objectContaining({ comic_id: 10n }),
+        expect.objectContaining({ comicId: 10n }),
         100,
       );
     });
 
-    it('returns empty list when no comic_id filter', async () => {
+    it('returns empty list when no comicId filter', async () => {
       const { service, chapterRepo } = buildService();
       chapterRepo.findSimpleMany.mockResolvedValue([]);
 
@@ -184,12 +184,12 @@ describe('AdminChapterService', () => {
   // -----------------------------------------------------------------------
   describe('create()', () => {
     const dto = {
-      comic_id: 10n,
+      comicId: 10n,
       title: 'New Chapter',
-      chapter_index: 2,
-      chapter_label: 'Ch 2',
+      chapterIndex: 2,
+      chapterLabel: 'Ch 2',
       status: 'draft',
-      pages: [{ image_url: 'https://img/1.jpg', width: 800, height: 1200 }],
+      pages: [{ imageUrl: 'https://img/1.jpg', width: 800, height: 1200 }],
     } as any;
 
     it('creates chapter with pages', async () => {
@@ -203,20 +203,20 @@ describe('AdminChapterService', () => {
 
       expect(chapterRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          comic_id: 10n,
+          comicId: 10n,
           title: 'New Chapter',
-          created_user_id: 1n,
+          createdUserId: 1n,
         }),
       );
       expect(chapterRepo.createPages).toHaveBeenCalledWith(
         expect.arrayContaining([
-          expect.objectContaining({ chapter_id: 2n, page_number: 1, image_url: 'https://img/1.jpg' }),
+          expect.objectContaining({ chapterId: 2n, pageNumber: 1, imageUrl: 'https://img/1.jpg' }),
         ]),
       );
       expect(result).toEqual(created);
     });
 
-    it('throws BadRequestException on duplicate chapter_index', async () => {
+    it('throws BadRequestException on duplicate chapterIndex', async () => {
       const { service, chapterRepo } = buildService();
       chapterRepo.findByIndex.mockResolvedValue(sampleChapter);
 
@@ -283,7 +283,7 @@ describe('AdminChapterService', () => {
 
       await service.update(1n, { title: 'Updated' } as any, 1n);
 
-      expect(chapterRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ title: 'Updated', updated_user_id: 1n }));
+      expect(chapterRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ title: 'Updated', updatedUserId: 1n }));
     });
 
     it('replaces pages when pages array provided', async () => {
@@ -291,12 +291,12 @@ describe('AdminChapterService', () => {
       chapterRepo.findById.mockResolvedValue(sampleChapter);
       chapterRepo.update.mockResolvedValue(sampleChapter);
 
-      const pages = [{ image_url: 'https://img/new.jpg', width: 800, height: 1200 }];
+      const pages = [{ imageUrl: 'https://img/new.jpg', width: 800, height: 1200 }];
       await service.update(1n, { pages } as any);
 
       expect(chapterRepo.deletePages).toHaveBeenCalledWith(1n);
       expect(chapterRepo.createPages).toHaveBeenCalledWith(
-        expect.arrayContaining([expect.objectContaining({ page_number: 1 })]),
+        expect.arrayContaining([expect.objectContaining({ pageNumber: 1 })]),
       );
     });
 

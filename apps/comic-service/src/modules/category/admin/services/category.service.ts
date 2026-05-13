@@ -43,7 +43,7 @@ export class AdminCategoryService {
       findOne: (filter: any) => this.categoryRepo.findBySlug(filter.slug),
     });
 
-    const created = await this.categoryRepo.create({ ...dto, slug, created_user_id: actorId, updated_user_id: actorId });
+    const created = await this.categoryRepo.create({ ...dto, slug, createdUserId: actorId, updatedUserId: actorId });
     await this.clearCategoryCaches();
     return created;
   }
@@ -51,7 +51,7 @@ export class AdminCategoryService {
   async update(id: PrimaryKey, dto: UpdateCategoryDto, actorId?: PrimaryKey) {
     await this.getOne(id);
     const data: Record<string, any> = { ...dto };
-    if (actorId) data.updated_user_id = actorId;
+    if (actorId) data.updatedUserId = actorId;
 
     if (dto.name) {
       data.slug = await SlugHelper.uniqueSlug(

@@ -52,7 +52,7 @@ export class AdminUserService {
       : undefined;
 
     const user = await this.userRepo.createWithProfile(
-      { ...rest, password: hashedPassword, created_user_id: actorId, updated_user_id: actorId },
+      { ...rest, password: hashedPassword, createdUserId: actorId, updatedUserId: actorId },
       profileData,
     );
 
@@ -68,7 +68,7 @@ export class AdminUserService {
     );
 
     const { profile: profileDto, password, ...rest } = dto;
-    const updateData: Record<string, any> = { ...rest, updated_user_id: actorId };
+    const updateData: Record<string, any> = { ...rest, updatedUserId: actorId };
 
     if (password) {
       const rounds = this.configService.get<number>('BCRYPT_ROUNDS', 12);
@@ -122,14 +122,14 @@ export class AdminUserService {
   ): Record<string, any> {
     const data: Record<string, any> = { ...profile };
     if (actorId) {
-      data.created_user_id = actorId;
-      data.updated_user_id = actorId;
+      data.createdUserId = actorId;
+      data.updatedUserId = actorId;
     }
     return data;
   }
 
   private sanitize(user: Record<string, any>) {
-    const { password, remember_token, ...rest } = user;
+    const { password, rememberToken, ...rest } = user;
     return rest;
   }
 }

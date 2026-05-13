@@ -7,46 +7,43 @@ import {
 import { Observable, map } from 'rxjs';
 
 /**
- * Converts BigInt values to strings in response payloads.
- *
- * JavaScript Number only safely represents integers up to 2^53 - 1.
- * Converting BigInt → Number silently loses precision for large IDs.
- * Using strings preserves the exact value for all ID ranges.
- *
- * Uses a single-pass approach: checks AND converts in one traversal.
- * If no BigInts are found the original object is returned untouched (no clone).
+ * Converts snake_case key to camelCase.
+ * Example: "created_at" → "createdAt", "site_name" → "siteName"
+ * Keys already in camelCase are returned as-is (no underscore → no change).
  */
-function serializeBigIntSinglePass(data: any): { result: any; changed: boolean } {
-  if (data === null || data === undefined) return { result: data, changed: false };
-  if (typeof data === 'bigint') return { result: String(data), changed: true };
-  if (data instanceof Date) return { result: data, changed: false };
+function toCamelCase(key: string): string {
+  return key.replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase());
+}
+
+/**
+ * Single-pass response serializer:
+ * 1. Converts BigInt values → strings (preserves precision for large IDs)
+ * 2. Converts object keys from snake_case → camelCase
+ *
+ * Returns the original object untouched when no transformations are needed.
+ */
+function serializeResponse(data: any): any {
+  if (data === null || data === undefined) return data;
+  if (typeof data === 'bigint') return String(data);
+  if (data instanceof Date) return data;
   if (Array.isArray(data)) {
-    let anyChanged = false;
-    const arr = data.map(item => {
-      const { result, changed } = serializeBigIntSinglePass(item);
-      if (changed) anyChanged = true;
-      return result;
-    });
-    return { result: anyChanged ? arr : data, changed: anyChanged };
+    return data.map(item => serializeResponse(item));
   }
   if (typeof data === 'object') {
-    let anyChanged = false;
     const obj: any = {};
     for (const key of Object.keys(data)) {
-      const { result, changed } = serializeBigIntSinglePass(data[key]);
-      obj[key] = result;
-      if (changed) anyChanged = true;
+      obj[toCamelCase(key)] = serializeResponse(data[key]);
     }
-    return { result: anyChanged ? obj : data, changed: anyChanged };
+    return obj;
   }
-  return { result: data, changed: false };
+  return data;
 }
 
 @Injectable()
 export class BigIntSerializationInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
-      map((data) => serializeBigIntSinglePass(data).result),
+      map((data) => serializeResponse(data)),
     );
   }
 }

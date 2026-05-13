@@ -11,34 +11,34 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'title',
   'slug',
   'description',
-  'cover_image',
+  'coverImage',
   'author',
   'status',
-  'is_featured',
-  'created_user_id',
-  'updated_user_id',
+  'isFeatured',
+  'createdUserId',
+  'updatedUserId',
 ]);
 
 const SORTABLE_TOP_LEVEL: ReadonlySet<string> = new Set([
   'title',
-  'created_at',
-  'updated_at',
-  'last_chapter_updated_at',
-  'is_featured',
+  'createdAt',
+  'updatedAt',
+  'lastChapterUpdatedAt',
+  'isFeatured',
 ]);
 
 const SORTABLE_STATS: ReadonlySet<string> = new Set([
-  'view_count',
-  'follow_count',
-  'rating_count',
-  'rating_sum',
+  'viewCount',
+  'followCount',
+  'ratingCount',
+  'ratingSum',
 ]);
 
 export interface ComicFilter {
   search?: string;
   status?: string | string[];
-  is_featured?: boolean;
-  category_id?: any;
+  isFeatured?: boolean;
+  categoryId?: any;
   author?: string;
   slug?: string;
 }
@@ -53,28 +53,28 @@ const PUBLIC_SELECT = {
   slug: true,
   title: true,
   description: true,
-  cover_image: true,
+  coverImage: true,
   author: true,
   status: true,
-  created_at: true,
-  updated_at: true,
-  last_chapter_id: true,
-  last_chapter_updated_at: true,
-  is_featured: true,
+  createdAt: true,
+  updatedAt: true,
+  lastChapterId: true,
+  lastChapterUpdatedAt: true,
+  isFeatured: true,
   stats: true,
   categoryLinks: {
     select: { category: { select: { id: true, name: true, slug: true } } },
   },
   chapters: {
     where: { status: ChapterStatus.published },
-    orderBy: { chapter_index: 'desc' as const },
+    orderBy: { chapterIndex: 'desc' as const },
     take: 1,
     select: {
       id: true,
       title: true,
-      chapter_index: true,
-      chapter_label: true,
-      created_at: true,
+      chapterIndex: true,
+      chapterLabel: true,
+      createdAt: true,
     },
   },
 } as const;
@@ -105,19 +105,19 @@ export class ComicRepository {
     if (filter.status !== undefined) {
       where.status = Array.isArray(filter.status) ? { in: filter.status } : filter.status;
     }
-    if (filter.is_featured !== undefined) where.is_featured = filter.is_featured;
+    if (filter.isFeatured !== undefined) where.isFeatured = filter.isFeatured;
     if (filter.author) where.author = filter.author;
     if (filter.slug) where.slug = filter.slug;
-    if (filter.category_id !== undefined) {
-      where.categoryLinks = { some: { category_id: toPrimaryKey(filter.category_id) } };
+    if (filter.categoryId !== undefined) {
+      where.categoryLinks = { some: { categoryId: toPrimaryKey(filter.categoryId) } };
     }
     return where;
   }
 
   private buildOrderBy(sort?: string): Prisma.ComicOrderByWithRelationInput {
-    if (!sort) return { updated_at: 'desc' };
+    if (!sort) return { updatedAt: 'desc' };
     const [field, dirRaw] = sort.split(':');
-    if (!field) return { updated_at: 'desc' };
+    if (!field) return { updatedAt: 'desc' };
     const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
     // Allowlist sortable columns. Without it `?sort=foo:bar` made Prisma
     // throw at runtime — 500 on a public endpoint, fingerprintable.
@@ -127,14 +127,14 @@ export class ComicRepository {
     if (SORTABLE_TOP_LEVEL.has(field)) {
       return { [field]: dir } as Prisma.ComicOrderByWithRelationInput;
     }
-    return { updated_at: 'desc' };
+    return { updatedAt: 'desc' };
   }
 
   findMany(filter: ComicFilter, options: { skip: number; take: number }) {
     return this.prisma.comic.findMany({
       where: this.buildWhere(filter),
       include: WITH_RELATIONS,
-      orderBy: { updated_at: 'desc' },
+      orderBy: { updatedAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -245,17 +245,17 @@ export class ComicRepository {
   }
 
   createStats(comicId: any, tx: Tx = this.prisma) {
-    return tx.stats.create({ data: { comic_id: toPrimaryKey(comicId) } });
+    return tx.stats.create({ data: { comicId: toPrimaryKey(comicId) } });
   }
 
   async syncCategories(comicId: any, categoryIds: any[], tx: Tx = this.prisma) {
     const cid = toPrimaryKey(comicId);
-    await tx.comicCategory.deleteMany({ where: { comic_id: cid } });
+    await tx.comicCategory.deleteMany({ where: { comicId: cid } });
     if (categoryIds.length > 0) {
       await tx.comicCategory.createMany({
         data: categoryIds.map((catId) => ({
-          comic_id: cid,
-          category_id: toPrimaryKey(catId),
+          comicId: cid,
+          categoryId: toPrimaryKey(catId),
         })),
         skipDuplicates: true,
       });
@@ -264,19 +264,19 @@ export class ComicRepository {
 
   findPublicChapters(comicId: any, options: { skip: number; take: number }) {
     return this.prisma.chapter.findMany({
-      where: { comic_id: toPrimaryKey(comicId), status: ChapterStatus.published },
+      where: { comicId: toPrimaryKey(comicId), status: ChapterStatus.published },
       select: {
         id: true,
-        comic_id: true,
+        comicId: true,
         title: true,
-        chapter_index: true,
-        chapter_label: true,
+        chapterIndex: true,
+        chapterLabel: true,
         status: true,
-        view_count: true,
-        created_at: true,
-        updated_at: true,
+        viewCount: true,
+        createdAt: true,
+        updatedAt: true,
       },
-      orderBy: { chapter_index: 'desc' },
+      orderBy: { chapterIndex: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -284,19 +284,19 @@ export class ComicRepository {
 
   countPublicChapters(comicId: any) {
     return this.prisma.chapter.count({
-      where: { comic_id: toPrimaryKey(comicId), status: ChapterStatus.published },
+      where: { comicId: toPrimaryKey(comicId), status: ChapterStatus.published },
     });
   }
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     // Strict allowlist: drop everything outside ALLOWED_FIELDS. Defeats
-    // mass-assignment via spread (e.g. attacker setting `view_count` or
-    // `last_chapter_id` from JSON body).
+    // mass-assignment via spread (e.g. attacker setting `viewCount` or
+    // `lastChapterId` from JSON body).
     const payload: Record<string, any> = {};
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    const bigIntFields = ['created_user_id', 'updated_user_id'];
+    const bigIntFields = ['createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

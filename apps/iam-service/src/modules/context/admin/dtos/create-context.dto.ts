@@ -19,6 +19,6 @@ export class CreateContextDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'ref_id must be numeric.' })
-  ref_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'refId must be numeric.' })
+  refId?: string;
 }

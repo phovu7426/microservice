@@ -6,6 +6,6 @@ export enum PostStatus {
 }
 
 // Public listing only shows posts that are visible right now. Scheduling
-// should flip status to `published` when published_at arrives, instead of
+// should flip status to `published` when publishedAt arrives, instead of
 // leaking future-dated drafts publicly.
 export const PUBLIC_POST_STATUSES = [PostStatus.published];

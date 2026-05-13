@@ -35,7 +35,7 @@ export class PublicContactService {
             email: created.email,
             phone: created.phone,
             message: created.message,
-            created_at: created.created_at.toISOString(),
+            created_at: created.createdAt.toISOString(),
           },
           tx,
         );
@@ -51,7 +51,7 @@ export class PublicContactService {
         id: contact.id,
         name: contact.name,
         email: contact.email,
-        created_at: contact.created_at,
+        created_at: contact.createdAt,
       },
     };
   }

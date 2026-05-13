@@ -30,7 +30,7 @@ export class GalleryRepository {
   findMany(filter: GalleryFilter, options: { skip: number; take: number }) {
     return this.prisma.gallery.findMany({
       where: this.buildWhere(filter),
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });

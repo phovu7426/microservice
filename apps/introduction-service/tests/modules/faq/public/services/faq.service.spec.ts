@@ -17,7 +17,7 @@ describe('PublicFaqService', () => {
   let faqRepo: Record<string, jest.Mock>;
   let redis: Record<string, jest.Mock>;
 
-  const mockItem = { id: 1, question: 'What?', answer: 'This.', status: 'active', view_count: 5, helpful_count: 3 };
+  const mockItem = { id: 1, question: 'What?', answer: 'This.', status: 'active', viewCount: 5, helpfulCount: 3 };
 
   beforeEach(() => {
     faqRepo = {
@@ -80,7 +80,7 @@ describe('PublicFaqService', () => {
     it('should increment view count and return new count', async () => {
       const result = await service.incrementViewCount(1n);
       expect(result).toEqual({ success: true, view_count: 6 });
-      expect(faqRepo.update).toHaveBeenCalledWith(1n, { view_count: { increment: 1 } });
+      expect(faqRepo.update).toHaveBeenCalledWith(1n, { viewCount: { increment: 1 } });
     });
 
     it('should throw NotFoundException when item not found', async () => {
@@ -93,7 +93,7 @@ describe('PublicFaqService', () => {
     it('should increment helpful count and return new count', async () => {
       const result = await service.incrementHelpfulCount(1n);
       expect(result).toEqual({ success: true, helpful_count: 4 });
-      expect(faqRepo.update).toHaveBeenCalledWith(1n, { helpful_count: { increment: 1 } });
+      expect(faqRepo.update).toHaveBeenCalledWith(1n, { helpfulCount: { increment: 1 } });
     });
 
     it('should throw NotFoundException when item not found', async () => {

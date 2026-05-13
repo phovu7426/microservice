@@ -4,5 +4,5 @@ import { BaseListQueryDto } from '@package/common';
 export class ListTagsAdminQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsBooleanString()
-  is_active?: string;
+  isActive?: string;
 }

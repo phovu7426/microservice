@@ -34,7 +34,7 @@ export class PublicAboutService {
     const options = parseQueryOptions(query);
 
     const filter: AboutSectionFilter = { status: BasicStatus.active };
-    if (query.section_type) filter.section_type = query.section_type;
+    if (query.sectionType) filter.sectionType = query.sectionType;
 
     return this.getOrSet('introduction:public:about:list', 300, async () => {
       const [data, total] = await Promise.all([

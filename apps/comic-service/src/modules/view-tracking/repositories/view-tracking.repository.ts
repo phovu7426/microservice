@@ -9,18 +9,18 @@ export class ViewTrackingRepository {
   upsertStats(comicId: any, count: number) {
     const cid = toPrimaryKey(comicId);
     return this.prisma.stats.upsert({
-      where: { comic_id: cid },
-      create: { comic_id: cid, view_count: BigInt(count) },
-      update: { view_count: { increment: BigInt(count) } },
+      where: { comicId: cid },
+      create: { comicId: cid, viewCount: BigInt(count) },
+      update: { viewCount: { increment: BigInt(count) } },
     });
   }
 
   upsertDailyStats(comicId: any, date: Date, count: number) {
     const cid = toPrimaryKey(comicId);
     return this.prisma.dailyStats.upsert({
-      where: { comic_id_stat_date: { comic_id: cid, stat_date: date } },
-      create: { comic_id: cid, stat_date: date, view_count: BigInt(count) },
-      update: { view_count: { increment: BigInt(count) } },
+      where: { comicId_statDate: { comicId: cid, statDate: date } },
+      create: { comicId: cid, statDate: date, viewCount: BigInt(count) },
+      update: { viewCount: { increment: BigInt(count) } },
     });
   }
 }

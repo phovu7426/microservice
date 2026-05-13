@@ -22,7 +22,7 @@ export class CountryRepository {
   }
 
   countProvinces(countryId: any) {
-    return this.prisma.province.count({ where: { country_id: this.toBig(countryId) } });
+    return this.prisma.province.count({ where: { countryId: this.toBig(countryId) } });
   }
 
   private toBig(id: any): bigint {
@@ -63,14 +63,7 @@ export class CountryRepository {
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload: any = { ...data };
-
-    // Map camelCase DTO fields → snake_case Prisma fields
-    if (payload.codeAlpha3 !== undefined) { payload.code_alpha3 = payload.codeAlpha3; delete payload.codeAlpha3; }
-    if (payload.officialName !== undefined) { payload.official_name = payload.officialName; delete payload.officialName; }
-    if (payload.phoneCode !== undefined) { payload.phone_code = payload.phoneCode; delete payload.phoneCode; }
-    if (payload.currencyCode !== undefined) { payload.currency_code = payload.currencyCode; delete payload.currencyCode; }
-    if (payload.flagEmoji !== undefined) { payload.flag_emoji = payload.flagEmoji; delete payload.flagEmoji; }
-
+    // DTO fields already match Prisma camelCase field names — no mapping needed
     return payload;
   }
 }

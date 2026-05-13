@@ -155,7 +155,7 @@ describe('AdminCategoryService', () => {
 
       expect(SlugHelper.uniqueSlug).toHaveBeenCalledWith('Comedy', expect.anything());
       expect(categoryRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Comedy', slug: 'Comedy-slug', created_user_id: 1n }),
+        expect.objectContaining({ name: 'Comedy', slug: 'Comedy-slug', createdUserId: 1n }),
       );
       expect(redis.del).toHaveBeenCalledWith('comic:public:categories');
       expect(result).toEqual(created);
@@ -174,7 +174,7 @@ describe('AdminCategoryService', () => {
       await service.update(1n, { name: 'Drama' } as any, 1n);
 
       expect(SlugHelper.uniqueSlug).toHaveBeenCalledWith('Drama', expect.anything(), 1n);
-      expect(categoryRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ name: 'Drama', slug: 'Drama-slug', updated_user_id: 1n }));
+      expect(categoryRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ name: 'Drama', slug: 'Drama-slug', updatedUserId: 1n }));
       expect(redis.del).toHaveBeenCalledWith('comic:public:categories');
     });
 

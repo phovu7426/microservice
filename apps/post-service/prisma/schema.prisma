@@ -8,85 +8,85 @@ datasource db {
 }
 
 model Category {
-  id              BigInt   @id @default(autoincrement())
-  name            String   @db.VarChar(255)
-  slug            String   @unique @db.VarChar(255)
-  description     String?  @db.Text
-  parent_id       BigInt?
-  is_active       Boolean  @default(true)
-  sort_order      Int      @default(0)
-  seo_title       String?  @db.VarChar(255)
-  seo_description String?  @db.Text
-  seo_keywords    String?  @db.VarChar(500)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
-  group_id        BigInt?
+  id             BigInt   @id @default(autoincrement())
+  name           String   @db.VarChar(255)
+  slug           String   @unique @db.VarChar(255)
+  description    String?  @db.Text
+  parentId       BigInt?  @map("parent_id")
+  isActive       Boolean  @default(true) @map("is_active")
+  sortOrder      Int      @default(0) @map("sort_order")
+  seoTitle       String?  @map("seo_title") @db.VarChar(255)
+  seoDescription String?  @map("seo_description") @db.Text
+  seoKeywords    String?  @map("seo_keywords") @db.VarChar(500)
+  createdUserId  BigInt?  @map("created_user_id")
+  updatedUserId  BigInt?  @map("updated_user_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+  groupId        BigInt?  @map("group_id")
 
-  parent   Category?      @relation("CategoryToChildren", fields: [parent_id], references: [id], onDelete: SetNull)
+  parent   Category?      @relation("CategoryToChildren", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[]     @relation("CategoryToChildren")
   posts    PostCategory[]
 
   @@index([slug], map: "categories_idx_slug")
   @@index([name], map: "categories_idx_name")
-  @@index([parent_id], map: "categories_idx_parent_id")
-  @@index([is_active], map: "categories_idx_is_active")
-  @@index([sort_order], map: "categories_idx_sort_order")
-  @@index([created_at], map: "categories_idx_created_at")
-  @@index([created_user_id], map: "categories_idx_created_user_id")
-  @@index([updated_user_id], map: "categories_idx_updated_user_id")
-  @@index([group_id], map: "categories_idx_group_id")
+  @@index([parentId], map: "categories_idx_parent_id")
+  @@index([isActive], map: "categories_idx_is_active")
+  @@index([sortOrder], map: "categories_idx_sort_order")
+  @@index([createdAt], map: "categories_idx_created_at")
+  @@index([createdUserId], map: "categories_idx_created_user_id")
+  @@index([updatedUserId], map: "categories_idx_updated_user_id")
+  @@index([groupId], map: "categories_idx_group_id")
   @@map("categories")
 }
 
 model Tag {
-  id              BigInt   @id @default(autoincrement())
-  name            String   @db.VarChar(255)
-  slug            String   @unique @db.VarChar(255)
-  description     String?  @db.Text
-  is_active       Boolean  @default(true)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
-  group_id        BigInt?
+  id             BigInt   @id @default(autoincrement())
+  name           String   @db.VarChar(255)
+  slug           String   @unique @db.VarChar(255)
+  description    String?  @db.Text
+  isActive       Boolean  @default(true) @map("is_active")
+  createdUserId  BigInt?  @map("created_user_id")
+  updatedUserId  BigInt?  @map("updated_user_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+  groupId        BigInt?  @map("group_id")
 
   posts PostTag[]
 
   @@index([slug], map: "tags_idx_slug")
   @@index([name], map: "tags_idx_name")
-  @@index([is_active], map: "tags_idx_is_active")
-  @@index([created_at], map: "tags_idx_created_at")
-  @@index([created_user_id], map: "tags_idx_created_user_id")
-  @@index([updated_user_id], map: "tags_idx_updated_user_id")
-  @@index([group_id], map: "tags_idx_group_id")
+  @@index([isActive], map: "tags_idx_is_active")
+  @@index([createdAt], map: "tags_idx_created_at")
+  @@index([createdUserId], map: "tags_idx_created_user_id")
+  @@index([updatedUserId], map: "tags_idx_updated_user_id")
+  @@index([groupId], map: "tags_idx_group_id")
   @@map("tags")
 }
 
 model Post {
-  id              BigInt    @id @default(autoincrement())
-  name            String    @db.VarChar(255)
-  slug            String    @unique @db.VarChar(255)
-  excerpt         String?   @db.Text
-  content         String?   @db.Text
-  image           String?   @db.VarChar(500)
-  cover_image     String?   @db.VarChar(500)
-  status          String    @default("draft") @db.VarChar(30)
-  post_type       String    @default("text") @db.VarChar(30)
-  video_url       String?   @db.VarChar(500)
-  audio_url       String?   @db.VarChar(500)
-  is_featured     Boolean   @default(false)
-  is_pinned       Boolean   @default(false)
-  published_at    DateTime? @db.Timestamp(0)
-  seo_title       String?   @db.VarChar(255)
-  seo_description String?   @db.Text
-  seo_keywords    String?   @db.VarChar(500)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime  @default(now()) @db.Timestamp(0)
-  updated_at      DateTime  @updatedAt @db.Timestamp(0)
-  group_id        BigInt?
+  id             BigInt    @id @default(autoincrement())
+  name           String    @db.VarChar(255)
+  slug           String    @unique @db.VarChar(255)
+  excerpt        String?   @db.Text
+  content        String?   @db.Text
+  image          String?   @db.VarChar(500)
+  coverImage     String?   @map("cover_image") @db.VarChar(500)
+  status         String    @default("draft") @db.VarChar(30)
+  postType       String    @default("text") @map("post_type") @db.VarChar(30)
+  videoUrl       String?   @map("video_url") @db.VarChar(500)
+  audioUrl       String?   @map("audio_url") @db.VarChar(500)
+  isFeatured     Boolean   @default(false) @map("is_featured")
+  isPinned       Boolean   @default(false) @map("is_pinned")
+  publishedAt    DateTime? @map("published_at") @db.Timestamp(0)
+  seoTitle       String?   @map("seo_title") @db.VarChar(255)
+  seoDescription String?   @map("seo_description") @db.Text
+  seoKeywords    String?   @map("seo_keywords") @db.VarChar(500)
+  createdUserId  BigInt?   @map("created_user_id")
+  updatedUserId  BigInt?   @map("updated_user_id")
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
+  groupId        BigInt?   @map("group_id")
 
   stats         Stats?
   daily_stats   DailyStats[]
@@ -96,114 +96,114 @@ model Post {
 
   @@index([slug], map: "posts_idx_slug")
   @@index([status], map: "posts_idx_status")
-  @@index([post_type], map: "posts_idx_post_type")
-  @@index([is_featured], map: "posts_idx_is_featured")
-  @@index([is_pinned], map: "posts_idx_is_pinned")
-  @@index([published_at], map: "posts_idx_published_at")
+  @@index([postType], map: "posts_idx_post_type")
+  @@index([isFeatured], map: "posts_idx_is_featured")
+  @@index([isPinned], map: "posts_idx_is_pinned")
+  @@index([publishedAt], map: "posts_idx_published_at")
   // Composite index for the public list. Filter is `status IN (...)` and
   // ordering is by `published_at DESC` — without this composite, Postgres
   // can use only one of the two single-column indexes per query.
-  @@index([status, published_at(sort: Desc)], map: "posts_idx_status_published_at")
-  @@index([status, is_featured], map: "posts_idx_status_featured")
-  @@index([status, is_pinned], map: "posts_idx_status_pinned")
-  @@index([created_at], map: "posts_idx_created_at")
-  @@index([created_user_id], map: "posts_idx_created_user_id")
-  @@index([updated_user_id], map: "posts_idx_updated_user_id")
-  @@index([group_id], map: "posts_idx_group_id")
+  @@index([status, publishedAt(sort: Desc)], map: "posts_idx_status_published_at")
+  @@index([status, isFeatured], map: "posts_idx_status_featured")
+  @@index([status, isPinned], map: "posts_idx_status_pinned")
+  @@index([createdAt], map: "posts_idx_created_at")
+  @@index([createdUserId], map: "posts_idx_created_user_id")
+  @@index([updatedUserId], map: "posts_idx_updated_user_id")
+  @@index([groupId], map: "posts_idx_group_id")
   @@map("posts")
 }
 
 model Stats {
-  post_id    BigInt   @id
-  view_count BigInt   @default(0)
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  postId    BigInt   @id @map("post_id")
+  viewCount BigInt   @default(0) @map("view_count")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([view_count], map: "stats_idx_view_count")
-  @@index([updated_at], map: "stats_idx_updated_at")
+  @@index([viewCount], map: "stats_idx_view_count")
+  @@index([updatedAt], map: "stats_idx_updated_at")
   @@map("stats")
 }
 
 model DailyStats {
-  post_id    BigInt
-  stat_date  DateTime @db.Date
-  view_count BigInt   @default(0)
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  postId    BigInt   @map("post_id")
+  statDate  DateTime @map("stat_date") @db.Date
+  viewCount BigInt   @default(0) @map("view_count")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@id([post_id, stat_date])
-  @@index([stat_date], map: "daily_stats_idx_stat_date")
-  @@index([view_count], map: "daily_stats_idx_view_count")
+  @@id([postId, statDate])
+  @@index([statDate], map: "daily_stats_idx_stat_date")
+  @@index([viewCount], map: "daily_stats_idx_view_count")
   @@map("daily_stats")
 }
 
 model PostCategory {
-  post_id     BigInt
-  category_id BigInt
+  postId     BigInt @map("post_id")
+  categoryId BigInt @map("category_id")
 
-  post     Post     @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  post     Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  @@id([post_id, category_id])
-  @@index([category_id], map: "post_categories_idx_category_id")
+  @@id([postId, categoryId])
+  @@index([categoryId], map: "post_categories_idx_category_id")
   @@map("post_categories")
 }
 
 model PostTag {
-  post_id BigInt
-  tag_id  BigInt
+  postId BigInt @map("post_id")
+  tagId  BigInt @map("tag_id")
 
-  post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
-  tag  Tag  @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
-  @@id([post_id, tag_id])
-  @@index([tag_id], map: "post_tags_idx_tag_id")
+  @@id([postId, tagId])
+  @@index([tagId], map: "post_tags_idx_tag_id")
   @@map("post_tags")
 }
 
 model Comment {
-  id              BigInt   @id @default(autoincrement())
-  user_id         BigInt?
-  post_id         BigInt
-  parent_id       BigInt?
-  guest_name      String?  @db.VarChar(255)
-  guest_email     String?  @db.VarChar(255)
-  content         String   @db.Text
-  status          String   @default("visible") @db.VarChar(30)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  userId        BigInt?  @map("user_id")
+  postId        BigInt   @map("post_id")
+  parentId      BigInt?  @map("parent_id")
+  guestName     String?  @map("guest_name") @db.VarChar(255)
+  guestEmail    String?  @map("guest_email") @db.VarChar(255)
+  content       String   @db.Text
+  status        String   @default("visible") @db.VarChar(30)
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  post    Post      @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
   // SetNull (was Cascade): admin hard-delete of one parent comment used to
   // wipe the entire reply subtree even though user-side delete already
   // soft-deletes via status='deleted'. Replies now survive with parent_id
   // = NULL; the renderer can display "[deleted]" for missing parents.
-  parent  Comment?  @relation("CommentToReplies", fields: [parent_id], references: [id], onDelete: SetNull)
+  parent  Comment?  @relation("CommentToReplies", fields: [parentId], references: [id], onDelete: SetNull)
   replies Comment[] @relation("CommentToReplies")
 
-  @@index([user_id], map: "comments_idx_user_id")
-  @@index([post_id], map: "comments_idx_post_id")
-  @@index([parent_id], map: "comments_idx_parent_id")
+  @@index([userId], map: "comments_idx_user_id")
+  @@index([postId], map: "comments_idx_post_id")
+  @@index([parentId], map: "comments_idx_parent_id")
   @@index([status], map: "comments_idx_status")
-  @@index([created_at], map: "comments_idx_created_at")
-  @@index([post_id, created_at], map: "comments_idx_post_created")
-  @@index([guest_email], map: "comments_idx_guest_email")
-  @@index([created_user_id], map: "comments_idx_created_user_id")
-  @@index([updated_user_id], map: "comments_idx_updated_user_id")
+  @@index([createdAt], map: "comments_idx_created_at")
+  @@index([postId, createdAt], map: "comments_idx_post_created")
+  @@index([guestEmail], map: "comments_idx_guest_email")
+  @@index([createdUserId], map: "comments_idx_created_user_id")
+  @@index([updatedUserId], map: "comments_idx_updated_user_id")
   @@map("comments")
 }
 
 model Outbox {
-  id         BigInt   @id @default(autoincrement())
-  event_type String   @db.VarChar(100)
-  payload    Json
-  published  Boolean  @default(false)
-  created_at DateTime @default(now()) @db.Timestamptz()
+  id        BigInt   @id @default(autoincrement())
+  eventType String   @map("event_type") @db.VarChar(100)
+  payload   Json
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  @@index([published, created_at], map: "outbox_idx_unpublished")
+  @@index([published, createdAt], map: "outbox_idx_unpublished")
   @@map("outbox")
 }

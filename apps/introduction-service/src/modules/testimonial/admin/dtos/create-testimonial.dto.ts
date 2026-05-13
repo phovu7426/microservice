@@ -17,22 +17,22 @@ const URL_OPTS = { require_protocol: true, protocols: ['http', 'https'] };
 export class CreateTestimonialDto {
   @IsString()
   @MaxLength(255)
-  client_name: string;
+  clientName: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  client_position?: string;
+  clientPosition?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  client_company?: string;
+  clientCompany?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'client_avatar must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'clientAvatar must be an http(s) URL.' })
   @MaxLength(500)
-  client_avatar?: string;
+  clientAvatar?: string;
 
   @IsString()
   @MaxLength(5000)
@@ -46,7 +46,7 @@ export class CreateTestimonialDto {
 
   @IsOptional()
   @IsNumber()
-  project_id?: number;
+  projectId?: number;
 
   @IsOptional()
   @IsBoolean()
@@ -59,5 +59,5 @@ export class CreateTestimonialDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

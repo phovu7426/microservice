@@ -18,8 +18,8 @@ export class CreateGroupDto {
   name: string;
 
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'context_id must be numeric.' })
-  context_id: string;
+  @Matches(/^\d{1,20}$/, { message: 'contextId must be numeric.' })
+  contextId: string;
 
   @IsOptional()
   @IsString()
@@ -28,6 +28,6 @@ export class CreateGroupDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'owner_id must be numeric.' })
-  owner_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'ownerId must be numeric.' })
+  ownerId?: string;
 }

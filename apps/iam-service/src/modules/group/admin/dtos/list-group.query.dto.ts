@@ -14,8 +14,8 @@ export class ListGroupsAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'context_id must be numeric.' })
-  context_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'contextId must be numeric.' })
+  contextId?: string;
 }
 
 export class ListGroupMembersAdminQueryDto extends BaseListQueryDto {}

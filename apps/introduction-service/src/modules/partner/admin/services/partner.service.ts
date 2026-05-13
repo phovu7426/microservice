@@ -45,9 +45,13 @@ export class AdminPartnerService {
 
   async create(dto: CreatePartnerDto) {
     const result = await this.partnerRepo.create({
-      ...dto,
+      name: dto.name,
+      logo: dto.logo,
+      website: dto.website,
+      description: dto.description,
+      type: dto.type,
       status: dto.status || 'active',
-      sort_order: dto.sort_order ?? 0,
+      sortOrder: dto.sortOrder ?? 0,
     });
     await this.clearCache();
     return result;
@@ -55,7 +59,15 @@ export class AdminPartnerService {
 
   async update(id: PrimaryKey, dto: UpdatePartnerDto) {
     await this.getOne(id);
-    const result = await this.partnerRepo.update(id, dto);
+    const result = await this.partnerRepo.update(id, {
+      name: dto.name,
+      logo: dto.logo,
+      website: dto.website,
+      description: dto.description,
+      type: dto.type,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    });
     await this.clearCache(id);
     return result;
   }

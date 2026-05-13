@@ -5,35 +5,35 @@ import { PostType } from '../../enums/post-type.enum';
 export class ListPostsPublicQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsEnum(PostType)
-  post_type?: PostType;
+  postType?: PostType;
 
   @IsOptional()
   @IsBooleanString()
-  is_featured?: string;
+  isFeatured?: string;
 
   @IsOptional()
   @IsBooleanString()
-  is_pinned?: string;
+  isPinned?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'category_id must be numeric.' })
-  category_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'categoryId must be numeric.' })
+  categoryId?: string;
 
-  // Frontend sometimes uses `post_category_id` as alias.
+  // Frontend sometimes uses `postCategoryId` as alias.
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'post_category_id must be numeric.' })
-  post_category_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'postCategoryId must be numeric.' })
+  postCategoryId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'tag_id must be numeric.' })
-  tag_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'tagId must be numeric.' })
+  tagId?: string;
 
-  // Frontend sometimes uses `post_tag_id` as alias.
+  // Frontend sometimes uses `postTagId` as alias.
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'post_tag_id must be numeric.' })
-  post_tag_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'postTagId must be numeric.' })
+  postTagId?: string;
 }

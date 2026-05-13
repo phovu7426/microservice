@@ -44,7 +44,7 @@ export class PublicChapterService {
     return this.getOrSetRaw(cacheKey, 300, async () => {
       const current = await this.chapterRepo.findById(id);
       if (!current) throw new NotFoundException(t(this.i18n, 'comic.CHAPTER_NOT_FOUND'));
-      return (await this.chapterRepo.findPublishedNeighbor(current.comic_id, current.chapter_index, 'next')) || null;
+      return (await this.chapterRepo.findPublishedNeighbor(current.comicId, current.chapterIndex, 'next')) || null;
     });
   }
 
@@ -55,7 +55,7 @@ export class PublicChapterService {
     return this.getOrSetRaw(cacheKey, 300, async () => {
       const current = await this.chapterRepo.findById(id);
       if (!current) throw new NotFoundException(t(this.i18n, 'comic.CHAPTER_NOT_FOUND'));
-      return (await this.chapterRepo.findPublishedNeighbor(current.comic_id, current.chapter_index, 'prev')) || null;
+      return (await this.chapterRepo.findPublishedNeighbor(current.comicId, current.chapterIndex, 'prev')) || null;
     });
   }
 

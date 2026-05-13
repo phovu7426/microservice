@@ -28,7 +28,7 @@ export class ChapterPublishedHandler implements KafkaHandler {
       try {
         await this.notifService.createMany(
           batch.map((f) => ({
-            user_id: f.user_id,
+            userId: f.userId,
             title: `${comic_title} - ${chapter_label}`,
             message: `Chương mới đã được cập nhật: ${chapter_label}`,
             type: 'info',

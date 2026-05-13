@@ -52,11 +52,11 @@ export class CreateStaffDto {
 
   @IsOptional()
   @IsObject()
-  // Frontend may render `social_links[platform]` as `<a href>`. This is an
+  // Frontend may render `socialLinks[platform]` as `<a href>`. This is an
   // open-redirect surface — applications consuming this field MUST validate
   // each value as `http(s)` before rendering. We don't enforce per-key URL
   // validation here because the schema is open-ended.
-  social_links?: Record<string, string>;
+  socialLinks?: Record<string, string>;
 
   @IsOptional()
   @IsString()
@@ -75,5 +75,5 @@ export class CreateStaffDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

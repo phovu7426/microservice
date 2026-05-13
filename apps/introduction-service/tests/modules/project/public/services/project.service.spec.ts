@@ -17,7 +17,7 @@ describe('PublicProjectService', () => {
   let projectRepo: Record<string, jest.Mock>;
   let redis: Record<string, jest.Mock>;
 
-  const mockItem = { id: 1, name: 'Project 1', slug: 'project-1', status: 'in_progress', view_count: 10 };
+  const mockItem = { id: 1, name: 'Project 1', slug: 'project-1', status: 'in_progress', viewCount: 10 };
 
   beforeEach(() => {
     projectRepo = {
@@ -59,7 +59,7 @@ describe('PublicProjectService', () => {
   describe('getBySlug', () => {
     it('should return item with incremented view count when found', async () => {
       const result = await service.getBySlug('project-1');
-      expect(result).toEqual({ ...mockItem, view_count: 11 });
+      expect(result).toEqual({ ...mockItem, viewCount: 11 });
       expect(projectRepo.findPublicBySlug).toHaveBeenCalledWith(
         'project-1',
         ['planning', 'in_progress', 'completed'],

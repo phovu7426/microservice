@@ -8,28 +8,28 @@ datasource db {
 }
 
 model Notification {
-  id              BigInt    @id @default(autoincrement())
-  user_id         BigInt
-  title           String    @db.VarChar(255)
-  message         String    @db.Text
-  type            String    @default("info") @db.VarChar(30)
-  data            Json?
-  is_read         Boolean   @default(false)
-  read_at         DateTime? @db.Timestamp(0)
-  status          String    @default("active") @db.VarChar(30)
-  created_at      DateTime  @default(now()) @db.Timestamp(0)
-  updated_at      DateTime  @updatedAt @db.Timestamp(0)
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt    @map("user_id")
+  title     String    @db.VarChar(255)
+  message   String    @db.Text
+  type      String    @default("info") @db.VarChar(30)
+  data      Json?
+  isRead    Boolean   @default(false) @map("is_read")
+  readAt    DateTime? @map("read_at") @db.Timestamp(0)
+  status    String    @default("active") @db.VarChar(30)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  @@index([user_id], map: "notifications_idx_user_id")
+  @@index([userId], map: "notifications_idx_user_id")
   @@index([status], map: "notifications_idx_status")
   @@index([type], map: "notifications_idx_type")
-  @@index([is_read], map: "notifications_idx_is_read")
-  @@index([user_id, is_read], map: "notifications_idx_user_read")
+  @@index([isRead], map: "notifications_idx_is_read")
+  @@index([userId, isRead], map: "notifications_idx_user_read")
   // Composite for the user notification list: filter by user_id, sort by
   // created_at DESC. Without it, Postgres scans `[user_id, is_read]` and
   // re-sorts the working set.
-  @@index([user_id, created_at(sort: Desc)], map: "notifications_idx_user_created")
-  @@index([user_id, is_read, created_at(sort: Desc)], map: "notifications_idx_user_read_created")
+  @@index([userId, createdAt(sort: Desc)], map: "notifications_idx_user_created")
+  @@index([userId, isRead, createdAt(sort: Desc)], map: "notifications_idx_user_read_created")
   @@map("notifications")
 }
 
@@ -40,12 +40,12 @@ model ContentTemplate {
   category  String   @default("render") @db.VarChar(30)
   type      String   @db.VarChar(30)
   content   String?  @db.Text
-  file_path String?  @db.VarChar(500)
+  filePath  String?  @map("file_path") @db.VarChar(500)
   metadata  Json?
   variables Json?
   status    String   @default("active") @db.VarChar(30)
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @updatedAt @db.Timestamp(0)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@index([code], map: "idx_content_templates_code")
   @@index([status], map: "idx_content_templates_status")
@@ -55,13 +55,13 @@ model ContentTemplate {
 }
 
 model ComicFollowersProjection {
-  id          BigInt   @id @default(autoincrement())
-  user_id     BigInt
-  comic_id    BigInt
-  followed_at DateTime @default(now()) @db.Timestamp(0)
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt   @map("user_id")
+  comicId    BigInt   @map("comic_id")
+  followedAt DateTime @default(now()) @map("followed_at") @db.Timestamp(0)
 
-  @@unique([user_id, comic_id], map: "cfp_idx_user_comic")
-  @@index([comic_id], map: "cfp_idx_comic_id")
-  @@index([user_id], map: "cfp_idx_user_id")
+  @@unique([userId, comicId], map: "cfp_idx_user_comic")
+  @@index([comicId], map: "cfp_idx_comic_id")
+  @@index([userId], map: "cfp_idx_user_id")
   @@map("comic_followers_projection")
 }

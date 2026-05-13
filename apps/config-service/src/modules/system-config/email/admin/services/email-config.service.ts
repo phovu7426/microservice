@@ -57,18 +57,18 @@ export class EmailConfigService {
       }
     }
 
-    // Map camelCase payload → snake_case Prisma fields
+    // Prisma fields are now camelCase — pass payload directly
     const dbPayload = {
-      smtp_host: payload.smtpHost,
-      smtp_port: payload.smtpPort ?? 587,
-      smtp_secure: payload.smtpSecure ?? true,
-      smtp_username: payload.smtpUsername,
-      smtp_password: payload.smtpPassword,
-      from_email: payload.fromEmail,
-      from_name: payload.fromName,
-      reply_to_email: payload.replyToEmail,
-      created_user_id: payload.created_user_id,
-      updated_user_id: payload.updated_user_id,
+      smtpHost: payload.smtpHost,
+      smtpPort: payload.smtpPort ?? 587,
+      smtpSecure: payload.smtpSecure ?? true,
+      smtpUsername: payload.smtpUsername,
+      smtpPassword: payload.smtpPassword,
+      fromEmail: payload.fromEmail,
+      fromName: payload.fromName,
+      replyToEmail: payload.replyToEmail,
+      createdUserId: payload.createdUserId,
+      updatedUserId: payload.updatedUserId,
     };
 
     const result = await this.emailConfigRepo.upsert(dbPayload, dbPayload);
@@ -83,7 +83,7 @@ export class EmailConfigService {
   private maskPassword(config: any): any {
     if (!config) return config;
     const item = { ...config };
-    if (item.smtp_password) item.smtp_password = MASKED;
+    if (item.smtpPassword) item.smtpPassword = MASKED;
     return item;
   }
 }

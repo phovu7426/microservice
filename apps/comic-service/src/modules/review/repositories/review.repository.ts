@@ -4,8 +4,8 @@ import { toPrimaryKey } from 'src/types';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface ReviewFilter {
-  comic_id?: any;
-  user_id?: any;
+  comicId?: any;
+  userId?: any;
   rating?: number;
 }
 
@@ -15,8 +15,8 @@ export class ReviewRepository {
 
   private buildWhere(filter: ReviewFilter): Prisma.ReviewWhereInput {
     const where: Prisma.ReviewWhereInput = {};
-    if (filter.comic_id !== undefined) where.comic_id = toPrimaryKey(filter.comic_id);
-    if (filter.user_id !== undefined) where.user_id = toPrimaryKey(filter.user_id);
+    if (filter.comicId !== undefined) where.comicId = toPrimaryKey(filter.comicId);
+    if (filter.userId !== undefined) where.userId = toPrimaryKey(filter.userId);
     if (filter.rating !== undefined) where.rating = filter.rating;
     return where;
   }
@@ -24,7 +24,7 @@ export class ReviewRepository {
   findMany(filter: ReviewFilter, options: { skip: number; take: number }) {
     return this.prisma.review.findMany({
       where: this.buildWhere(filter),
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -49,13 +49,13 @@ export class ReviewRepository {
     const cid = toPrimaryKey(comicId);
     return this.prisma.$transaction(async (tx) => {
       const existing = await tx.review.findUnique({
-        where: { user_id_comic_id: { user_id: uid, comic_id: cid } },
+        where: { userId_comicId: { userId: uid, comicId: cid } },
         select: { rating: true },
       });
 
       const review = await tx.review.upsert({
-        where: { user_id_comic_id: { user_id: uid, comic_id: cid } },
-        create: { user_id: uid, comic_id: cid, rating: data.rating, content: data.content },
+        where: { userId_comicId: { userId: uid, comicId: cid } },
+        create: { userId: uid, comicId: cid, rating: data.rating, content: data.content },
         update: { rating: data.rating, content: data.content },
       });
 
@@ -63,18 +63,18 @@ export class ReviewRepository {
         const delta = data.rating - existing.rating;
         if (delta !== 0) {
           await tx.stats.upsert({
-            where: { comic_id: cid },
-            create: { comic_id: cid, rating_sum: BigInt(data.rating), rating_count: BigInt(1) },
-            update: { rating_sum: { increment: delta } },
+            where: { comicId: cid },
+            create: { comicId: cid, ratingSum: BigInt(data.rating), ratingCount: BigInt(1) },
+            update: { ratingSum: { increment: delta } },
           });
         }
       } else {
         await tx.stats.upsert({
-          where: { comic_id: cid },
-          create: { comic_id: cid, rating_sum: BigInt(data.rating), rating_count: BigInt(1) },
+          where: { comicId: cid },
+          create: { comicId: cid, ratingSum: BigInt(data.rating), ratingCount: BigInt(1) },
           update: {
-            rating_sum: { increment: data.rating },
-            rating_count: { increment: 1 },
+            ratingSum: { increment: data.rating },
+            ratingCount: { increment: 1 },
           },
         });
       }
@@ -89,16 +89,16 @@ export class ReviewRepository {
     return this.prisma.$transaction(async (tx) => {
       const review = await tx.review.findUnique({
         where: { id: rid },
-        select: { id: true, comic_id: true, rating: true },
+        select: { id: true, comicId: true, rating: true },
       });
       if (!review) return null;
       await tx.review.delete({ where: { id: rid } });
       await tx.stats.upsert({
-        where: { comic_id: review.comic_id },
-        create: { comic_id: review.comic_id, rating_sum: BigInt(0), rating_count: BigInt(0) },
+        where: { comicId: review.comicId },
+        create: { comicId: review.comicId, ratingSum: BigInt(0), ratingCount: BigInt(0) },
         update: {
-          rating_sum: { decrement: review.rating },
-          rating_count: { decrement: 1 },
+          ratingSum: { decrement: review.rating },
+          ratingCount: { decrement: 1 },
         },
       });
       return review;
@@ -111,7 +111,7 @@ export class ReviewRepository {
 
   aggregateRating(comicId: any) {
     return this.prisma.review.aggregate({
-      where: { comic_id: toPrimaryKey(comicId) },
+      where: { comicId: toPrimaryKey(comicId) },
       _count: true,
       _sum: { rating: true },
     });
@@ -126,7 +126,7 @@ export class ReviewRepository {
   }
 
   /**
-   * Recompute rating_sum / rating_count from scratch. Live writes use
+   * Recompute ratingSum / ratingCount from scratch. Live writes use
    * atomic deltas via `upsert` / `deleteWithStats`; this method is for
    * offline migrations / drift recovery only.
    */
@@ -134,20 +134,20 @@ export class ReviewRepository {
     const cid = toPrimaryKey(comicId);
     return this.prisma.$transaction(async (tx) => {
       const agg = await tx.review.aggregate({
-        where: { comic_id: cid },
+        where: { comicId: cid },
         _count: true,
         _sum: { rating: true },
       });
       return tx.stats.upsert({
-        where: { comic_id: cid },
+        where: { comicId: cid },
         create: {
-          comic_id: cid,
-          rating_count: BigInt(agg._count || 0),
-          rating_sum: BigInt(agg._sum?.rating || 0),
+          comicId: cid,
+          ratingCount: BigInt(agg._count || 0),
+          ratingSum: BigInt(agg._sum?.rating || 0),
         },
         update: {
-          rating_count: BigInt(agg._count || 0),
-          rating_sum: BigInt(agg._sum?.rating || 0),
+          ratingCount: BigInt(agg._count || 0),
+          ratingSum: BigInt(agg._sum?.rating || 0),
         },
       });
     });

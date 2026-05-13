@@ -91,7 +91,7 @@ describe('UserFollowService', () => {
 
       expect(result.data).toEqual(follows);
       expect(followRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: 1n }),
+        expect.objectContaining({ userId: 1n }),
         expect.anything(),
       );
     });

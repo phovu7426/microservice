@@ -31,9 +31,9 @@ describe('AdminContactService', () => {
     message: 'Hello there',
     status: 'New',
     reply: null,
-    replied_at: null,
-    replied_by: null,
-    created_at: new Date('2025-01-01'),
+    repliedAt: null,
+    repliedBy: null,
+    createdAt: new Date('2025-01-01'),
   };
 
   beforeEach(() => {
@@ -125,8 +125,8 @@ describe('AdminContactService', () => {
         ...mockContact,
         reply: 'Thank you for reaching out',
         status: 'Replied',
-        replied_at: expect.any(Date),
-        replied_by: 5n,
+        repliedAt: expect.any(Date),
+        repliedBy: 5n,
       };
 
       contactRepo.findById!.mockResolvedValue(mockContact as any);
@@ -138,8 +138,8 @@ describe('AdminContactService', () => {
       expect(contactRepo.update).toHaveBeenCalledWith(1n, {
         reply: 'Thank you for reaching out',
         status: 'Replied',
-        replied_at: expect.any(Date),
-        replied_by: 5n,
+        repliedAt: expect.any(Date),
+        repliedBy: 5n,
       });
       expect(redis.del).toHaveBeenCalledWith('marketing:admin:contacts:list');
       expect(result).toEqual(repliedContact);
@@ -154,8 +154,8 @@ describe('AdminContactService', () => {
       expect(contactRepo.update).toHaveBeenCalledWith(1n, {
         reply: 'Hi',
         status: 'Replied',
-        replied_at: expect.any(Date),
-        replied_by: undefined,
+        repliedAt: expect.any(Date),
+        repliedBy: undefined,
       });
     });
 

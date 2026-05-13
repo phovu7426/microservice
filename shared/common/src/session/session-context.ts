@@ -12,23 +12,16 @@ export interface SessionServerInfo {
 }
 
 export class SessionContext {
-  readonly userId: string | null;
-  readonly userEmail: string | null;
-  readonly tokenIssuedAt: string | null;
-  readonly tokenExpiresAt: string | null;
   readonly ip: string | null;
   readonly userAgent: string | null;
   readonly language: string | null;
   readonly requestId: string | null;
   readonly server: SessionServerInfo;
 
-  constructor(req: Request, server: SessionServerInfo) {
-    const jwt = (req as any).user as Record<string, any> | undefined;
+  private readonly req: Request;
 
-    this.userId      = jwt?.sub   ? String(jwt.sub)   : null;
-    this.userEmail   = jwt?.email ? String(jwt.email) : null;
-    this.tokenIssuedAt  = jwt?.iat ? new Date(jwt.iat * 1000).toISOString() : null;
-    this.tokenExpiresAt = jwt?.exp ? new Date(jwt.exp * 1000).toISOString() : null;
+  constructor(req: Request, server: SessionServerInfo) {
+    this.req = req;
 
     this.ip        = (req.headers['x-forwarded-for'] as string) ?? req.ip ?? null;
     this.userAgent = (req.headers['user-agent'] as string) ?? null;
@@ -36,6 +29,26 @@ export class SessionContext {
     this.requestId = (req as any).requestId ?? (req.headers['x-request-id'] as string) ?? null;
 
     this.server = server;
+  }
+
+  private get jwt(): Record<string, any> | undefined {
+    return (this.req as any).user as Record<string, any> | undefined;
+  }
+
+  get userId(): string | null {
+    return this.jwt?.sub ? String(this.jwt.sub) : null;
+  }
+
+  get userEmail(): string | null {
+    return this.jwt?.email ? String(this.jwt.email) : null;
+  }
+
+  get tokenIssuedAt(): string | null {
+    return this.jwt?.iat ? new Date(this.jwt.iat * 1000).toISOString() : null;
+  }
+
+  get tokenExpiresAt(): string | null {
+    return this.jwt?.exp ? new Date(this.jwt.exp * 1000).toISOString() : null;
   }
 
   get isAuthenticated(): boolean {

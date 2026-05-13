@@ -29,7 +29,7 @@ export class AdminTestimonialService {
     if (query.featured !== undefined) {
       filter.featured = query.featured === 'true' || query.featured === true;
     }
-    if (query.project_id) filter.project_id = query.project_id;
+    if (query.projectId) filter.projectId = query.projectId;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([
@@ -48,11 +48,16 @@ export class AdminTestimonialService {
 
   async create(dto: CreateTestimonialDto) {
     const result = await this.testimonialRepo.create({
-      ...dto,
+      clientName: dto.clientName,
+      clientPosition: dto.clientPosition,
+      clientCompany: dto.clientCompany,
+      clientAvatar: dto.clientAvatar,
+      content: dto.content,
       rating: dto.rating ?? 5,
+      projectId: dto.projectId,
       featured: dto.featured ?? false,
       status: dto.status || 'active',
-      sort_order: dto.sort_order ?? 0,
+      sortOrder: dto.sortOrder ?? 0,
     });
     await this.clearCache();
     return result;
@@ -60,7 +65,18 @@ export class AdminTestimonialService {
 
   async update(id: PrimaryKey, dto: UpdateTestimonialDto) {
     await this.getOne(id);
-    const result = await this.testimonialRepo.update(id, dto);
+    const result = await this.testimonialRepo.update(id, {
+      clientName: dto.clientName,
+      clientPosition: dto.clientPosition,
+      clientCompany: dto.clientCompany,
+      clientAvatar: dto.clientAvatar,
+      content: dto.content,
+      rating: dto.rating,
+      projectId: dto.projectId,
+      featured: dto.featured,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    });
     await this.clearCache(id);
     return result;
   }

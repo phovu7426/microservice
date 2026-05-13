@@ -5,7 +5,7 @@ import { t, createPaginationMeta, parseQueryOptions } from '@package/common';
 import { PUBLIC_COMIC_STATUSES } from '../../enums/comic-status.enum';
 import { ComicFilter, ComicRepository } from '../../repositories/comic.repository';
 
-const LIST_KEYS = ['search', 'is_featured', 'comic_category_id', 'category_id', 'sort', 'page', 'limit'];
+const LIST_KEYS = ['search', 'isFeatured', 'comicCategoryId', 'categoryId', 'sort', 'page', 'limit'];
 const CHAPTER_KEYS = ['search', 'sort', 'page', 'limit'];
 
 @Injectable()
@@ -27,11 +27,11 @@ export class PublicComicService {
 
       const filter: ComicFilter = { status: PUBLIC_COMIC_STATUSES };
       if (query.search) filter.search = query.search;
-      if (query.is_featured !== undefined) {
-        filter.is_featured = query.is_featured === 'true' || query.is_featured === true;
+      if (query.isFeatured !== undefined) {
+        filter.isFeatured = query.isFeatured === 'true' || query.isFeatured === true;
       }
-      if (query.comic_category_id || query.category_id) {
-        filter.category_id = query.comic_category_id ?? query.category_id;
+      if (query.comicCategoryId || query.categoryId) {
+        filter.categoryId = query.comicCategoryId ?? query.categoryId;
       }
 
       const [data, total] = await Promise.all([
@@ -108,9 +108,9 @@ export class PublicComicService {
         item.last_chapter = {
           id: last.id,
           title: last.title,
-          chapter_index: last.chapter_index,
-          chapter_label: last.chapter_label,
-          created_at: last.created_at,
+          chapterIndex: last.chapterIndex,
+          chapterLabel: last.chapterLabel,
+          createdAt: last.createdAt,
         };
       }
       delete item.chapters;

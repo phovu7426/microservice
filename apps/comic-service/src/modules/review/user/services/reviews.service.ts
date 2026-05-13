@@ -15,12 +15,12 @@ export class UserReviewService {
   ) {}
 
   async createOrUpdate(userId: PrimaryKey, dto: CreateReviewDto) {
-    const review = await this.reviewRepo.upsert(userId, dto.comic_id, {
+    const review = await this.reviewRepo.upsert(userId, dto.comicId, {
       rating: dto.rating,
       content: dto.content,
     });
 
-    await this.reviewRepo.syncRatingStats(dto.comic_id);
+    await this.reviewRepo.syncRatingStats(dto.comicId);
     await this.incrementVersion('comic:public:reviews:v');
     return review;
   }
@@ -28,10 +28,10 @@ export class UserReviewService {
   async delete(userId: PrimaryKey, id: PrimaryKey) {
     const review = await this.reviewRepo.findById(id);
     if (!review) throw new NotFoundException(t(this.i18n, 'comic.REVIEW_NOT_FOUND'));
-    if (String(review.user_id) !== String(userId)) throw new ForbiddenException(t(this.i18n, 'comic.FORBIDDEN'));
+    if (String(review.userId) !== String(userId)) throw new ForbiddenException(t(this.i18n, 'comic.FORBIDDEN'));
 
     await this.reviewRepo.delete(id);
-    await this.reviewRepo.syncRatingStats(review.comic_id);
+    await this.reviewRepo.syncRatingStats(review.comicId);
     await this.incrementVersion('comic:public:reviews:v');
     return { success: true };
   }

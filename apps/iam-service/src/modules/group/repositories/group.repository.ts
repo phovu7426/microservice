@@ -7,7 +7,7 @@ export interface GroupFilter {
   search?: string;
   type?: string;
   status?: string;
-  context_id?: any;
+  contextId?: any;
 }
 
 const LIST_SELECT = {
@@ -16,9 +16,9 @@ const LIST_SELECT = {
   name: true,
   description: true,
   status: true,
-  context_id: true,
+  contextId: true,
   context: { select: { id: true, code: true, name: true } },
-  created_at: true,
+  createdAt: true,
 } satisfies Prisma.GroupSelect;
 
 @Injectable()
@@ -46,8 +46,8 @@ export class GroupRepository {
       andConditions.push({ status: filter.status });
     }
 
-    if (filter.context_id) {
-      andConditions.push({ context_id: toPrimaryKey(filter.context_id) });
+    if (filter.contextId) {
+      andConditions.push({ contextId: toPrimaryKey(filter.contextId) });
     }
 
     if (andConditions.length > 0) {
@@ -63,7 +63,7 @@ export class GroupRepository {
       select: LIST_SELECT,
       skip: options.skip,
       take: options.take,
-      orderBy: options.orderBy ?? { created_at: 'desc' },
+      orderBy: options.orderBy ?? { createdAt: 'desc' },
     });
   }
 
@@ -96,23 +96,23 @@ export class GroupRepository {
 
   getMembers(groupId: string | bigint, skip: number, take: number) {
     return this.prisma.userGroup.findMany({
-      where: { group_id: toPrimaryKey(groupId) },
-      orderBy: { joined_at: 'desc' },
+      where: { groupId: toPrimaryKey(groupId) },
+      orderBy: { joinedAt: 'desc' },
       skip,
       take,
     });
   }
 
   countMembers(groupId: string | bigint) {
-    return this.prisma.userGroup.count({ where: { group_id: toPrimaryKey(groupId) } });
+    return this.prisma.userGroup.count({ where: { groupId: toPrimaryKey(groupId) } });
   }
 
   addMember(groupId: string | bigint, userId: string | bigint) {
     const gid = toPrimaryKey(groupId);
     const uid = toPrimaryKey(userId);
     return this.prisma.userGroup.upsert({
-      where: { user_id_group_id: { user_id: uid, group_id: gid } },
-      create: { user_id: uid, group_id: gid },
+      where: { userId_groupId: { userId: uid, groupId: gid } },
+      create: { userId: uid, groupId: gid },
       update: {},
     });
   }
@@ -120,7 +120,7 @@ export class GroupRepository {
   findUserGroups(userId: string | bigint) {
     const uid = toPrimaryKey(userId);
     return this.prisma.userGroup.findMany({
-      where: { user_id: uid },
+      where: { userId: uid },
       include: {
         group: {
           select: {
@@ -130,13 +130,13 @@ export class GroupRepository {
             type: true,
             status: true,
             description: true,
-            context_id: true,
-            owner_id: true,
+            contextId: true,
+            ownerId: true,
             metadata: true,
           },
         },
       },
-      orderBy: { joined_at: 'asc' },
+      orderBy: { joinedAt: 'asc' },
     });
   }
 
@@ -144,7 +144,7 @@ export class GroupRepository {
     const gid = toPrimaryKey(groupId);
     const uid = toPrimaryKey(userId);
     return this.prisma.userGroup.delete({
-      where: { user_id_group_id: { user_id: uid, group_id: gid } },
+      where: { userId_groupId: { userId: uid, groupId: gid } },
     });
   }
 }

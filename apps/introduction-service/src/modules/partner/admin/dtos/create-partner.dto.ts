@@ -47,5 +47,5 @@ export class CreatePartnerDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

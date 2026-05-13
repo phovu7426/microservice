@@ -74,7 +74,7 @@ describe('PublicReviewService', () => {
       reviewRepo.count.mockResolvedValue(1);
       reviewRepo.aggregateRatingForFilter.mockResolvedValue({ _avg: { rating: 4.5 }, _count: 10 });
 
-      const result = await service.getList({ comic_id: 10n });
+      const result = await service.getList({ comicId: 10n });
 
       expect(result.data).toEqual(reviews);
       expect(result.meta).toEqual({ total: 1 });
@@ -93,14 +93,14 @@ describe('PublicReviewService', () => {
       expect(reviewRepo.findMany).not.toHaveBeenCalled();
     });
 
-    it('applies comic_id filter', async () => {
+    it('applies comicId filter', async () => {
       const { service, reviewRepo } = buildService();
       reviewRepo.findMany.mockResolvedValue([]);
 
-      await service.getList({ comic_id: 10n });
+      await service.getList({ comicId: 10n });
 
       expect(reviewRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ comic_id: 10n }),
+        expect.objectContaining({ comicId: 10n }),
         expect.anything(),
       );
     });

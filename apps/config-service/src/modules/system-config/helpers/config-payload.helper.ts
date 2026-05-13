@@ -17,9 +17,9 @@ export function buildConfigPayload<T extends object>(
   if (updatedBy) {
     const pk = toPrimaryKey(updatedBy);
     if (!existing) {
-      payload.created_user_id = pk;
+      payload.createdUserId = pk;
     }
-    payload.updated_user_id = pk;
+    payload.updatedUserId = pk;
   }
 
   Object.keys(payload).forEach((key) => {

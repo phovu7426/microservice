@@ -24,34 +24,34 @@ export class UserCommentService {
 
     // Verify the target post exists AND is in a publicly-visible state.
     // Without this, anyone can comment on draft/archived posts.
-    const post = await this.commentRepo.existsPublicPost(toPrimaryKey(dto.post_id), PUBLIC_POST_STATUSES);
+    const post = await this.commentRepo.existsPublicPost(toPrimaryKey(dto.postId), PUBLIC_POST_STATUSES);
     if (!post) throw new NotFoundException(t(this.i18n, 'post.POST_NOT_FOUND'));
 
     let parent: Awaited<ReturnType<CommentRepository['findById']>> | null = null;
-    if (dto.parent_id) {
-      parent = await this.commentRepo.findById(dto.parent_id);
+    if (dto.parentId) {
+      parent = await this.commentRepo.findById(dto.parentId);
       if (!parent) throw new NotFoundException(t(this.i18n, 'post.PARENT_COMMENT_NOT_FOUND'));
-      if (String(parent.post_id) !== String(dto.post_id)) {
+      if (String(parent.postId) !== String(dto.postId)) {
         throw new ForbiddenException(t(this.i18n, 'post.PARENT_COMMENT_DIFFERENT_POST'));
       }
       // Enforce one-level threading: nested replies past depth 1 become
       // invisible to the renderer, so just refuse them at write time.
-      if ((parent as any).parent_id != null) {
+      if ((parent as any).parentId != null) {
         throw new BadRequestException(t(this.i18n, 'post.REPLY_DEPTH_EXCEEDED'));
       }
     }
 
     const commentData = {
-      // Authenticated user — strip guest_name/guest_email regardless of
+      // Authenticated user — strip guestName/guestEmail regardless of
       // DTO contents so an authenticated user cannot pose as a guest.
-      user_id: userId,
-      post_id: dto.post_id,
-      parent_id: dto.parent_id ?? null,
+      userId: userId,
+      postId: dto.postId,
+      parentId: dto.parentId ?? null,
       content: dto.content,
-      created_user_id: userId,
+      createdUserId: userId,
     };
 
-    const needsOutbox = kafkaEnabled && parent && String(parent.user_id) !== String(userId);
+    const needsOutbox = kafkaEnabled && parent && String(parent.userId) !== String(userId);
 
     const result = await this.commentRepo.withTransaction(async (tx) => {
       const comment = await this.commentRepo.create(commentData, tx);
@@ -61,10 +61,10 @@ export class UserCommentService {
           'post.comment.created',
           {
             comment_id: String(comment.id),
-            post_id: String(comment.post_id),
+            post_id: String(comment.postId),
             user_id: String(userId),
-            parent_comment_id: String(dto.parent_id),
-            parent_comment_user_id: parent!.user_id ? String(parent!.user_id) : null,
+            parent_comment_id: String(dto.parentId),
+            parent_comment_user_id: parent!.userId ? String(parent!.userId) : null,
           },
           tx,
         );
@@ -80,10 +80,10 @@ export class UserCommentService {
   async update(userId: PrimaryKey, id: PrimaryKey, content: string) {
     const comment = await this.commentRepo.findById(id);
     if (!comment) throw new NotFoundException(t(this.i18n, 'post.COMMENT_NOT_FOUND'));
-    if (String(comment.user_id) !== String(userId)) {
+    if (String(comment.userId) !== String(userId)) {
       throw new ForbiddenException(t(this.i18n, 'post.NOT_YOUR_COMMENT'));
     }
-    const result = await this.commentRepo.update(id, { content, updated_user_id: userId });
+    const result = await this.commentRepo.update(id, { content, updatedUserId: userId });
     await this.incrementVersion('post:public:comments:v');
     return result;
   }
@@ -91,7 +91,7 @@ export class UserCommentService {
   async delete(userId: PrimaryKey, id: PrimaryKey) {
     const comment = await this.commentRepo.findById(id);
     if (!comment) throw new NotFoundException(t(this.i18n, 'post.COMMENT_NOT_FOUND'));
-    if (String(comment.user_id) !== String(userId)) {
+    if (String(comment.userId) !== String(userId)) {
       throw new ForbiddenException(t(this.i18n, 'post.NOT_YOUR_COMMENT'));
     }
     await this.commentRepo.delete(id);

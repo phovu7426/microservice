@@ -8,305 +8,305 @@ datasource db {
 }
 
 model Comic {
-  id                      BigInt    @id @default(autoincrement())
-  slug                    String    @unique @db.VarChar(255)
-  title                   String    @db.VarChar(255)
-  description             String?   @db.Text
-  cover_image             String?   @db.VarChar(500)
-  author                  String?   @db.VarChar(255)
-  status                  String    @default("draft") @db.VarChar(30)
-  created_user_id         BigInt?
-  updated_user_id         BigInt?
-  created_at              DateTime  @default(now()) @db.Timestamp(0)
-  updated_at              DateTime  @updatedAt @db.Timestamp(0)
-  last_chapter_id         BigInt?
-  last_chapter_updated_at DateTime? @db.Timestamp(0)
-  is_featured             Boolean   @default(false)
-  group_id                BigInt?
+  id                   BigInt    @id @default(autoincrement())
+  slug                 String    @unique @db.VarChar(255)
+  title                String    @db.VarChar(255)
+  description          String?   @db.Text
+  coverImage           String?   @map("cover_image") @db.VarChar(500)
+  author               String?   @db.VarChar(255)
+  status               String    @default("draft") @db.VarChar(30)
+  createdUserId        BigInt?   @map("created_user_id")
+  updatedUserId        BigInt?   @map("updated_user_id")
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt            DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
+  lastChapterId        BigInt?   @map("last_chapter_id")
+  lastChapterUpdatedAt DateTime? @map("last_chapter_updated_at") @db.Timestamp(0)
+  isFeatured           Boolean   @default(false) @map("is_featured")
+  groupId              BigInt?   @map("group_id")
 
   stats             Stats?
-  daily_stats       DailyStats[]
+  dailyStats        DailyStats[]
   chapters          Chapter[]
-  lastChapter       Chapter?         @relation("LastChapter", fields: [last_chapter_id], references: [id], onDelete: SetNull)
+  lastChapter       Chapter?         @relation("LastChapter", fields: [lastChapterId], references: [id], onDelete: SetNull)
   categoryLinks     ComicCategory[]
   comments          Comment[]
   reviews           Review[]
   views             View[]
   follows           Follow[]
-  reading_histories ReadingHistory[]
+  readingHistories  ReadingHistory[]
 
   @@index([slug], map: "comics_idx_slug")
   @@index([status], map: "comics_idx_status")
   @@index([author], map: "comics_idx_author")
-  @@index([created_at], map: "comics_idx_created_at")
-  @@index([created_user_id], map: "comics_idx_created_user_id")
-  @@index([updated_user_id], map: "comics_idx_updated_user_id")
-  @@index([last_chapter_updated_at], map: "comics_idx_last_chapter_updated_at")
-  @@index([is_featured], map: "comics_idx_is_featured")
-  @@index([group_id], map: "comics_idx_group_id")
-  @@index([status, last_chapter_updated_at(sort: Desc)], map: "comics_idx_status_last_chapter_updated")
-  @@index([status, is_featured], map: "comics_idx_status_featured")
-  @@index([status, created_at(sort: Desc)], map: "comics_idx_status_created")
+  @@index([createdAt], map: "comics_idx_created_at")
+  @@index([createdUserId], map: "comics_idx_created_user_id")
+  @@index([updatedUserId], map: "comics_idx_updated_user_id")
+  @@index([lastChapterUpdatedAt], map: "comics_idx_last_chapter_updated_at")
+  @@index([isFeatured], map: "comics_idx_is_featured")
+  @@index([groupId], map: "comics_idx_group_id")
+  @@index([status, lastChapterUpdatedAt(sort: Desc)], map: "comics_idx_status_last_chapter_updated")
+  @@index([status, isFeatured], map: "comics_idx_status_featured")
+  @@index([status, createdAt(sort: Desc)], map: "comics_idx_status_created")
   @@map("comics")
 }
 
 model Stats {
-  comic_id     BigInt   @id
-  view_count   BigInt   @default(0)
-  follow_count BigInt   @default(0)
-  rating_count BigInt   @default(0)
-  rating_sum   BigInt   @default(0)
-  updated_at   DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  comicId     BigInt   @id @map("comic_id")
+  viewCount   BigInt   @default(0) @map("view_count")
+  followCount BigInt   @default(0) @map("follow_count")
+  ratingCount BigInt   @default(0) @map("rating_count")
+  ratingSum   BigInt   @default(0) @map("rating_sum")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  comic Comic @relation(fields: [comic_id], references: [id], onDelete: Cascade)
+  comic Comic @relation(fields: [comicId], references: [id], onDelete: Cascade)
 
-  @@index([view_count], map: "stats_idx_view_count")
-  @@index([follow_count], map: "stats_idx_follow_count")
-  @@index([updated_at], map: "stats_idx_updated_at")
+  @@index([viewCount], map: "stats_idx_view_count")
+  @@index([followCount], map: "stats_idx_follow_count")
+  @@index([updatedAt], map: "stats_idx_updated_at")
   @@map("stats")
 }
 
 model DailyStats {
-  comic_id   BigInt
-  stat_date  DateTime @db.Date
-  view_count BigInt   @default(0)
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+  comicId   BigInt   @map("comic_id")
+  statDate  DateTime @map("stat_date") @db.Date
+  viewCount BigInt   @default(0) @map("view_count")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  comic Comic @relation(fields: [comic_id], references: [id], onDelete: Cascade)
+  comic Comic @relation(fields: [comicId], references: [id], onDelete: Cascade)
 
-  @@id([comic_id, stat_date])
-  @@index([stat_date], map: "daily_stats_idx_stat_date")
-  @@index([view_count], map: "daily_stats_idx_view_count")
+  @@id([comicId, statDate])
+  @@index([statDate], map: "daily_stats_idx_stat_date")
+  @@index([viewCount], map: "daily_stats_idx_view_count")
   @@map("daily_stats")
 }
 
 model Chapter {
-  id              BigInt   @id @default(autoincrement())
-  comic_id        BigInt
-  team_id         BigInt?
-  title           String   @db.VarChar(255)
-  chapter_index   Int
-  chapter_label   String?  @db.VarChar(50)
-  status          String   @default("draft") @db.VarChar(30)
-  view_count      BigInt   @default(0)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
-  group_id        BigInt?
+  id             BigInt   @id @default(autoincrement())
+  comicId        BigInt   @map("comic_id")
+  teamId         BigInt?  @map("team_id")
+  title          String   @db.VarChar(255)
+  chapterIndex   Int      @map("chapter_index")
+  chapterLabel   String?  @map("chapter_label") @db.VarChar(50)
+  status         String   @default("draft") @db.VarChar(30)
+  viewCount      BigInt   @default(0) @map("view_count")
+  createdUserId  BigInt?  @map("created_user_id")
+  updatedUserId  BigInt?  @map("updated_user_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+  groupId        BigInt?  @map("group_id")
 
-  comic             Comic            @relation(fields: [comic_id], references: [id], onDelete: Cascade)
-  comicsLastChapter Comic[]          @relation("LastChapter")
+  comic             Comic            @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  comicsLastChapter  Comic[]          @relation("LastChapter")
   pages             Page[]
   views             View[]
   comments          Comment[]
-  reading_histories ReadingHistory[]
+  readingHistories  ReadingHistory[]
   bookmarks         Bookmark[]
 
-  @@unique([comic_id, chapter_index], map: "chapters_idx_comic_chapter_unique")
-  @@index([comic_id], map: "chapters_idx_comic_id")
-  @@index([comic_id, chapter_index], map: "chapters_idx_comic_chapter_index")
-  @@index([team_id], map: "chapters_idx_team_id")
+  @@unique([comicId, chapterIndex], map: "chapters_idx_comic_chapter_unique")
+  @@index([comicId], map: "chapters_idx_comic_id")
+  @@index([comicId, chapterIndex], map: "chapters_idx_comic_chapter_index")
+  @@index([teamId], map: "chapters_idx_team_id")
   @@index([status], map: "chapters_idx_status")
-  @@index([view_count], map: "chapters_idx_view_count")
-  @@index([created_at], map: "chapters_idx_created_at")
-  @@index([created_user_id], map: "chapters_idx_created_user_id")
-  @@index([updated_user_id], map: "chapters_idx_updated_user_id")
-  @@index([group_id], map: "chapters_idx_group_id")
+  @@index([viewCount], map: "chapters_idx_view_count")
+  @@index([createdAt], map: "chapters_idx_created_at")
+  @@index([createdUserId], map: "chapters_idx_created_user_id")
+  @@index([updatedUserId], map: "chapters_idx_updated_user_id")
+  @@index([groupId], map: "chapters_idx_group_id")
   @@map("chapters")
 }
 
 model Category {
-  id              BigInt   @id @default(autoincrement())
-  name            String   @db.VarChar(255)
-  slug            String   @unique @db.VarChar(255)
-  description     String?  @db.Text
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
-  group_id        BigInt?
+  id             BigInt   @id @default(autoincrement())
+  name           String   @db.VarChar(255)
+  slug           String   @unique @db.VarChar(255)
+  description    String?  @db.Text
+  createdUserId  BigInt?  @map("created_user_id")
+  updatedUserId  BigInt?  @map("updated_user_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
+  groupId        BigInt?  @map("group_id")
 
   comics ComicCategory[]
 
   @@index([slug], map: "categories_idx_slug")
   @@index([name], map: "categories_idx_name")
-  @@index([created_at], map: "categories_idx_created_at")
-  @@index([created_user_id], map: "categories_idx_created_user_id")
-  @@index([updated_user_id], map: "categories_idx_updated_user_id")
-  @@index([group_id], map: "categories_idx_group_id")
+  @@index([createdAt], map: "categories_idx_created_at")
+  @@index([createdUserId], map: "categories_idx_created_user_id")
+  @@index([updatedUserId], map: "categories_idx_updated_user_id")
+  @@index([groupId], map: "categories_idx_group_id")
   @@map("categories")
 }
 
 model ComicCategory {
-  comic_id    BigInt
-  category_id BigInt
+  comicId    BigInt @map("comic_id")
+  categoryId BigInt @map("category_id")
 
-  comic    Comic    @relation(fields: [comic_id], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  comic    Comic    @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  @@id([comic_id, category_id])
-  @@index([category_id], map: "comic_categories_idx_category_id")
+  @@id([comicId, categoryId])
+  @@index([categoryId], map: "comic_categories_idx_category_id")
   @@map("comic_categories")
 }
 
 model Comment {
-  id              BigInt   @id @default(autoincrement())
-  user_id         BigInt
-  comic_id        BigInt
-  chapter_id      BigInt?
-  parent_id       BigInt?
-  content         String   @db.Text
-  status          String   @default("visible") @db.VarChar(30)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id             BigInt   @id @default(autoincrement())
+  userId         BigInt   @map("user_id")
+  comicId        BigInt   @map("comic_id")
+  chapterId      BigInt?  @map("chapter_id")
+  parentId       BigInt?  @map("parent_id")
+  content        String   @db.Text
+  status         String   @default("visible") @db.VarChar(30)
+  createdUserId  BigInt?  @map("created_user_id")
+  updatedUserId  BigInt?  @map("updated_user_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  comic   Comic     @relation(fields: [comic_id], references: [id], onDelete: Cascade)
-  chapter Chapter?  @relation(fields: [chapter_id], references: [id], onDelete: SetNull)
+  comic   Comic     @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  chapter Chapter?  @relation(fields: [chapterId], references: [id], onDelete: SetNull)
   // SetNull (was Cascade): admin hard-delete of one parent comment used to
   // wipe the entire reply subtree even though user-side delete already
-  // soft-deletes via status='deleted'. Replies now survive with parent_id
+  // soft-deletes via status='deleted'. Replies now survive with parentId
   // = NULL; the renderer can display "[deleted]" for missing parents.
-  parent  Comment?  @relation("CommentToReplies", fields: [parent_id], references: [id], onDelete: SetNull)
+  parent  Comment?  @relation("CommentToReplies", fields: [parentId], references: [id], onDelete: SetNull)
   replies Comment[] @relation("CommentToReplies")
 
-  @@index([user_id], map: "comments_idx_user_id")
-  @@index([comic_id], map: "comments_idx_comic_id")
-  @@index([chapter_id], map: "comments_idx_chapter_id")
-  @@index([parent_id], map: "comments_idx_parent_id")
+  @@index([userId], map: "comments_idx_user_id")
+  @@index([comicId], map: "comments_idx_comic_id")
+  @@index([chapterId], map: "comments_idx_chapter_id")
+  @@index([parentId], map: "comments_idx_parent_id")
   @@index([status], map: "comments_idx_status")
-  @@index([created_at], map: "comments_idx_created_at")
-  @@index([comic_id, created_at], map: "comments_idx_comic_created")
-  @@index([chapter_id, created_at], map: "comments_idx_chapter_created")
-  @@index([created_user_id], map: "comments_idx_created_user_id")
-  @@index([updated_user_id], map: "comments_idx_updated_user_id")
+  @@index([createdAt], map: "comments_idx_created_at")
+  @@index([comicId, createdAt], map: "comments_idx_comic_created")
+  @@index([chapterId, createdAt], map: "comments_idx_chapter_created")
+  @@index([createdUserId], map: "comments_idx_created_user_id")
+  @@index([updatedUserId], map: "comments_idx_updated_user_id")
   @@map("comments")
 }
 
 model Review {
-  id              BigInt   @id @default(autoincrement())
-  user_id         BigInt
-  comic_id        BigInt
-  rating          Int      @db.SmallInt
-  content         String?  @db.Text
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id             BigInt   @id @default(autoincrement())
+  userId         BigInt   @map("user_id")
+  comicId        BigInt   @map("comic_id")
+  rating         Int      @db.SmallInt
+  content        String?  @db.Text
+  createdUserId  BigInt?  @map("created_user_id")
+  updatedUserId  BigInt?  @map("updated_user_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  comic Comic @relation(fields: [comic_id], references: [id], onDelete: Cascade)
+  comic Comic @relation(fields: [comicId], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, comic_id], map: "reviews_idx_user_comic")
-  @@index([user_id], map: "reviews_idx_user_id")
-  @@index([comic_id], map: "reviews_idx_comic_id")
+  @@unique([userId, comicId], map: "reviews_idx_user_comic")
+  @@index([userId], map: "reviews_idx_user_id")
+  @@index([comicId], map: "reviews_idx_comic_id")
   @@index([rating], map: "reviews_idx_rating")
-  @@index([created_at], map: "reviews_idx_created_at")
-  @@index([created_user_id], map: "reviews_idx_created_user_id")
-  @@index([updated_user_id], map: "reviews_idx_updated_user_id")
+  @@index([createdAt], map: "reviews_idx_created_at")
+  @@index([createdUserId], map: "reviews_idx_created_user_id")
+  @@index([updatedUserId], map: "reviews_idx_updated_user_id")
   @@map("reviews")
 }
 
 model Page {
-  id          BigInt   @id @default(autoincrement())
-  chapter_id  BigInt
-  page_number Int
-  image_url   String   @db.VarChar(500)
-  width       Int?
-  height      Int?
-  file_size   BigInt?
-  created_at  DateTime @default(now()) @db.Timestamp(0)
+  id         BigInt   @id @default(autoincrement())
+  chapterId  BigInt   @map("chapter_id")
+  pageNumber Int      @map("page_number")
+  imageUrl   String   @map("image_url") @db.VarChar(500)
+  width      Int?
+  height     Int?
+  fileSize   BigInt?  @map("file_size")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
-  @@unique([chapter_id, page_number], map: "pages_idx_chapter_page_unique")
-  @@index([chapter_id], map: "pages_idx_chapter_id")
-  @@index([chapter_id, page_number], map: "pages_idx_chapter_page")
+  @@unique([chapterId, pageNumber], map: "pages_idx_chapter_page_unique")
+  @@index([chapterId], map: "pages_idx_chapter_id")
+  @@index([chapterId, pageNumber], map: "pages_idx_chapter_page")
   @@map("pages")
 }
 
 model View {
-  id         BigInt   @id @default(autoincrement())
-  comic_id   BigInt
-  chapter_id BigInt?
-  user_id    BigInt?
-  ip         String?  @db.VarChar(45)
-  user_agent String?  @db.VarChar(500)
-  created_at DateTime @default(now()) @db.Timestamp(0)
+  id        BigInt   @id @default(autoincrement())
+  comicId   BigInt   @map("comic_id")
+  chapterId BigInt?  @map("chapter_id")
+  userId    BigInt?  @map("user_id")
+  ip        String?  @db.VarChar(45)
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  comic   Comic    @relation(fields: [comic_id], references: [id], onDelete: Cascade)
-  chapter Chapter? @relation(fields: [chapter_id], references: [id], onDelete: SetNull)
+  comic   Comic    @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  chapter Chapter? @relation(fields: [chapterId], references: [id], onDelete: SetNull)
 
-  @@index([comic_id], map: "views_idx_comic_id")
-  @@index([chapter_id], map: "views_idx_chapter_id")
-  @@index([user_id], map: "views_idx_user_id")
-  @@index([created_at], map: "views_idx_created_at")
-  @@index([comic_id, created_at], map: "views_idx_comic_created")
-  @@index([chapter_id, created_at], map: "views_idx_chapter_created")
+  @@index([comicId], map: "views_idx_comic_id")
+  @@index([chapterId], map: "views_idx_chapter_id")
+  @@index([userId], map: "views_idx_user_id")
+  @@index([createdAt], map: "views_idx_created_at")
+  @@index([comicId, createdAt], map: "views_idx_comic_created")
+  @@index([chapterId, createdAt], map: "views_idx_chapter_created")
   @@map("views")
 }
 
 model Follow {
-  id         BigInt   @id @default(autoincrement())
-  user_id    BigInt
-  comic_id   BigInt
-  created_at DateTime @default(now()) @db.Timestamp(0)
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt   @map("user_id")
+  comicId   BigInt   @map("comic_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  comic Comic @relation(fields: [comic_id], references: [id], onDelete: Cascade)
+  comic Comic @relation(fields: [comicId], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, comic_id], map: "follows_idx_user_comic")
-  @@index([user_id], map: "follows_idx_user_id")
-  @@index([comic_id], map: "follows_idx_comic_id")
-  @@index([created_at], map: "follows_idx_created_at")
+  @@unique([userId, comicId], map: "follows_idx_user_comic")
+  @@index([userId], map: "follows_idx_user_id")
+  @@index([comicId], map: "follows_idx_comic_id")
+  @@index([createdAt], map: "follows_idx_created_at")
   @@map("follows")
 }
 
 model ReadingHistory {
-  id         BigInt   @id @default(autoincrement())
-  user_id    BigInt
-  comic_id   BigInt
-  chapter_id BigInt
-  created_at DateTime @default(now()) @db.Timestamp(0)
-  updated_at DateTime @updatedAt @db.Timestamp(0)
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt   @map("user_id")
+  comicId   BigInt   @map("comic_id")
+  chapterId BigInt   @map("chapter_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  comic   Comic   @relation(fields: [comic_id], references: [id], onDelete: Cascade)
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  comic   Comic   @relation(fields: [comicId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, comic_id], map: "reading_histories_idx_user_comic")
-  @@index([user_id], map: "reading_histories_idx_user_id")
-  @@index([comic_id], map: "reading_histories_idx_comic_id")
-  @@index([chapter_id], map: "reading_histories_idx_chapter_id")
-  @@index([updated_at], map: "reading_histories_idx_updated_at")
+  @@unique([userId, comicId], map: "reading_histories_idx_user_comic")
+  @@index([userId], map: "reading_histories_idx_user_id")
+  @@index([comicId], map: "reading_histories_idx_comic_id")
+  @@index([chapterId], map: "reading_histories_idx_chapter_id")
+  @@index([updatedAt], map: "reading_histories_idx_updated_at")
   @@map("reading_histories")
 }
 
 model Bookmark {
-  id          BigInt   @id @default(autoincrement())
-  user_id     BigInt
-  chapter_id  BigInt
-  page_number Int
-  created_at  DateTime @default(now()) @db.Timestamp(0)
+  id         BigInt   @id @default(autoincrement())
+  userId     BigInt   @map("user_id")
+  chapterId  BigInt   @map("chapter_id")
+  pageNumber Int      @map("page_number")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  chapter Chapter @relation(fields: [chapter_id], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
 
   // Unique on (user, chapter, page) so double-tap doesn't insert two rows
   // for the same bookmark; the service uses upsert against this constraint.
-  @@unique([user_id, chapter_id, page_number], map: "bookmarks_idx_user_chapter_page_unique")
-  @@index([user_id], map: "bookmarks_idx_user_id")
-  @@index([chapter_id], map: "bookmarks_idx_chapter_id")
-  @@index([user_id, chapter_id], map: "bookmarks_idx_user_chapter")
-  @@index([created_at], map: "bookmarks_idx_created_at")
+  @@unique([userId, chapterId, pageNumber], map: "bookmarks_idx_user_chapter_page_unique")
+  @@index([userId], map: "bookmarks_idx_user_id")
+  @@index([chapterId], map: "bookmarks_idx_chapter_id")
+  @@index([userId, chapterId], map: "bookmarks_idx_user_chapter")
+  @@index([createdAt], map: "bookmarks_idx_created_at")
   @@map("bookmarks")
 }
 
 model Outbox {
-  id         BigInt   @id @default(autoincrement())
-  event_type String   @db.VarChar(100)
-  payload    Json
-  published  Boolean  @default(false)
-  created_at DateTime @default(now()) @db.Timestamptz()
+  id        BigInt   @id @default(autoincrement())
+  eventType String   @map("event_type") @db.VarChar(100)
+  payload   Json
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  @@index([published, created_at], map: "outbox_idx_unpublished")
+  @@index([published, createdAt], map: "outbox_idx_unpublished")
   @@map("outbox")
 }

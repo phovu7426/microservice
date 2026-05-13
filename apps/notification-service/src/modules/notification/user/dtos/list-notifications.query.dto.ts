@@ -9,5 +9,5 @@ export class ListNotificationsUserQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsBooleanString()
-  is_read?: string;
+  isRead?: string;
 }

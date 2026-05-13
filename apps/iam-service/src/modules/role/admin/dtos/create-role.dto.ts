@@ -16,6 +16,6 @@ export class CreateRoleDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'parent_id must be numeric.' })
-  parent_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'parentId must be numeric.' })
+  parentId?: string;
 }

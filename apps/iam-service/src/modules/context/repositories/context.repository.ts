@@ -15,7 +15,7 @@ const LIST_SELECT = {
   name: true,
   type: true,
   status: true,
-  created_at: true,
+  createdAt: true,
 } satisfies Prisma.ContextSelect;
 
 @Injectable()
@@ -68,7 +68,7 @@ export class ContextRepository {
     return this.prisma.context.findUnique({
       where: { id: toPrimaryKey(id) },
       include: {
-        role_contexts: {
+        roleContexts: {
           include: { role: { select: { id: true, code: true, name: true } } },
         },
       },
@@ -97,17 +97,17 @@ export class ContextRepository {
     await this.prisma.$transaction(
       async (tx) => {
         const before = await tx.roleContext.findMany({
-          where: { context_id: ctxId },
-          select: { role_id: true },
+          where: { contextId: ctxId },
+          select: { roleId: true },
         });
-        const beforeIds = new Set(before.map((r) => String(r.role_id)));
+        const beforeIds = new Set(before.map((r) => String(r.roleId)));
         const targetIds = new Set(pkRoleIds.map((id) => String(id)));
         const removed = [...beforeIds].filter((id) => !targetIds.has(id)).map((id) => toPrimaryKey(id));
 
-        await tx.roleContext.deleteMany({ where: { context_id: ctxId } });
+        await tx.roleContext.deleteMany({ where: { contextId: ctxId } });
         if (pkRoleIds.length) {
           await tx.roleContext.createMany({
-            data: pkRoleIds.map((rid) => ({ role_id: rid, context_id: ctxId })),
+            data: pkRoleIds.map((rid) => ({ roleId: rid, contextId: ctxId })),
             skipDuplicates: true,
           });
         }
@@ -115,8 +115,8 @@ export class ContextRepository {
         if (removed.length) {
           await tx.userRoleAssignment.deleteMany({
             where: {
-              role_id: { in: removed },
-              group: { context_id: ctxId },
+              roleId: { in: removed },
+              group: { contextId: ctxId },
             },
           });
         }
@@ -126,6 +126,6 @@ export class ContextRepository {
   }
 
   async countGroups(contextId: string | bigint): Promise<number> {
-    return this.prisma.group.count({ where: { context_id: toPrimaryKey(contextId) } });
+    return this.prisma.group.count({ where: { contextId: toPrimaryKey(contextId) } });
   }
 }

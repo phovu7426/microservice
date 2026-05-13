@@ -67,8 +67,8 @@ describe('ChapterPublishedHandler', () => {
 
   it('should create notifications for all followers', async () => {
     followersProjectionRepo.findByComicId.mockResolvedValue([
-      { user_id: 10n },
-      { user_id: 20n },
+      { userId: 10n },
+      { userId: 20n },
     ]);
 
     await handler.handle({
@@ -80,13 +80,13 @@ describe('ChapterPublishedHandler', () => {
 
     expect(notifService.createMany).toHaveBeenCalledWith([
       expect.objectContaining({
-        user_id: 10n,
+        userId: 10n,
         title: 'My Comic - Chapter 3',
         type: 'info',
         data: { comic_id: '5', comic_slug: 'my-comic', chapter_label: 'Chapter 3' },
       }),
       expect.objectContaining({
-        user_id: 20n,
+        userId: 20n,
         title: 'My Comic - Chapter 3',
         type: 'info',
       }),
@@ -94,7 +94,7 @@ describe('ChapterPublishedHandler', () => {
   });
 
   it('should throw when a batch fails', async () => {
-    followersProjectionRepo.findByComicId.mockResolvedValue([{ user_id: 1n }]);
+    followersProjectionRepo.findByComicId.mockResolvedValue([{ userId: 1n }]);
     notifService.createMany.mockRejectedValue(new Error('DB error'));
 
     await expect(

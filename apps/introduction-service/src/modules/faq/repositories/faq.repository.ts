@@ -28,7 +28,7 @@ export class FaqRepository {
   findMany(filter: FaqFilter, options: { skip: number; take: number }) {
     return this.prisma.faq.findMany({
       where: this.buildWhere(filter),
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });

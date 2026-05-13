@@ -64,8 +64,8 @@ export class AdminComicService {
 
       try {
         const created = await this.comicRepo.createWithRelations(
-          { ...dto, slug, created_user_id: actorId, updated_user_id: actorId },
-          dto.category_ids,
+          { ...dto, slug, createdUserId: actorId, updatedUserId: actorId },
+          dto.categoryIds,
         );
         await this.clearComicCaches(slug);
         return this.transform(created);
@@ -102,11 +102,11 @@ export class AdminComicService {
       );
     }
 
-    if (actorId) data.updated_user_id = actorId;
+    if (actorId) data.updatedUserId = actorId;
 
     let updated: any;
     try {
-      updated = await this.comicRepo.updateWithRelations(id, data, dto.category_ids);
+      updated = await this.comicRepo.updateWithRelations(id, data, dto.categoryIds);
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new BadRequestException(t(this.i18n, 'comic.SLUG_IN_USE'));
@@ -143,10 +143,10 @@ export class AdminComicService {
     if (query.search) filter.search = query.search;
     if (query.status) filter.status = query.status;
     if (query.author) filter.author = query.author;
-    if (query.is_featured !== undefined) {
-      filter.is_featured = query.is_featured === 'true' || query.is_featured === true;
+    if (query.isFeatured !== undefined) {
+      filter.isFeatured = query.isFeatured === 'true' || query.isFeatured === true;
     }
-    if (query.category_id) filter.category_id = query.category_id;
+    if (query.categoryId) filter.categoryId = query.categoryId;
     return filter;
   }
 

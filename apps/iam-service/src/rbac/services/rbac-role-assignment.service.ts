@@ -27,7 +27,7 @@ export class RbacRoleAssignmentService {
     }
 
     const result = await this.rbacRepo.syncRolesInGroup(
-      userId, groupId, roleIds, group.context_id, skipValidation,
+      userId, groupId, roleIds, group.contextId, skipValidation,
     );
 
     // Check if repo flagged invalid roles

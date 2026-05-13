@@ -13,8 +13,8 @@ export class ListTestimonialAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'project_id must be numeric.' })
-  project_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'projectId must be numeric.' })
+  projectId?: string;
 }
 
 export class ListTestimonialPublicQueryDto extends BaseListQueryDto {
@@ -24,6 +24,6 @@ export class ListTestimonialPublicQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'project_id must be numeric.' })
-  project_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'projectId must be numeric.' })
+  projectId?: string;
 }

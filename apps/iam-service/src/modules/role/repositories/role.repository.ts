@@ -7,7 +7,7 @@ import { BasicStatus } from '../../../common/enums/basic-status.enum';
 export interface RoleFilter {
   search?: string;
   status?: string;
-  parent_id?: any;
+  parentId?: any;
 }
 
 const LIST_SELECT = {
@@ -15,9 +15,9 @@ const LIST_SELECT = {
   code: true,
   name: true,
   status: true,
-  parent_id: true,
+  parentId: true,
   parent: { select: { id: true, code: true, name: true } },
-  created_at: true,
+  createdAt: true,
 } satisfies Prisma.RoleSelect;
 
 @Injectable()
@@ -41,8 +41,8 @@ export class RoleRepository {
       andConditions.push({ status: filter.status });
     }
 
-    if (filter.parent_id) {
-      andConditions.push({ parent_id: toPrimaryKey(filter.parent_id) });
+    if (filter.parentId) {
+      andConditions.push({ parentId: toPrimaryKey(filter.parentId) });
     }
 
     if (andConditions.length > 0) {
@@ -74,7 +74,7 @@ export class RoleRepository {
         permissions: {
           include: { permission: { select: { id: true, code: true, name: true } } },
         },
-        role_contexts: {
+        roleContexts: {
           include: { context: { select: { id: true, code: true, name: true } } },
         },
       },
@@ -102,10 +102,10 @@ export class RoleRepository {
     const pkPermIds = permissionIds.map(toPrimaryKey);
     await this.prisma.$transaction(
       async (tx) => {
-        await tx.roleHasPermission.deleteMany({ where: { role_id: pkRoleId } });
+        await tx.roleHasPermission.deleteMany({ where: { roleId: pkRoleId } });
         if (pkPermIds.length) {
           await tx.roleHasPermission.createMany({
-            data: pkPermIds.map((pid) => ({ role_id: pkRoleId, permission_id: pid })),
+            data: pkPermIds.map((pid) => ({ roleId: pkRoleId, permissionId: pid })),
             skipDuplicates: true,
           });
         }
@@ -117,9 +117,9 @@ export class RoleRepository {
   async getParentId(id: bigint): Promise<bigint | null> {
     const row = await this.prisma.role.findUnique({
       where: { id },
-      select: { parent_id: true },
+      select: { parentId: true },
     });
-    return row?.parent_id ?? null;
+    return row?.parentId ?? null;
   }
 
   async getPermissionCodesByIds(ids: (string | bigint)[]): Promise<string[]> {

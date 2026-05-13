@@ -11,27 +11,27 @@ export class CreateCategoryDto {
 
   @IsOptional()
   @IsNumber()
-  parent_id?: number;
+  parentId?: number;
 
   @IsOptional()
   @IsBoolean()
-  is_active?: boolean;
+  isActive?: boolean;
 
   @IsOptional()
   @IsNumber()
-  sort_order?: number;
+  sortOrder?: number;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  seo_title?: string;
+  seoTitle?: string;
 
   @IsOptional()
   @IsString()
-  seo_description?: string;
+  seoDescription?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  seo_keywords?: string;
+  seoKeywords?: string;
 }

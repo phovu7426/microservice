@@ -12,7 +12,7 @@ export interface ProjectFilter {
 }
 
 const PUBLIC_INCLUDE = {
-  testimonials: { where: { status: BasicStatus.active }, orderBy: { sort_order: 'asc' as const } },
+  testimonials: { where: { status: BasicStatus.active }, orderBy: { sortOrder: 'asc' as const } },
 } as const;
 
 @Injectable()
@@ -26,7 +26,7 @@ export class ProjectRepository {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { slug: { contains: search, mode: 'insensitive' } },
-        { client_name: { contains: search, mode: 'insensitive' } },
+        { clientName: { contains: search, mode: 'insensitive' } },
       ];
     }
     if (filter.status !== undefined) {
@@ -44,7 +44,7 @@ export class ProjectRepository {
     return this.prisma.project.findMany({
       where: this.buildWhere(filter),
       // Tie-break by id so duplicate sort_order is deterministic across pages.
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });
@@ -53,7 +53,7 @@ export class ProjectRepository {
   findManyPublic(filter: ProjectFilter, options: { skip: number; take: number }) {
     return this.prisma.project.findMany({
       where: this.buildWhere(filter),
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });
@@ -99,7 +99,7 @@ export class ProjectRepository {
   incrementViewCount(id: any) {
     return this.prisma.project.update({
       where: { id: toPrimaryKey(id) },
-      data: { view_count: { increment: 1 } },
+      data: { viewCount: { increment: 1 } },
     });
   }
 
@@ -109,11 +109,11 @@ export class ProjectRepository {
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload = { ...data };
-    if (payload.start_date && !(payload.start_date instanceof Date)) {
-      payload.start_date = new Date(payload.start_date);
+    if (payload.startDate && !(payload.startDate instanceof Date)) {
+      payload.startDate = new Date(payload.startDate);
     }
-    if (payload.end_date && !(payload.end_date instanceof Date)) {
-      payload.end_date = new Date(payload.end_date);
+    if (payload.endDate && !(payload.endDate instanceof Date)) {
+      payload.endDate = new Date(payload.endDate);
     }
     return payload;
   }

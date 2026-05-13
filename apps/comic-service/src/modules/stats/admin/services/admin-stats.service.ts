@@ -22,12 +22,12 @@ export class AdminStatsService {
       this.statsRepo.aggregateFollows(),
     ]);
 
-    const topComics = await this.statsRepo.findTopComics({ stats: { view_count: 'desc' } }, 10);
+    const topComics = await this.statsRepo.findTopComics({ stats: { viewCount: 'desc' } }, 10);
 
     const result = {
       total_comics: totalComics,
-      total_views: totalViews._sum?.view_count || 0,
-      total_follows: totalFollows._sum?.follow_count || 0,
+      total_views: totalViews._sum?.viewCount || 0,
+      total_follows: totalFollows._sum?.followCount || 0,
       top_comics: topComics,
     };
 
@@ -44,14 +44,14 @@ export class AdminStatsService {
 
   async getTopComics(query: any) {
     const limit = Math.max(Number(query.limit) || 10, 1);
-    const sortBy = query.sort_by || 'views';
+    const sortBy = query.sortBy || 'views';
 
     const orderBy: Prisma.ComicOrderByWithRelationInput =
       sortBy === 'follows'
-        ? { stats: { follow_count: 'desc' } }
+        ? { stats: { followCount: 'desc' } }
         : sortBy === 'rating'
-          ? { stats: { rating_sum: 'desc' } }
-          : { stats: { view_count: 'desc' } };
+          ? { stats: { ratingSum: 'desc' } }
+          : { stats: { viewCount: 'desc' } };
 
     const data = await this.statsRepo.findTopComics(orderBy, limit);
     return { data };

@@ -7,7 +7,7 @@ export interface PermissionFilter {
   search?: string;
   status?: string;
   scope?: string;
-  parent_id?: any;
+  parentId?: any;
 }
 
 const LIST_SELECT = {
@@ -15,9 +15,9 @@ const LIST_SELECT = {
   code: true,
   name: true,
   status: true,
-  parent_id: true,
+  parentId: true,
   parent: { select: { id: true, code: true, name: true } },
-  created_at: true,
+  createdAt: true,
 } satisfies Prisma.PermissionSelect;
 
 @Injectable()
@@ -45,8 +45,8 @@ export class PermissionRepository {
       andConditions.push({ scope: filter.scope });
     }
 
-    if (filter.parent_id) {
-      andConditions.push({ parent_id: toPrimaryKey(filter.parent_id) });
+    if (filter.parentId) {
+      andConditions.push({ parentId: toPrimaryKey(filter.parentId) });
     }
 
     if (andConditions.length > 0) {
@@ -99,8 +99,8 @@ export class PermissionRepository {
   async getParentId(id: bigint): Promise<bigint | null> {
     const row = await this.prisma.permission.findUnique({
       where: { id },
-      select: { parent_id: true },
+      select: { parentId: true },
     });
-    return row?.parent_id ?? null;
+    return row?.parentId ?? null;
   }
 }

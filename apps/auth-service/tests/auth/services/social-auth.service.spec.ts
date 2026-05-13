@@ -89,8 +89,8 @@ function makeExistingUser(overrides: Record<string, any> = {}) {
     image: null,
     googleId: 'google-123',
     status: 'active',
-    email_verified_at: new Date('2024-01-01'),
-    last_login_at: new Date('2024-01-01'),
+    emailVerifiedAt: new Date('2024-01-01'),
+    lastLoginAt: new Date('2024-01-01'),
     ...overrides,
   };
 }

@@ -1,882 +1,565 @@
-# Tich hop Config Service vao Frontend
+# Tich hop Config Service — Tai lieu API cho Frontend
 
-> Base URL: `/api/config` (qua Nginx proxy den config-service:3003)
-
----
-
-## Muc luc
-
-1. [Tong quan](#1-tong-quan)
-2. [Response format chung](#2-response-format-chung)
-3. [General Config (cau hinh website)](#3-general-config-cau-hinh-website)
-4. [Menu](#4-menu)
-5. [Location — Quoc gia (Country)](#5-location--quoc-gia-country)
-6. [Location — Tinh/Thanh (Province)](#6-location--tinhthanh-province)
-7. [Location — Phuong/Xa (Ward)](#7-location--phuongxa-ward)
-8. [Admin — Country CRUD](#8-admin--country-crud)
-9. [Admin — Province CRUD](#9-admin--province-crud)
-10. [Admin — Ward CRUD](#10-admin--ward-crud)
-11. [Admin — Menu CRUD](#11-admin--menu-crud)
-12. [Admin — Email Config](#12-admin--email-config)
-13. [Admin — General Config](#13-admin--general-config)
-14. [Xu ly loi](#14-xu-ly-loi)
+> **Base URL:** `/api/config` (qua Nginx proxy -> config-service:3003)
+>
+> Tat ca path ben duoi deu co prefix `/api/config`. Vi du: `GET /api/config/general`
 
 ---
 
-## 1. Tong quan
-
-Config Service quan ly:
-- **General config**: ten website, logo, thong tin lien he, SEO, analytics
-- **Email config**: cau hinh SMTP
-- **Menu**: cay menu dong (public, user, admin)
-- **Location**: quoc gia / tinh-thanh / phuong-xa
-
-**Phan quyen:**
-
-| Loai | Mo ta | Header can thiet |
-|------|-------|-----------------|
-| Public | Khong can dang nhap | Khong |
-| User | Can JWT (dang nhap) | `Authorization: Bearer <token>` |
-| Admin | Can JWT + permission | `Authorization: Bearer <token>` |
-
----
-
-## 2. Response format chung
-
-Moi response deu duoc wrap boi `TransformInterceptor`:
+## Cau truc Response chung
 
 ```json
+// Danh sach
 {
   "success": true,
+  "message": "Success",
+  "code": "SUCCESS",
+  "httpStatus": 200,
+  "data": [...],
+  "meta": { "page": 1, "limit": 10, "total": 100, "totalPages": 10 },
+  "timestamp": "2026-05-13T10:00:00+07:00"
+}
+
+// Single object
+{
+  "success": true,
+  "message": "Success",
+  "code": "SUCCESS",
+  "httpStatus": 200,
   "data": { ... },
-  "meta": null,
-  "timestamp": "2026-05-09T10:00:00.000Z"
+  "meta": {},
+  "timestamp": "2026-05-13T10:00:00+07:00"
 }
 ```
 
-**Danh sach co phan trang:**
-```json
-{
-  "success": true,
-  "data": [ ... ],
-  "meta": {
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "totalPages": 8
-  },
-  "timestamp": "2026-05-09T10:00:00.000Z"
-}
-```
+---
 
-**Query params phan trang dung chung cho moi endpoint danh sach:**
+## Phan quyen
 
-| Param | Kieu | Mac dinh | Mo ta |
+| Ky hieu | Nghia |
+|---------|-------|
+| Public | Khong can dang nhap |
+| User | Can header `Authorization: Bearer {token}` |
+| Admin | Can JWT co quyen admin |
+
+---
+
+## Luu y chung
+
+- **Request body, query params va response deu dung camelCase** — `countryId`, `siteName`, khong phai `country_id`, `site_name`.
+- **ID la string** — BigInt serialize thanh string. Gui len phai la numeric string (VD: `"123"`).
+- **Enum `status`:** `"active"` | `"inactive"`.
+- **Menu `type`:** `"route"` | `"group"` | `"link"`.
+- **Boolean trong query string:** gui `"true"` hoac `"1"`.
+- **Query param dung camelCase**: `countryId=1`, KHONG dung `filter[country_id]=1`.
+
+---
+
+## Tham so phan trang chung (ap dung cho moi List API)
+
+| Param | Kieu | Default | Mo ta |
 |-------|------|---------|-------|
-| `page` | number | 1 | So trang |
-| `limit` | number | 20 | So ban ghi moi trang |
-| `search` | string | — | Tim kiem full-text (max 200 ky tu) |
-| `sort` | string | — | Vi du: `name:asc`, `createdAt:desc` |
-| `skipCount` | boolean | false | Bo qua dem tong (dung cho infinite scroll) |
+| `page` | number | `1` | Trang hien tai |
+| `limit` | number | `10` | So ban ghi moi trang |
+| `search` | string | — | Tim kiem toan van |
+| `sort` | string | — | Vi du: `name:ASC`, `createdAt:DESC` |
+| `skipCount` | boolean | `false` | `true` -> bo qua dem tong (tang hieu nang) |
 
 ---
 
-## 3. General Config (cau hinh website)
+## 1. General Config
 
-### Lay config public
+### Public GET `/api/config/general`
 
-```
-GET /api/config/general
-```
+Lay cau hinh chung cua site (cache Redis 10 phut).
 
-Khong can xac thuc. Ket qua duoc cache Redis 24h.
+**Response `data`:**
 
-**Response:**
 ```json
 {
-  "success": true,
-  "data": {
-    "id": "1",
-    "site_name": "Comic Platform",
-    "site_description": "Nen tang truyen tranh truc tuyen",
-    "site_logo": "https://cdn.example.com/logo.png",
-    "site_favicon": "https://cdn.example.com/favicon.ico",
-    "site_email": "contact@example.com",
-    "site_phone": "0901234567",
-    "site_address": "123 Nguyen Hue, Q1, TP.HCM",
-    "site_country_id": "1",
-    "site_province_id": "79",
-    "site_ward_id": "26734",
-    "site_copyright": "© 2026 Comic Platform",
-    "timezone": "Asia/Ho_Chi_Minh",
-    "locale": "vi",
-    "currency": "VND",
-    "contact_channels": [
-      {
-        "type": "facebook",
-        "value": "comicplatform",
-        "label": "Facebook",
-        "url_template": "https://facebook.com/{value}",
-        "enabled": true,
-        "sort_order": 1
-      }
-    ],
-    "meta_title": "Comic Platform — Doc truyen online",
-    "meta_keywords": "truyen tranh, comic, manga",
-    "og_title": "Comic Platform",
-    "og_description": "Nen tang truyen tranh truc tuyen",
-    "og_image": "https://cdn.example.com/og.jpg",
-    "canonical_url": "https://comicplatform.vn",
-    "google_analytics_id": "G-XXXXXXXXXX",
-    "facebook_pixel_id": "123456789",
-    "twitter_site": "@comicplatform",
-    "created_at": "2026-01-01T00:00:00.000Z",
-    "updated_at": "2026-05-09T10:00:00.000Z"
-  }
-}
-```
-
-> **Luu y:** Response tra ve snake_case vi day la du lieu DB. Frontend tu xu ly mapping neu can.
-
----
-
-## 4. Menu
-
-### 4.1 Menu public (khong can dang nhap)
-
-Lay cay menu public de hien thi navigation cho khach.
-
-```
-GET /api/config/menus
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "1",
-      "code": "home",
-      "name": "Trang chu",
-      "path": "/",
-      "icon": "HomeIcon",
-      "type": "route",
-      "sort_order": 1,
-      "is_public": true,
-      "children": [...]
-    }
-  ]
-}
-```
-
----
-
-### 4.2 Menu cua user dang nhap
-
-Lay cay menu theo quyen cua user hien tai (loc theo permission).
-
-```
-GET /api/config/menus/user
-Authorization: Bearer <token>
-```
-
-Header tuy chon:
-```
-x-group-id: <groupId>   (neu he thong co nhom/tenant)
-```
-
-**Response:** Cung dinh dang cay nhu 4.1, chi tra ve menu ma user co quyen truy cap.
-
----
-
-### 4.3 Menu admin (danh sach phang)
-
-```
-GET /api/config/menus/admin
-Authorization: Bearer <token>
-```
-
-**Query params bo sung:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `status` | `active` \| `inactive` | Loc theo trang thai |
-| `parentId` | string (numeric) | Loc theo cha |
-| `showInMenu` | boolean | Hien thi trong menu hay khong |
-| `group` | string | Nhom menu (vd: `admin`, `user`) |
-
----
-
-### 4.4 Cay menu admin
-
-```
-GET /api/config/menus/admin/tree
-Authorization: Bearer <token>
-```
-
----
-
-## 5. Location — Quoc gia (Country)
-
-### 5.1 Danh sach quoc gia
-
-```
-GET /api/config/countries
-```
-
-Khong can xac thuc. Ket qua duoc cache.
-
-**Query params bo sung:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `name` | string | Tim theo ten |
-| `code` | string | Tim theo ma quoc gia (vd: `VN`) |
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": "1",
-      "code": "VN",
-      "code_alpha3": "VNM",
-      "name": "Viet Nam",
-      "official_name": "Cong hoa Xa hoi Chu nghia Viet Nam",
-      "phone_code": "+84",
-      "currency_code": "VND",
-      "flag_emoji": "🇻🇳",
-      "status": "active"
-    }
-  ],
-  "meta": { "page": 1, "limit": 20, "total": 195, "totalPages": 10 }
-}
-```
-
----
-
-### 5.2 Danh sach tinh theo quoc gia
-
-```
-GET /api/config/countries/:id/provinces
-```
-
-| Param URL | Mo ta |
-|-----------|-------|
-| `id` | ID quoc gia |
-
-**Query params:** `page`, `limit`, `search`, `name`, `code`
-
----
-
-## 6. Location — Tinh/Thanh (Province)
-
-### 6.1 Danh sach tinh/thanh
-
-```
-GET /api/config/provinces
-```
-
-Khong can xac thuc. Tra ve tat ca tinh dang `active`.
-
-**Query params bo sung:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `name` | string | Tim theo ten |
-| `code` | string | Tim theo ma tinh |
-
----
-
-### 6.2 Tinh theo quoc gia
-
-```
-GET /api/config/countries/:countryId/provinces
-```
-
----
-
-### 6.3 Phuong/xa theo tinh
-
-```
-GET /api/config/provinces/:id/wards
-```
-
----
-
-## 7. Location — Phuong/Xa (Ward)
-
-### 7.1 Danh sach phuong/xa
-
-```
-GET /api/config/wards
-```
-
-**Query params bo sung:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `name` | string | Tim theo ten |
-| `code` | string | Tim theo ma |
-
----
-
-### 7.2 Phuong/xa theo tinh
-
-```
-GET /api/config/provinces/:provinceId/wards
-```
-
----
-
-## 8. Admin — Country CRUD
-
-> Yeu cau: `Authorization: Bearer <token>` + permission `country.manage`
-
-### 8.1 Danh sach
-
-```
-GET /api/config/admin/countries
-```
-
-**Query params bo sung:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `name` | string | Tim theo ten |
-| `code` | string | Tim theo ma |
-| `status` | `active` \| `inactive` | Loc trang thai |
-
----
-
-### 8.2 Danh sach don gian (cho dropdown)
-
-```
-GET /api/config/admin/countries/simple
-```
-
-Tra ve toi da 1000 ban ghi, khong dem tong.
-
----
-
-### 8.3 Chi tiet
-
-```
-GET /api/config/admin/countries/:id
-```
-
----
-
-### 8.4 Tao moi
-
-```
-POST /api/config/admin/countries
-Content-Type: application/json
-Authorization: Bearer <token>
-```
-
-**Request body:**
-```json
-{
-  "code": "VN",
-  "codeAlpha3": "VNM",
-  "name": "Viet Nam",
-  "officialName": "Cong hoa Xa hoi Chu nghia Viet Nam",
-  "phoneCode": "+84",
-  "currencyCode": "VND",
-  "flagEmoji": "🇻🇳",
-  "status": "active"
-}
-```
-
-| Truong | Bat buoc | Kieu | Gioi han | Mo ta |
-|--------|---------|------|---------|-------|
-| `code` | ✅ | string | max 10 | Ma quoc gia (ISO 3166-1 alpha-2) |
-| `name` | ✅ | string | max 255 | Ten quoc gia |
-| `codeAlpha3` | | string | max 10 | Ma alpha-3 |
-| `officialName` | | string | max 255 | Ten chinh thuc |
-| `phoneCode` | | string | max 20 | Ma dien thoai |
-| `currencyCode` | | string | max 20 | Ma tien te |
-| `flagEmoji` | | string | max 20 | Emoji co |
-| `status` | | `active` \| `inactive` | — | Mac dinh: `active` |
-
----
-
-### 8.5 Cap nhat
-
-```
-PATCH /api/config/admin/countries/:id
-Content-Type: application/json
-Authorization: Bearer <token>
-```
-
-Body: cac truong giong POST, tat ca deu tuy chon.
-
----
-
-### 8.6 Xoa
-
-```
-DELETE /api/config/admin/countries/:id
-Authorization: Bearer <token>
-```
-
-> Tra ve 409 neu quoc gia con tinh/thanh phu thuoc.
-
----
-
-## 9. Admin — Province CRUD
-
-> Yeu cau: permission `province.manage`
-
-### 9.1 Danh sach
-
-```
-GET /api/config/admin/provinces
-```
-
-**Query params bo sung:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `name` | string | Tim theo ten |
-| `code` | string | Tim theo ma |
-| `status` | `active` \| `inactive` | Loc trang thai |
-| `countryId` | string (numeric) | Loc theo quoc gia |
-
----
-
-### 9.2 Danh sach don gian
-
-```
-GET /api/config/admin/provinces/simple
-```
-
----
-
-### 9.3 Chi tiet / Tao / Cap nhat / Xoa
-
-```
-GET    /api/config/admin/provinces/:id
-POST   /api/config/admin/provinces
-PATCH  /api/config/admin/provinces/:id
-DELETE /api/config/admin/provinces/:id
-```
-
-**Request body (POST — bat buoc):**
-```json
-{
-  "code": "79",
-  "name": "Thanh pho Ho Chi Minh",
-  "type": "Thanh pho Truc thuoc Trung uong",
-  "countryId": "1",
-  "phoneCode": "028",
-  "status": "active",
-  "note": "...",
-  "codeBnv": "SG",
-  "codeTms": "HCM"
-}
-```
-
-| Truong | Bat buoc | Kieu | Mo ta |
-|--------|---------|------|-------|
-| `code` | ✅ | string (max 20) | Ma tinh |
-| `name` | ✅ | string (max 255) | Ten tinh |
-| `type` | ✅ | string (max 50) | Loai (Thanh pho / Tinh) |
-| `countryId` | ✅ | string (numeric) | ID quoc gia |
-| `phoneCode` | | string (max 20) | Ma vung dien thoai |
-| `status` | | `active` \| `inactive` | Mac dinh: `active` |
-| `note` | | string (max 2000) | Ghi chu |
-| `codeBnv` | | string (max 20) | Ma Bo Noi Vu |
-| `codeTms` | | string (max 20) | Ma TMS |
-
-> Xoa tra ve 409 neu tinh con phuong/xa phu thuoc.
-
----
-
-## 10. Admin — Ward CRUD
-
-> Yeu cau: permission `ward.manage`
-
-```
-GET    /api/config/admin/wards
-GET    /api/config/admin/wards/simple
-GET    /api/config/admin/wards/:id
-POST   /api/config/admin/wards
-PATCH  /api/config/admin/wards/:id
-DELETE /api/config/admin/wards/:id
-```
-
-**Query params bo sung (danh sach):**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `name` | string | Tim theo ten |
-| `code` | string | Tim theo ma |
-| `status` | `active` \| `inactive` | Loc trang thai |
-| `provinceId` | string (numeric) | Loc theo tinh |
-
-**Request body (POST — bat buoc):**
-```json
-{
-  "provinceId": "760",
-  "code": "26734",
-  "name": "Phuong Ben Nghe",
-  "type": "Phuong",
-  "status": "active"
-}
-```
-
-| Truong | Bat buoc | Kieu | Mo ta |
-|--------|---------|------|-------|
-| `provinceId` | ✅ | string (numeric) | ID tinh/thanh |
-| `code` | ✅ | string (max 20) | Ma phuong/xa |
-| `name` | ✅ | string (max 255) | Ten phuong/xa |
-| `type` | ✅ | string (max 50) | Loai (Phuong / Xa / Thi tran) |
-| `status` | | `active` \| `inactive` | Mac dinh: `active` |
-
----
-
-## 11. Admin — Menu CRUD
-
-> Yeu cau: permission `menu.manage`
-
-### 11.1 Danh sach (phang)
-
-```
-GET /api/config/menus/admin
-Authorization: Bearer <token>
-```
-
-**Query params:**
-
-| Param | Kieu | Mo ta |
-|-------|------|-------|
-| `search` | string | Tim theo ten, code |
-| `status` | `active` \| `inactive` | Loc trang thai |
-| `parentId` | string (numeric) | Loc theo menu cha |
-| `showInMenu` | boolean | Hien thi trong menu |
-| `group` | string | Nhom (`admin`, `user`...) |
-| `sort` | string | Mac dinh: `sort_order:asc` |
-
----
-
-### 11.2 Cay menu day du
-
-```
-GET /api/config/menus/admin/tree
-Authorization: Bearer <token>
-```
-
----
-
-### 11.3 Chi tiet
-
-```
-GET /api/config/menus/admin/:id
-Authorization: Bearer <token>
-```
-
----
-
-### 11.4 Tao moi
-
-```
-POST /api/config/menus
-Authorization: Bearer <token>
-```
-
-**Request body:**
-```json
-{
-  "code": "comic-management",
-  "name": "Quan ly truyen",
-  "path": "/admin/comics",
-  "apiPath": "/api/comics",
-  "icon": "BookIcon",
-  "type": "route",
-  "status": "active",
-  "parentId": "5",
-  "sortOrder": 10,
-  "isPublic": false,
-  "showInMenu": true,
-  "requiredPermissionCode": "comic.manage",
-  "group": "admin"
-}
-```
-
-| Truong | Bat buoc | Kieu | Mo ta |
-|--------|---------|------|-------|
-| `code` | ✅ | string (3–120) | Ma dinh danh duy nhat |
-| `name` | ✅ | string (max 150) | Ten hien thi |
-| `path` | | string (max 255) | Duong dan frontend |
-| `apiPath` | | string (max 255) | Duong dan API tuong ung |
-| `icon` | | string (max 120) | Ten icon |
-| `type` | | `route` \| `group` \| `link` | Loai menu |
-| `status` | | `active` \| `inactive` | Mac dinh: `active` |
-| `parentId` | | string (numeric) | ID menu cha |
-| `sortOrder` | | number (≥0) | Thu tu sap xep |
-| `isPublic` | | boolean | Khong can dang nhap |
-| `showInMenu` | | boolean | Hien trong sidebar |
-| `requiredPermissionCode` | | string (max 120) | Ma quyen can co |
-| `group` | | string (max 50) | Nhom menu |
-
----
-
-### 11.5 Cap nhat
-
-```
-PUT /api/config/menus/:id
-Authorization: Bearer <token>
-```
-
-Body: cac truong giong POST, tat ca tuy chon.
-`parentId` co the truyen `""` (chuoi rong) hoac `null` de go bo menu cha.
-
----
-
-### 11.6 Xoa
-
-```
-DELETE /api/config/menus/:id
-Authorization: Bearer <token>
-```
-
----
-
-## 12. Admin — Email Config
-
-> Yeu cau: permission `config.manage`
-
-### Cap nhat cau hinh SMTP
-
-```
-PUT /api/config/config/email
-Authorization: Bearer <token>
-```
-
-**Request body (tat ca truong deu tuy chon — chi gui truong can thay doi):**
-```json
-{
-  "smtpHost": "smtp.gmail.com",
-  "smtpPort": 587,
-  "smtpSecure": true,
-  "smtpUsername": "noreply@example.com",
-  "smtpPassword": "mat_khau_smtp",
-  "fromEmail": "noreply@example.com",
-  "fromName": "Comic Platform",
-  "replyToEmail": "support@example.com"
-}
-```
-
-| Truong | Kieu | Gioi han | Mo ta |
-|--------|------|---------|-------|
-| `smtpHost` | string | max 255 | Hostname SMTP (khong duoc la IP noi bo) |
-| `smtpPort` | number | 1–65535 | Cong SMTP |
-| `smtpSecure` | boolean | — | Dung TLS/SSL |
-| `smtpUsername` | string | max 255 | Tai khoan SMTP |
-| `smtpPassword` | string | 6–500 ky tu | Mat khau SMTP |
-| `fromEmail` | email | max 255 | Email gui di |
-| `fromName` | string | max 255 | Ten nguoi gui |
-| `replyToEmail` | email | max 255 | Email tra loi |
-
-> **Luu y:**
-> - Lan dau cai dat: `smtpHost`, `smtpUsername`, `smtpPassword`, `fromEmail`, `fromName` la bat buoc.
-> - `smtpPassword` tra ve `"******"` khi doc. Neu gui lai gia tri nay thi he thong giu nguyen mat khau cu.
-
----
-
-## 13. Admin — General Config
-
-> Yeu cau: permission `config.manage`
-
-### Cap nhat cau hinh website
-
-```
-PUT /api/config/config/general
-Authorization: Bearer <token>
-```
-
-**Request body (tat ca truong deu tuy chon):**
-```json
-{
+  "id": "1",
   "siteName": "Comic Platform",
-  "siteDescription": "Nen tang truyen tranh truc tuyen",
+  "siteDescription": "Mo ta site",
   "siteLogo": "https://cdn.example.com/logo.png",
   "siteFavicon": "https://cdn.example.com/favicon.ico",
-  "siteEmail": "contact@example.com",
+  "siteEmail": "admin@example.com",
   "sitePhone": "0901234567",
-  "siteAddress": "123 Nguyen Hue, Q1, TP.HCM",
+  "siteAddress": "123 Duong Sach, TP.HCM",
   "siteCountryId": "1",
-  "siteProvinceId": "79",
-  "siteWardId": "26734",
-  "siteCopyright": "© 2026 Comic Platform",
+  "siteProvinceId": "2",
+  "siteWardId": "3",
+  "siteCopyright": "2026 Comic Platform",
   "timezone": "Asia/Ho_Chi_Minh",
   "locale": "vi",
   "currency": "VND",
   "contactChannels": [
     {
       "type": "facebook",
-      "value": "comicplatform",
+      "value": "https://fb.com/page",
       "label": "Facebook",
-      "urlTemplate": "https://facebook.com/{value}",
-      "icon": "FacebookIcon",
+      "icon": "facebook-icon",
+      "urlTemplate": null,
       "enabled": true,
       "sortOrder": 1
     }
   ],
-  "metaTitle": "Comic Platform — Doc truyen online",
-  "metaKeywords": "truyen tranh, comic, manga",
+  "metaTitle": "Comic Platform",
+  "metaKeywords": "truyen tranh, manga",
   "ogTitle": "Comic Platform",
-  "ogDescription": "Nen tang truyen tranh truc tuyen",
+  "ogDescription": "Doc truyen tranh online",
   "ogImage": "https://cdn.example.com/og.jpg",
-  "canonicalUrl": "https://comicplatform.vn",
+  "canonicalUrl": "https://example.com",
   "googleAnalyticsId": "G-XXXXXXXXXX",
-  "googleSearchConsole": "verification_token",
   "facebookPixelId": "123456789",
-  "twitterSite": "@comicplatform"
-}
-```
-
-**Chi tiet cac truong:**
-
-| Truong | Kieu | Mo ta |
-|--------|------|-------|
-| `siteName` | string (max 255) | Ten website |
-| `siteDescription` | string | Mo ta website |
-| `siteLogo` | url | URL logo (http/https) |
-| `siteFavicon` | url | URL favicon (http/https) |
-| `siteEmail` | email | Email lien he |
-| `sitePhone` | string (max 20) | So dien thoai |
-| `siteAddress` | string | Dia chi |
-| `siteCountryId` | string (numeric) | ID quoc gia |
-| `siteProvinceId` | string (numeric) | ID tinh/thanh |
-| `siteWardId` | string (numeric) | ID phuong/xa |
-| `siteCopyright` | string (max 255) | Ban quyen |
-| `timezone` | string (max 50) | Mui gio (vd: `Asia/Ho_Chi_Minh`) |
-| `locale` | string (max 10) | Ngon ngu (vd: `vi`, `en`) |
-| `currency` | string (max 10) | Tien te (vd: `VND`, `USD`) |
-| `contactChannels` | array | Kenh lien he (xem ben duoi) |
-| `metaTitle` | string (max 255) | Meta title |
-| `metaKeywords` | string | Meta keywords |
-| `ogTitle` | string (max 255) | Open Graph title |
-| `ogDescription` | string | Open Graph description |
-| `ogImage` | url | Open Graph image |
-| `canonicalUrl` | url | Canonical URL |
-| `googleAnalyticsId` | string (max 50) | Google Analytics ID |
-| `googleSearchConsole` | string (max 255) | Search Console verification |
-| `facebookPixelId` | string (max 50) | Facebook Pixel ID |
-| `twitterSite` | string (max 50) | Twitter @handle |
-
-**ContactChannel object:**
-
-| Truong | Bat buoc | Kieu | Mo ta |
-|--------|---------|------|-------|
-| `type` | ✅ | string | Loai kenh (`facebook`, `zalo`, `phone`...) |
-| `value` | ✅ | string | Gia tri (so dien thoai, username...) |
-| `enabled` | ✅ | boolean | Bat/tat kenh |
-| `label` | | string (max 255) | Nhan hien thi |
-| `icon` | | string (max 500) | Ten icon hoac URL |
-| `urlTemplate` | | string (max 500) | Template URL (dung `{value}`) |
-| `sortOrder` | | number | Thu tu hien thi |
-
----
-
-## 14. Xu ly loi
-
-**Cac ma loi thuong gap:**
-
-| HTTP | Code | Mo ta |
-|------|------|-------|
-| 400 | BAD_REQUEST | Du lieu dau vao khong hop le |
-| 401 | UNAUTHORIZED | Chua dang nhap hoac token het han |
-| 403 | FORBIDDEN | Khong du quyen truy cap |
-| 404 | NOT_FOUND | Khong tim thay ban ghi |
-| 409 | CONFLICT | Vi pham rang buoc (vd: xoa quoc gia con tinh phu thuoc) |
-| 422 | UNPROCESSABLE | Du lieu hop le nhung khong xu ly duoc |
-| 500 | INTERNAL_ERROR | Loi server |
-
-**Response loi:**
-```json
-{
-  "success": false,
-  "statusCode": 404,
-  "message": "Khong tim thay quoc gia voi id: 999",
-  "timestamp": "2026-05-09T10:00:00.000Z"
-}
-```
-
-**Loi validation (400):**
-```json
-{
-  "success": false,
-  "statusCode": 400,
-  "message": ["code must be shorter than or equal to 10 characters"],
-  "timestamp": "2026-05-09T10:00:00.000Z"
+  "twitterSite": "@handle"
 }
 ```
 
 ---
 
-## Code mau (Axios)
+### Admin GET `/api/config/admin/general`
 
-```typescript
-import axios from 'axios';
+Lay cau hinh (admin). Giong public, them `googleSearchConsole`.
 
-const configApi = axios.create({
-  baseURL: '/api/config',
-});
+---
 
-// Them Authorization header tu dong
-configApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+### Admin PUT `/api/config/admin/general`
 
-// --- Public ---
+Cap nhat cau hinh chung. Tat ca field optional — chi gui field can thay doi.
 
-// Lay general config
-export const getGeneralConfig = () =>
-  configApi.get('/general').then((r) => r.data.data);
+**Request Body:**
 
-// Lay danh sach quoc gia
-export const getCountries = (params?: Record<string, any>) =>
-  configApi.get('/countries', { params }).then((r) => r.data);
-
-// Lay tinh theo quoc gia
-export const getProvincesByCountry = (countryId: string) =>
-  configApi.get(`/countries/${countryId}/provinces`).then((r) => r.data);
-
-// Lay phuong/xa theo tinh
-export const getWardsByProvince = (provinceId: string) =>
-  configApi.get(`/provinces/${provinceId}/wards`).then((r) => r.data);
-
-// Lay menu public
-export const getPublicMenu = () =>
-  configApi.get('/menus').then((r) => r.data.data);
-
-// Lay menu cua user dang nhap
-export const getUserMenu = () =>
-  configApi.get('/menus/user').then((r) => r.data.data);
-
-// --- Admin ---
-
-// Cap nhat general config
-export const updateGeneralConfig = (data: Record<string, any>) =>
-  configApi.put('/config/general', data).then((r) => r.data.data);
-
-// Cap nhat email config
-export const updateEmailConfig = (data: Record<string, any>) =>
-  configApi.put('/config/email', data).then((r) => r.data.data);
-
-// Tao menu
-export const createMenu = (data: Record<string, any>) =>
-  configApi.post('/menus', data).then((r) => r.data.data);
-
-// Cap nhat menu
-export const updateMenu = (id: string, data: Record<string, any>) =>
-  configApi.put(`/menus/${id}`, data).then((r) => r.data.data);
+```json
+{
+  "siteName": "string (max 255)",
+  "siteDescription": "string",
+  "siteLogo": "URL http/https (max 500)",
+  "siteFavicon": "URL http/https (max 500)",
+  "siteEmail": "email (max 255)",
+  "sitePhone": "string (max 20)",
+  "siteAddress": "string",
+  "siteCountryId": "numeric string",
+  "siteProvinceId": "numeric string",
+  "siteWardId": "numeric string",
+  "siteCopyright": "string (max 255)",
+  "timezone": "string (max 50), VD: 'Asia/Ho_Chi_Minh'",
+  "locale": "string (max 10), VD: 'vi'",
+  "currency": "string (max 10), VD: 'VND'",
+  "contactChannels": [
+    {
+      "type": "string",
+      "value": "string",
+      "label": "string? (max 255)",
+      "icon": "string? (max 500)",
+      "urlTemplate": "string? (max 500)",
+      "enabled": true,
+      "sortOrder": 0
+    }
+  ],
+  "metaTitle": "string (max 255)",
+  "metaKeywords": "string",
+  "ogTitle": "string (max 255)",
+  "ogDescription": "string",
+  "ogImage": "URL (max 500)",
+  "canonicalUrl": "URL (max 500)",
+  "googleAnalyticsId": "string (max 50)",
+  "googleSearchConsole": "string (max 255)",
+  "facebookPixelId": "string (max 50)",
+  "twitterSite": "string (max 50)"
+}
 ```
+
+---
+
+## 2. Menu
+
+### Public GET `/api/config/menus`
+
+Lay cay menu public (group `client`, status `active`, cache 10 phut).
+
+**Response `data`:**
+
+```json
+[
+  {
+    "id": "1",
+    "code": "home",
+    "name": "Trang chu",
+    "path": "/",
+    "icon": "home",
+    "type": "route",
+    "status": "active",
+    "isPublic": true,
+    "children": [
+      {
+        "id": "2",
+        "code": "home.intro",
+        "name": "Gioi thieu",
+        "path": "/intro",
+        "icon": null,
+        "type": "route",
+        "status": "active",
+        "isPublic": true,
+        "children": []
+      }
+    ]
+  }
+]
+```
+
+---
+
+### User GET `/api/config/user/menus`
+
+Lay cay menu admin theo quyen cua user dang dang nhap.
+
+**Headers:**
+- `Authorization: Bearer {token}` (bat buoc)
+- `x-group-id: {groupId}` (tuy chon — neu user thuoc nhieu group)
+
+**Response `data`:** Mang cay menu, chi gom item user co quyen.
+
+---
+
+### Admin GET `/api/config/admin/menus`
+
+Danh sach menu co phan trang.
+
+**Query params:**
+
+| Param | Kieu | Mo ta |
+|-------|------|-------|
+| `status` | `active` \| `inactive` | |
+| `parentId` | numeric string | Loc theo menu cha |
+| `showInMenu` | `true` \| `false` | |
+| `group` | string | `admin`, `client`, ... |
+| + phan trang | | |
+
+---
+
+### Admin GET `/api/config/admin/menus/tree`
+
+Toan bo cay menu dang tree (khong phan trang).
+
+---
+
+### Admin GET `/api/config/admin/menus/:id`
+
+Chi tiet menu.
+
+**Response `data`:**
+
+```json
+{
+  "id": "1",
+  "code": "dashboard",
+  "name": "Dashboard",
+  "path": "/dashboard",
+  "apiPath": "/api/admin/dashboard",
+  "icon": "dashboard",
+  "type": "route",
+  "status": "active",
+  "parentId": null,
+  "sortOrder": 0,
+  "isPublic": false,
+  "showInMenu": true,
+  "group": "admin",
+  "requiredPermissionCode": "dashboard.view",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z",
+  "parent": { "id": "1", "name": "...", "code": "..." }
+}
+```
+
+---
+
+### Admin POST `/api/config/admin/menus`
+
+Tao menu moi.
+
+```json
+{
+  "code": "string (3-120, bat buoc, unique)",
+  "name": "string (max 150, bat buoc)",
+  "path": "string? (max 255)",
+  "apiPath": "string? (max 255)",
+  "icon": "string? (max 120)",
+  "type": "route | group | link",
+  "status": "active | inactive",
+  "parentId": "numeric string?",
+  "sortOrder": 0,
+  "isPublic": false,
+  "showInMenu": true,
+  "requiredPermissionCode": "string? (max 120)",
+  "group": "string? (max 50, default: 'admin')"
+}
+```
+
+**Loi:** `400` — code da ton tai, parentId khong hop le, phat hien vong lap parent.
+
+---
+
+### Admin PUT `/api/config/admin/menus/:id`
+
+Cap nhat menu. Giong POST, tat ca optional. `parentId` truyen `null` hoac `""` de bo parent.
+
+---
+
+### Admin DELETE `/api/config/admin/menus/:id`
+
+Xoa menu.
+
+---
+
+## 3. Quoc gia (Country)
+
+### Public GET `/api/config/countries`
+
+Danh sach quoc gia (chi active).
+
+**Query params:** `name`, `code` + phan trang
+
+**Response `data[i]`:**
+
+```json
+{
+  "id": "1",
+  "code": "VN",
+  "codeAlpha3": "VNM",
+  "name": "Viet Nam",
+  "officialName": "Cong hoa Xa hoi Chu nghia Viet Nam",
+  "phoneCode": "+84",
+  "currencyCode": "VND",
+  "flagEmoji": "VN",
+  "status": "active"
+}
+```
+
+---
+
+### Public GET `/api/config/countries/:id/provinces`
+
+Danh sach tinh/thanh cua quoc gia (chi active).
+
+**Query params:** `name`, `code` + phan trang
+
+---
+
+### Admin GET `/api/config/admin/countries`
+
+Danh sach quoc gia admin (bao gom inactive).
+
+**Query params them:** `status` (`active` | `inactive`), `name`, `code` + phan trang
+
+---
+
+### Admin GET `/api/config/admin/countries/simple`
+
+Danh sach rut gon (limit 1000, skipCount) — dung cho dropdown.
+
+---
+
+### Admin GET `/api/config/admin/countries/:id`
+
+Chi tiet quoc gia.
+
+---
+
+### Admin POST `/api/config/admin/countries`
+
+```json
+{
+  "code": "string (max 10, bat buoc) — ISO alpha-2, VD: 'VN'",
+  "codeAlpha3": "string? (max 10) — VD: 'VNM'",
+  "name": "string (max 255, bat buoc)",
+  "officialName": "string? (max 255)",
+  "phoneCode": "string? (max 20) — VD: '+84'",
+  "currencyCode": "string? (max 20)",
+  "flagEmoji": "string? (max 20)",
+  "status": "active | inactive"
+}
+```
+
+---
+
+### Admin PATCH `/api/config/admin/countries/:id`
+
+Cap nhat. Tat ca optional.
+
+---
+
+### Admin DELETE `/api/config/admin/countries/:id`
+
+Xoa. **`409 Conflict`** neu con tinh/thanh lien ket.
+
+---
+
+## 4. Tinh/Thanh pho (Province)
+
+### Public GET `/api/config/provinces`
+
+**Query params:** `name`, `code` + phan trang
+
+---
+
+### Public GET `/api/config/countries/:countryId/provinces`
+
+Tinh theo quoc gia.
+
+---
+
+### Public GET `/api/config/provinces/:id/wards`
+
+Phuong/xa theo tinh. **Query params:** `name`, `code` + phan trang
+
+---
+
+### Admin GET `/api/config/admin/provinces`
+
+**Query params:** `name`, `code`, `status`, `countryId` + phan trang
+
+---
+
+### Admin GET `/api/config/admin/provinces/simple`
+
+Dropdown — limit 2000, skipCount.
+
+---
+
+### Admin POST `/api/config/admin/provinces`
+
+```json
+{
+  "code": "string (max 20, bat buoc)",
+  "name": "string (max 255, bat buoc)",
+  "type": "string (max 50, bat buoc) — VD: 'Tinh', 'Thanh pho Trung uong'",
+  "phoneCode": "string? (max 20)",
+  "countryId": "numeric string (bat buoc)",
+  "status": "active | inactive",
+  "note": "string? (max 2000)",
+  "codeBnv": "string? (max 20)",
+  "codeTms": "string? (max 20)"
+}
+```
+
+### Admin GET `:id` / PATCH `:id` / DELETE `:id`
+
+CRUD tieu chuan.
+
+---
+
+## 5. Phuong/Xa (Ward)
+
+### Public GET `/api/config/wards`
+
+**Query params:** `name`, `code` + phan trang
+
+---
+
+### Public GET `/api/config/provinces/:provinceId/wards`
+
+Phuong/xa theo tinh.
+
+---
+
+### Admin GET `/api/config/admin/wards`
+
+**Query params:** `name`, `code`, `status`, `provinceId` + phan trang
+
+---
+
+### Admin GET `/api/config/admin/wards/simple`
+
+Dropdown.
+
+---
+
+### Admin POST `/api/config/admin/wards`
+
+```json
+{
+  "provinceId": "numeric string (bat buoc)",
+  "name": "string (max 255, bat buoc)",
+  "type": "string (max 50, bat buoc) — VD: 'Phuong', 'Xa', 'Thi tran'",
+  "code": "string (max 20, bat buoc)",
+  "status": "active | inactive"
+}
+```
+
+### Admin GET `:id` / PATCH `:id` / DELETE `:id`
+
+CRUD tieu chuan.
+
+---
+
+## 6. Cache
+
+### Public GET `/api/config/cache/flush`
+
+Xoa toan bo Redis cache. **Throttle: 5 req/phut.**
+
+```json
+{ "success": true, "data": { "flushed": true } }
+```
+
+---
+
+## Luong tich hop dia chi (Country -> Province -> Ward)
+
+```
+1. GET /api/config/countries?limit=200
+   -> Hien thi dropdown quoc gia
+
+2. Khi chon quoc gia (countryId):
+   GET /api/config/countries/{countryId}/provinces?limit=100
+   -> Hien thi dropdown tinh/thanh
+
+3. Khi chon tinh (provinceId):
+   GET /api/config/provinces/{provinceId}/wards?limit=500
+   -> Hien thi dropdown phuong/xa
+```
+
+---
+
+## Tong hop endpoint
+
+| Method | Path | Auth | Mo ta |
+|--------|------|------|-------|
+| GET | `/api/config/general` | Public | Cau hinh chung |
+| GET | `/api/config/admin/general` | Admin | Cau hinh chung (admin) |
+| PUT | `/api/config/admin/general` | Admin | Cap nhat cau hinh |
+| PUT | `/api/config/admin/email` | Admin | Cap nhat SMTP email |
+| GET | `/api/config/menus` | Public | Menu public |
+| GET | `/api/config/user/menus` | User | Menu theo quyen user |
+| GET | `/api/config/admin/menus` | Admin | Danh sach menu |
+| GET | `/api/config/admin/menus/tree` | Admin | Cay menu |
+| GET | `/api/config/admin/menus/:id` | Admin | Chi tiet menu |
+| POST | `/api/config/admin/menus` | Admin | Tao menu |
+| PUT | `/api/config/admin/menus/:id` | Admin | Cap nhat menu |
+| DELETE | `/api/config/admin/menus/:id` | Admin | Xoa menu |
+| GET | `/api/config/countries` | Public | DS quoc gia |
+| GET | `/api/config/countries/:id/provinces` | Public | Tinh theo quoc gia |
+| GET | `/api/config/admin/countries` | Admin | DS quoc gia (admin) |
+| GET | `/api/config/admin/countries/simple` | Admin | Dropdown quoc gia |
+| GET | `/api/config/admin/countries/:id` | Admin | Chi tiet quoc gia |
+| POST | `/api/config/admin/countries` | Admin | Tao quoc gia |
+| PATCH | `/api/config/admin/countries/:id` | Admin | Cap nhat quoc gia |
+| DELETE | `/api/config/admin/countries/:id` | Admin | Xoa quoc gia |
+| GET | `/api/config/provinces` | Public | DS tinh/thanh |
+| GET | `/api/config/countries/:countryId/provinces` | Public | Tinh theo quoc gia |
+| GET | `/api/config/provinces/:id/wards` | Public | Phuong/xa theo tinh |
+| GET | `/api/config/admin/provinces` | Admin | DS tinh (admin) |
+| GET | `/api/config/admin/provinces/simple` | Admin | Dropdown tinh |
+| GET | `/api/config/admin/provinces/:id` | Admin | Chi tiet tinh |
+| POST | `/api/config/admin/provinces` | Admin | Tao tinh |
+| PATCH | `/api/config/admin/provinces/:id` | Admin | Cap nhat tinh |
+| DELETE | `/api/config/admin/provinces/:id` | Admin | Xoa tinh |
+| GET | `/api/config/wards` | Public | DS phuong/xa |
+| GET | `/api/config/provinces/:provinceId/wards` | Public | Phuong/xa theo tinh |
+| GET | `/api/config/admin/wards` | Admin | DS phuong/xa (admin) |
+| GET | `/api/config/admin/wards/simple` | Admin | Dropdown phuong/xa |
+| GET | `/api/config/admin/wards/:id` | Admin | Chi tiet phuong/xa |
+| POST | `/api/config/admin/wards` | Admin | Tao phuong/xa |
+| PATCH | `/api/config/admin/wards/:id` | Admin | Cap nhat phuong/xa |
+| DELETE | `/api/config/admin/wards/:id` | Admin | Xoa phuong/xa |
+| GET | `/api/config/cache/flush` | Public | Xoa cache |

@@ -64,7 +64,7 @@ describe('AdminAboutService', () => {
     });
 
     it('should pass search and status filters', async () => {
-      await service.getList({ search: 'test', status: 'active', section_type: 'intro' });
+      await service.getList({ search: 'test', status: 'active', sectionType: 'intro' });
       expect(aboutRepo.findMany).toHaveBeenCalled();
     });
   });

@@ -34,7 +34,7 @@ export class AdminAboutService {
     const filter: AboutSectionFilter = {};
     if (query.search) filter.search = query.search;
     if (query.status) filter.status = query.status;
-    if (query.section_type) filter.section_type = query.section_type;
+    if (query.sectionType) filter.sectionType = query.sectionType;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([
@@ -56,7 +56,16 @@ export class AdminAboutService {
       findOne: (filter: any) => this.aboutRepo.findBySlug(filter.slug),
     });
     try {
-      const result = await this.aboutRepo.create({ ...dto, slug });
+      const result = await this.aboutRepo.create({
+        title: dto.title,
+        slug,
+        content: dto.content,
+        image: dto.image,
+        videoUrl: dto.videoUrl,
+        sectionType: dto.sectionType,
+        status: dto.status,
+        sortOrder: dto.sortOrder,
+      });
       await this.clearCache();
       return result;
     } catch (err) {
@@ -68,7 +77,15 @@ export class AdminAboutService {
   async update(id: PrimaryKey, dto: UpdateAboutDto) {
     const current = await this.getOne(id);
 
-    const data: Record<string, any> = { ...dto };
+    const data: Record<string, any> = {
+      title: dto.title,
+      content: dto.content,
+      image: dto.image,
+      videoUrl: dto.videoUrl,
+      sectionType: dto.sectionType,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    };
     const titleChanged = dto.title !== undefined && dto.title !== (current as any).title;
     if (dto.slug || titleChanged) {
       data.slug = await SlugHelper.uniqueSlug(

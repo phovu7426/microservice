@@ -19,15 +19,15 @@ export class UserRoleRepository {
     const andConditions: Prisma.UserRoleAssignmentWhereInput[] = [];
 
     if (filter.userId) {
-      andConditions.push({ user_id: toPrimaryKey(filter.userId) });
+      andConditions.push({ userId: toPrimaryKey(filter.userId) });
     }
 
     if (filter.roleId) {
-      andConditions.push({ role_id: toPrimaryKey(filter.roleId) });
+      andConditions.push({ roleId: toPrimaryKey(filter.roleId) });
     }
 
     if (filter.groupId) {
-      andConditions.push({ group_id: toPrimaryKey(filter.groupId) });
+      andConditions.push({ groupId: toPrimaryKey(filter.groupId) });
     }
 
     if (andConditions.length > 0) {
@@ -46,7 +46,7 @@ export class UserRoleRepository {
       },
       skip: options.skip,
       take: options.take,
-      orderBy: options.orderBy ?? { created_at: 'desc' },
+      orderBy: options.orderBy ?? { createdAt: 'desc' },
     });
   }
 
@@ -55,15 +55,15 @@ export class UserRoleRepository {
   }
 
   getUserRoles(userId: string | bigint, groupId?: string | bigint) {
-    const where: any = { user_id: toPrimaryKey(userId) };
-    if (groupId !== undefined) where.group_id = toPrimaryKey(groupId);
+    const where: any = { userId: toPrimaryKey(userId) };
+    if (groupId !== undefined) where.groupId = toPrimaryKey(groupId);
     return this.prisma.userRoleAssignment.findMany({
       where,
       include: {
         role: { select: { id: true, code: true, name: true } },
         group: { select: { id: true, code: true, name: true } },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -74,9 +74,9 @@ export class UserRoleRepository {
   ): Promise<number> {
     const result = await this.prisma.userRoleAssignment.deleteMany({
       where: {
-        user_id: toPrimaryKey(userId),
-        role_id: toPrimaryKey(roleId),
-        group_id: toPrimaryKey(groupId),
+        userId: toPrimaryKey(userId),
+        roleId: toPrimaryKey(roleId),
+        groupId: toPrimaryKey(groupId),
       },
     });
     return result.count;
@@ -86,16 +86,16 @@ export class UserRoleRepository {
     userId: PrimaryKey,
     groupId: PrimaryKey | null,
   ): Promise<bigint[]> {
-    const where: any = { user_id: userId };
+    const where: any = { userId: userId };
     if (groupId === null) {
       where.group = { context: { type: 'system', status: BasicStatus.active }, status: BasicStatus.active };
     } else {
-      where.group_id = groupId;
+      where.groupId = groupId;
     }
     const rows = await this.prisma.userRoleAssignment.findMany({
       where,
-      select: { role_id: true },
+      select: { roleId: true },
     });
-    return rows.map((r) => r.role_id);
+    return rows.map((r) => r.roleId);
   }
 }

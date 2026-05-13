@@ -36,7 +36,7 @@ export class ContentTemplateRepository {
   findMany(filter: ContentTemplateFilter, options: { skip: number; take: number; sortBy?: string; order?: 'asc' | 'desc' }) {
     return this.prisma.contentTemplate.findMany({
       where: this.buildWhere(filter),
-      orderBy: options.sortBy ? { [options.sortBy]: options.order ?? 'desc' } : { created_at: 'desc' },
+      orderBy: options.sortBy ? { [options.sortBy]: options.order ?? 'desc' } : { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });

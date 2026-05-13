@@ -144,7 +144,7 @@ describe('ContextService', () => {
         BigInt(100),
       );
       expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ ref_id: 'ext-123' }),
+        expect.objectContaining({ refId: 'ext-123' }),
       );
     });
   });

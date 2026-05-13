@@ -7,7 +7,7 @@ import { BasicStatus } from '../../../common/enums/status.enum';
 export interface AboutSectionFilter {
   search?: string;
   status?: string;
-  section_type?: string;
+  sectionType?: string;
   slug?: string;
 }
 
@@ -25,7 +25,7 @@ export class AboutSectionRepository {
       ];
     }
     if (filter.status) where.status = filter.status;
-    if (filter.section_type) where.section_type = filter.section_type;
+    if (filter.sectionType) where.sectionType = filter.sectionType;
     if (filter.slug) where.slug = filter.slug;
     return where;
   }
@@ -33,7 +33,7 @@ export class AboutSectionRepository {
   findMany(filter: AboutSectionFilter, options: { skip: number; take: number }) {
     return this.prisma.aboutSection.findMany({
       where: this.buildWhere(filter),
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });

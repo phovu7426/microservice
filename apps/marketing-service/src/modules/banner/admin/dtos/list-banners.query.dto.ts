@@ -9,6 +9,6 @@ export class ListBannersAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'location_id must be numeric.' })
-  location_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'locationId must be numeric.' })
+  locationId?: string;
 }

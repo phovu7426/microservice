@@ -7,47 +7,47 @@ type Tx = Prisma.TransactionClient | PrismaService;
 
 // Whitelist of columns that can come in via the request body. Anything
 // outside this list is dropped before reaching Prisma to defeat
-// mass-assignment via spread (e.g. attacker setting `created_user_id` or
-// `view_count` from JSON body).
+// mass-assignment via spread (e.g. attacker setting `createdUserId` or
+// `viewCount` from JSON body).
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'slug',
   'excerpt',
   'content',
   'image',
-  'cover_image',
+  'coverImage',
   'status',
-  'post_type',
-  'video_url',
-  'audio_url',
-  'is_featured',
-  'is_pinned',
-  'published_at',
-  'seo_title',
-  'seo_description',
-  'seo_keywords',
-  'created_user_id',
-  'updated_user_id',
+  'postType',
+  'videoUrl',
+  'audioUrl',
+  'isFeatured',
+  'isPinned',
+  'publishedAt',
+  'seoTitle',
+  'seoDescription',
+  'seoKeywords',
+  'createdUserId',
+  'updatedUserId',
 ]);
 
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
   'name',
-  'created_at',
-  'updated_at',
-  'published_at',
-  'view_count',
-  'is_featured',
-  'is_pinned',
+  'createdAt',
+  'updatedAt',
+  'publishedAt',
+  'viewCount',
+  'isFeatured',
+  'isPinned',
 ]);
 
 export interface PostFilter {
   search?: string;
   status?: string | string[];
-  post_type?: string;
-  is_featured?: boolean;
-  is_pinned?: boolean;
-  category_id?: any;
-  tag_id?: any;
+  postType?: string;
+  isFeatured?: boolean;
+  isPinned?: boolean;
+  categoryId?: any;
+  tagId?: any;
   slug?: string;
 }
 
@@ -63,19 +63,19 @@ const PUBLIC_SELECT = {
   name: true,
   excerpt: true,
   image: true,
-  cover_image: true,
+  coverImage: true,
   status: true,
-  post_type: true,
-  video_url: true,
-  audio_url: true,
-  is_featured: true,
-  is_pinned: true,
-  published_at: true,
-  seo_title: true,
-  seo_description: true,
-  seo_keywords: true,
-  created_at: true,
-  updated_at: true,
+  postType: true,
+  videoUrl: true,
+  audioUrl: true,
+  isFeatured: true,
+  isPinned: true,
+  publishedAt: true,
+  seoTitle: true,
+  seoDescription: true,
+  seoKeywords: true,
+  createdAt: true,
+  updatedAt: true,
   stats: true,
   categoryLinks: { select: { category: { select: { id: true, name: true, slug: true } } } },
   tagLinks: { select: { tag: { select: { id: true, name: true, slug: true } } } },
@@ -106,28 +106,28 @@ export class PostRepository {
     if (filter.status !== undefined) {
       where.status = Array.isArray(filter.status) ? { in: filter.status } : filter.status;
     }
-    if (filter.post_type) where.post_type = filter.post_type;
-    if (filter.is_featured !== undefined) where.is_featured = filter.is_featured;
-    if (filter.is_pinned !== undefined) where.is_pinned = filter.is_pinned;
-    if (filter.category_id !== undefined) {
-      where.categoryLinks = { some: { category_id: toPrimaryKey(filter.category_id) } };
+    if (filter.postType) where.postType = filter.postType;
+    if (filter.isFeatured !== undefined) where.isFeatured = filter.isFeatured;
+    if (filter.isPinned !== undefined) where.isPinned = filter.isPinned;
+    if (filter.categoryId !== undefined) {
+      where.categoryLinks = { some: { categoryId: toPrimaryKey(filter.categoryId) } };
     }
-    if (filter.tag_id !== undefined) {
-      where.tagLinks = { some: { tag_id: toPrimaryKey(filter.tag_id) } };
+    if (filter.tagId !== undefined) {
+      where.tagLinks = { some: { tagId: toPrimaryKey(filter.tagId) } };
     }
     if (filter.slug) where.slug = filter.slug;
     return where;
   }
 
   private buildOrderBy(sort?: string): Prisma.PostOrderByWithRelationInput {
-    if (!sort) return { published_at: 'desc' };
+    if (!sort) return { publishedAt: 'desc' };
     const [field, dirRaw] = sort.split(':');
     // Allowlist sortable columns. Without this, an arbitrary `sort=foo:bar`
     // makes Prisma throw at runtime → 500 on a public endpoint, which is a
     // trivial DoS / fingerprinting vector.
-    if (!field || !SORTABLE_FIELDS.has(field)) return { published_at: 'desc' };
+    if (!field || !SORTABLE_FIELDS.has(field)) return { publishedAt: 'desc' };
     const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
-    if (field === 'view_count') return { stats: { view_count: dir } };
+    if (field === 'viewCount') return { stats: { viewCount: dir } };
     return { [field]: dir } as Prisma.PostOrderByWithRelationInput;
   }
 
@@ -135,7 +135,7 @@ export class PostRepository {
     return this.prisma.post.findMany({
       where: this.buildWhere(filter),
       include: WITH_RELATIONS,
-      orderBy: { updated_at: 'desc' },
+      orderBy: { updatedAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -248,17 +248,17 @@ export class PostRepository {
   }
 
   createStats(postId: any, tx: Tx = this.prisma) {
-    return tx.stats.create({ data: { post_id: toPrimaryKey(postId) } });
+    return tx.stats.create({ data: { postId: toPrimaryKey(postId) } });
   }
 
   async syncCategories(postId: any, categoryIds: any[], tx: Tx = this.prisma) {
     const pid = toPrimaryKey(postId);
-    await tx.postCategory.deleteMany({ where: { post_id: pid } });
+    await tx.postCategory.deleteMany({ where: { postId: pid } });
     if (categoryIds.length > 0) {
       await tx.postCategory.createMany({
         data: categoryIds.map((catId) => ({
-          post_id: pid,
-          category_id: toPrimaryKey(catId),
+          postId: pid,
+          categoryId: toPrimaryKey(catId),
         })),
         skipDuplicates: true,
       });
@@ -267,12 +267,12 @@ export class PostRepository {
 
   async syncTags(postId: any, tagIds: any[], tx: Tx = this.prisma) {
     const pid = toPrimaryKey(postId);
-    await tx.postTag.deleteMany({ where: { post_id: pid } });
+    await tx.postTag.deleteMany({ where: { postId: pid } });
     if (tagIds.length > 0) {
       await tx.postTag.createMany({
         data: tagIds.map((tagId) => ({
-          post_id: pid,
-          tag_id: toPrimaryKey(tagId),
+          postId: pid,
+          tagId: toPrimaryKey(tagId),
         })),
         skipDuplicates: true,
       });
@@ -287,10 +287,10 @@ export class PostRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    if (payload.published_at !== undefined) {
-      payload.published_at = payload.published_at ? new Date(payload.published_at) : null;
+    if (payload.publishedAt !== undefined) {
+      payload.publishedAt = payload.publishedAt ? new Date(payload.publishedAt) : null;
     }
-    const bigIntFields = ['created_user_id', 'updated_user_id'];
+    const bigIntFields = ['createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

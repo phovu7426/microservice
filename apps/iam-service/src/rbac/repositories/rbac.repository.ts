@@ -16,13 +16,13 @@ export class RbacRepository {
   findPermissions() {
     return this.prisma.permission.findMany({
       where: { status: 'active' },
-      select: { id: true, code: true, parent_id: true },
+      select: { id: true, code: true, parentId: true },
     });
   }
 
   assignRoleToUser(userId: RbacId, roleId: RbacId, groupId: RbacId) {
     return this.prisma.userRoleAssignment.createMany({
-      data: [{ user_id: toPk(userId), role_id: toPk(roleId), group_id: toPk(groupId) }],
+      data: [{ userId: toPk(userId), roleId: toPk(roleId), groupId: toPk(groupId) }],
       skipDuplicates: true,
     });
   }
@@ -52,27 +52,27 @@ export class RbacRepository {
     return this.prisma.$transaction(
       async (tx) => {
         const existing = await tx.userRoleAssignment.findMany({
-          where: { user_id: toPk(userId), group_id: toPk(groupId) },
-          select: { role_id: true },
+          where: { userId: toPk(userId), groupId: toPk(groupId) },
+          select: { roleId: true },
         });
-        const before = existing.map((e) => e.role_id);
+        const before = existing.map((e) => e.roleId);
 
         if (normalizedRoleIds.length > 0) {
           await tx.userGroup.upsert({
-            where: { user_id_group_id: { user_id: toPk(userId), group_id: toPk(groupId) } },
-            create: { user_id: toPk(userId), group_id: toPk(groupId), joined_at: new Date() },
+            where: { userId_groupId: { userId: toPk(userId), groupId: toPk(groupId) } },
+            create: { userId: toPk(userId), groupId: toPk(groupId), joinedAt: new Date() },
             update: {},
           });
         }
         await tx.userRoleAssignment.deleteMany({
-          where: { user_id: toPk(userId), group_id: toPk(groupId) },
+          where: { userId: toPk(userId), groupId: toPk(groupId) },
         });
         if (normalizedRoleIds.length > 0) {
           await tx.userRoleAssignment.createMany({
             data: normalizedRoleIds.map((rid) => ({
-              user_id: toPk(userId),
-              group_id: toPk(groupId),
-              role_id: toPk(rid),
+              userId: toPk(userId),
+              groupId: toPk(groupId),
+              roleId: toPk(rid),
             })),
             skipDuplicates: true,
           });
@@ -108,9 +108,9 @@ export class RbacRepository {
       where: {
         role: {
           status: 'active',
-          user_role_assignments: {
+          userRoleAssignments: {
             some: {
-              user_id: toPk(userId),
+              userId: toPk(userId),
               group: groupFilter,
             },
           },
@@ -132,8 +132,8 @@ export class RbacRepository {
     if (!removedRoleIds.length) return;
     await this.prisma.userRoleAssignment.deleteMany({
       where: {
-        role_id: { in: removedRoleIds },
-        group: { context_id: contextId },
+        roleId: { in: removedRoleIds },
+        group: { contextId: contextId },
       },
     });
   }
@@ -141,10 +141,10 @@ export class RbacRepository {
   /** Get existing role IDs for a user in a group (for pre-sync validation). */
   async getExistingRoleIds(userId: RbacId, groupId: RbacId): Promise<bigint[]> {
     const rows = await this.prisma.userRoleAssignment.findMany({
-      where: { user_id: toPk(userId), group_id: toPk(groupId) },
-      select: { role_id: true },
+      where: { userId: toPk(userId), groupId: toPk(groupId) },
+      select: { roleId: true },
     });
-    return rows.map((r) => r.role_id);
+    return rows.map((r) => r.roleId);
   }
 
   /** Number of users currently holding a given permission via any role. */
@@ -157,8 +157,8 @@ export class RbacRepository {
         },
         group: { status: 'active', context: { status: 'active' } },
       },
-      select: { user_id: true },
-      distinct: ['user_id'],
+      select: { userId: true },
+      distinct: ['userId'],
     });
     return rows.length;
   }
@@ -167,7 +167,7 @@ export class RbacRepository {
   async getPermissionCodesForRoles(roleIds: (string | bigint)[]): Promise<Set<string>> {
     if (!roleIds.length) return new Set();
     const rows = await this.prisma.roleHasPermission.findMany({
-      where: { role_id: { in: roleIds.map((id) => typeof id === 'bigint' ? id : BigInt(id)) }, permission: { status: 'active' } },
+      where: { roleId: { in: roleIds.map((id) => typeof id === 'bigint' ? id : BigInt(id)) }, permission: { status: 'active' } },
       select: { permission: { select: { code: true } } },
     });
     const out = new Set<string>();
@@ -183,13 +183,13 @@ export class RbacRepository {
     const normalizedRoleIds = roleIds.map((id) => toPk(id));
     const links = await this.prisma.roleContext.findMany({
       where: {
-        context_id: contextId,
-        role_id: { in: normalizedRoleIds },
+        contextId: contextId,
+        roleId: { in: normalizedRoleIds },
         role: { status: 'active' },
       },
-      select: { role_id: true },
+      select: { roleId: true },
     });
-    const validIds = new Set((links as any[]).map((l) => String(l.role_id)));
+    const validIds = new Set((links as any[]).map((l) => String(l.roleId)));
     return normalizedRoleIds
       .filter((id) => !validIds.has(String(id)))
       .map(String);

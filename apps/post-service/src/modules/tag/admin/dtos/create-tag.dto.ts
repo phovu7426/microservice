@@ -11,5 +11,5 @@ export class CreateTagDto {
 
   @IsOptional()
   @IsBoolean()
-  is_active?: boolean;
+  isActive?: boolean;
 }

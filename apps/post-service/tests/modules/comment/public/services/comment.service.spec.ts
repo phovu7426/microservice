@@ -69,16 +69,16 @@ describe('PublicCommentService', () => {
 
   // ---- getList ----
   describe('getList', () => {
-    it('should throw BadRequestException when post_id is missing', async () => {
+    it('should throw BadRequestException when postId is missing', async () => {
       await expect(service.getList({})).rejects.toThrow(BadRequestException);
     });
 
-    it('should return comments for a given post_id', async () => {
+    it('should return comments for a given postId', async () => {
       const comments = [{ id: 1n, content: 'hello', replies: [] }];
       commentRepo.findManyWithReplies.mockResolvedValue(comments);
       commentRepo.count.mockResolvedValue(1);
 
-      const result = await service.getList({ post_id: '1' });
+      const result = await service.getList({ postId: '1' });
 
       expect(commentRepo.findManyWithReplies).toHaveBeenCalled();
       expect(result.data).toEqual(comments);
@@ -91,7 +91,7 @@ describe('PublicCommentService', () => {
         .mockResolvedValueOnce('5')  // version
         .mockResolvedValueOnce(JSON.stringify(cached)); // cached data
 
-      const result = await service.getList({ post_id: '1' });
+      const result = await service.getList({ postId: '1' });
 
       expect(commentRepo.findManyWithReplies).not.toHaveBeenCalled();
       expect(result).toEqual(cached);
@@ -101,7 +101,7 @@ describe('PublicCommentService', () => {
       commentRepo.findManyWithReplies.mockResolvedValue([]);
       commentRepo.count.mockResolvedValue(0);
 
-      await service.getList({ post_id: '1' });
+      await service.getList({ postId: '1' });
 
       expect(redis.set).toHaveBeenCalledWith(
         expect.stringContaining('post:public:comments:'),
@@ -115,7 +115,7 @@ describe('PublicCommentService', () => {
       commentRepo.findManyWithReplies.mockResolvedValue([]);
       commentRepo.count.mockResolvedValue(0);
 
-      const result = await serviceNoRedis.getList({ post_id: '1' });
+      const result = await serviceNoRedis.getList({ postId: '1' });
       expect(result.data).toEqual([]);
     });
   });

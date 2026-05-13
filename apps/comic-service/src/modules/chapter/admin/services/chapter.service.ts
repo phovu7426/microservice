@@ -23,9 +23,9 @@ export class AdminChapterService {
     const options = parseQueryOptions(query);
 
     const filter: ChapterFilter = {};
-    if (query.comic_id) filter.comic_id = query.comic_id;
+    if (query.comicId) filter.comicId = query.comicId;
     if (query.status) filter.status = query.status;
-    if (query.team_id) filter.team_id = query.team_id;
+    if (query.teamId) filter.teamId = query.teamId;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([
@@ -38,7 +38,7 @@ export class AdminChapterService {
 
   async getSimpleList(query: any = {}) {
     const filter: ChapterFilter = {};
-    if (query.comic_id) filter.comic_id = query.comic_id;
+    if (query.comicId) filter.comicId = query.comicId;
 
     const data = await this.chapterRepo.findSimpleMany(filter, 100);
     return { data };
@@ -51,29 +51,29 @@ export class AdminChapterService {
   }
 
   async create(dto: CreateChapterDto, actorId?: PrimaryKey) {
-    const existing = await this.chapterRepo.findByIndex(dto.comic_id, dto.chapter_index);
+    const existing = await this.chapterRepo.findByIndex(dto.comicId, dto.chapterIndex);
     if (existing) throw new BadRequestException(t(this.i18n, 'comic.CHAPTER_INDEX_EXISTS'));
 
     const chapter = await this.chapterRepo.create({
-      comic_id: dto.comic_id,
-      team_id: dto.team_id ?? null,
+      comicId: dto.comicId,
+      teamId: dto.teamId ?? null,
       title: dto.title,
-      chapter_index: dto.chapter_index,
-      chapter_label: dto.chapter_label,
+      chapterIndex: dto.chapterIndex,
+      chapterLabel: dto.chapterLabel,
       status: dto.status || 'draft',
-      created_user_id: actorId,
-      updated_user_id: actorId,
+      createdUserId: actorId,
+      updatedUserId: actorId,
     });
 
     if (dto.pages?.length) {
       await this.chapterRepo.createPages(
         dto.pages.map((p, i) => ({
-          chapter_id: chapter.id,
-          page_number: i + 1,
-          image_url: p.image_url,
+          chapterId: chapter.id,
+          pageNumber: i + 1,
+          imageUrl: p.imageUrl,
           width: p.width,
           height: p.height,
-          file_size: p.file_size ? BigInt(p.file_size) : null,
+          fileSize: p.fileSize ? BigInt(p.fileSize) : null,
         })),
       );
     }
@@ -82,7 +82,7 @@ export class AdminChapterService {
       await this.handlePublish(chapter);
     }
 
-    await this.clearChapterCaches(chapter.id, dto.comic_id);
+    await this.clearChapterCaches(chapter.id, dto.comicId);
     return this.getOne(chapter.id);
   }
 
@@ -91,10 +91,10 @@ export class AdminChapterService {
 
     const data: Record<string, any> = {};
     if (dto.title !== undefined) data.title = dto.title;
-    if (dto.chapter_index !== undefined) data.chapter_index = dto.chapter_index;
-    if (dto.chapter_label !== undefined) data.chapter_label = dto.chapter_label;
+    if (dto.chapterIndex !== undefined) data.chapterIndex = dto.chapterIndex;
+    if (dto.chapterLabel !== undefined) data.chapterLabel = dto.chapterLabel;
     if (dto.status !== undefined) data.status = dto.status;
-    if (actorId) data.updated_user_id = actorId;
+    if (actorId) data.updatedUserId = actorId;
 
     const chapter = await this.chapterRepo.update(id, data);
 
@@ -103,12 +103,12 @@ export class AdminChapterService {
       if (dto.pages.length) {
         await this.chapterRepo.createPages(
           dto.pages.map((p, i) => ({
-            chapter_id: toPrimaryKey(id),
-            page_number: i + 1,
-            image_url: p.image_url,
+            chapterId: toPrimaryKey(id),
+            pageNumber: i + 1,
+            imageUrl: p.imageUrl,
             width: p.width,
             height: p.height,
-            file_size: p.file_size ? BigInt(p.file_size) : null,
+            fileSize: p.fileSize ? BigInt(p.fileSize) : null,
           })),
         );
       }
@@ -118,14 +118,14 @@ export class AdminChapterService {
       await this.handlePublish(chapter);
     }
 
-    await this.clearChapterCaches(id, existing.comic_id);
+    await this.clearChapterCaches(id, existing.comicId);
     return this.getOne(id);
   }
 
   async delete(id: PrimaryKey) {
     const chapter = await this.getOne(id);
     await this.chapterRepo.delete(id);
-    await this.clearChapterCaches(id, chapter.comic_id);
+    await this.clearChapterCaches(id, chapter.comicId);
     return { success: true };
   }
 
@@ -147,15 +147,15 @@ export class AdminChapterService {
 
     await this.chapterRepo.withTransaction(async (tx) => {
       await this.chapterRepo.updateComicLastChapterIfLatest(
-        chapter.comic_id,
+        chapter.comicId,
         chapter.id,
-        chapter.chapter_index,
+        chapter.chapterIndex,
         tx,
       );
 
       if (!kafkaEnabled) return;
 
-      const comic = await this.chapterRepo.findComicBasic(chapter.comic_id, tx);
+      const comic = await this.chapterRepo.findComicBasic(chapter.comicId, tx);
       if (!comic) return;
 
       await this.chapterRepo.createOutbox(
@@ -165,8 +165,8 @@ export class AdminChapterService {
           comic_title: comic.title,
           comic_slug: comic.slug,
           chapter_id: String(chapter.id),
-          chapter_index: chapter.chapter_index,
-          chapter_label: chapter.chapter_label || `Chapter ${chapter.chapter_index}`,
+          chapter_index: chapter.chapterIndex,
+          chapter_label: chapter.chapterLabel || `Chapter ${chapter.chapterIndex}`,
           published_at: new Date().toISOString(),
         },
         tx,

@@ -12,7 +12,7 @@ export class InternalNotificationController {
   @Post('send')
   async send(@Body() dto: InternalSendNotificationDto) {
     return this.notificationService.send({
-      user_ids: dto.user_ids,
+      userIds: dto.userIds,
       title: dto.title,
       message: dto.message,
       type: dto.type,

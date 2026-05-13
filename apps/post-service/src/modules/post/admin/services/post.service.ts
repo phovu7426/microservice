@@ -64,13 +64,13 @@ export class AdminPostService {
       });
 
       const data: Record<string, any> = { ...dto, slug };
-      if (actorId) data.created_user_id = actorId;
+      if (actorId) data.createdUserId = actorId;
 
       try {
         const post = await this.postRepo.createWithRelations(
           data,
-          dto.category_ids,
-          dto.tag_ids,
+          dto.categoryIds,
+          dto.tagIds,
         );
         await this.clearPostCaches(slug);
         return this.transform(post);
@@ -107,11 +107,11 @@ export class AdminPostService {
         id,
       );
     }
-    if (actorId) data.updated_user_id = actorId;
+    if (actorId) data.updatedUserId = actorId;
 
     let updated: any;
     try {
-      updated = await this.postRepo.updateWithRelations(id, data, dto.category_ids, dto.tag_ids);
+      updated = await this.postRepo.updateWithRelations(id, data, dto.categoryIds, dto.tagIds);
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new BadRequestException(t(this.i18n, 'post.SLUG_ALREADY_IN_USE'));
@@ -147,15 +147,15 @@ export class AdminPostService {
     const filter: PostFilter = {};
     if (query.search) filter.search = query.search;
     if (query.status) filter.status = query.status;
-    if (query.post_type) filter.post_type = query.post_type;
-    if (query.is_featured !== undefined) {
-      filter.is_featured = query.is_featured === 'true' || query.is_featured === true;
+    if (query.postType) filter.postType = query.postType;
+    if (query.isFeatured !== undefined) {
+      filter.isFeatured = query.isFeatured === 'true' || query.isFeatured === true;
     }
-    if (query.is_pinned !== undefined) {
-      filter.is_pinned = query.is_pinned === 'true' || query.is_pinned === true;
+    if (query.isPinned !== undefined) {
+      filter.isPinned = query.isPinned === 'true' || query.isPinned === true;
     }
-    if (query.category_id) filter.category_id = query.category_id;
-    if (query.tag_id) filter.tag_id = query.tag_id;
+    if (query.categoryId) filter.categoryId = query.categoryId;
+    if (query.tagId) filter.tagId = query.tagId;
     return filter;
   }
 
@@ -164,12 +164,12 @@ export class AdminPostService {
     const item = { ...entity };
     if (Array.isArray(item.categoryLinks)) {
       item.categories = item.categoryLinks.map((l: any) => l?.category).filter(Boolean);
-      item.category_ids = item.categories.map((c: any) => c.id);
+      item.categoryIds = item.categories.map((c: any) => c.id);
       delete item.categoryLinks;
     }
     if (Array.isArray(item.tagLinks)) {
       item.tags = item.tagLinks.map((l: any) => l?.tag).filter(Boolean);
-      item.tag_ids = item.tags.map((t: any) => t.id);
+      item.tagIds = item.tags.map((t: any) => t.id);
       delete item.tagLinks;
     }
     return item;

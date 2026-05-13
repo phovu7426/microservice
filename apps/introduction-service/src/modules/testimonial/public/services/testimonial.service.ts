@@ -38,7 +38,7 @@ export class PublicTestimonialService {
     if (query.featured !== undefined) {
       filter.featured = query.featured === 'true' || query.featured === true;
     }
-    if (query.project_id) filter.project_id = query.project_id;
+    if (query.projectId) filter.projectId = query.projectId;
 
     return this.getOrSet('introduction:public:testimonial:list', 300, async () => {
       const [data, total] = await Promise.all([

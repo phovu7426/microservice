@@ -10,7 +10,7 @@ export class PostCommentCreatedHandler implements KafkaHandler {
     const { parent_comment_user_id, user_id, post_id, comment_id } = payload;
     if (!parent_comment_user_id || parent_comment_user_id === user_id) return;
     await this.notifService.create({
-      user_id: parent_comment_user_id,
+      userId: parent_comment_user_id,
       title: 'Có người trả lời bình luận bài viết của bạn',
       message: 'Ai đó đã trả lời bình luận của bạn trên bài viết',
       type: 'info',

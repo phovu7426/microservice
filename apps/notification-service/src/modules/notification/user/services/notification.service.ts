@@ -17,9 +17,9 @@ export class UserNotificationService {
   async getList(userId: string, query: ListNotificationsUserQueryDto) {
     const options = parseQueryOptions(query);
 
-    const filter: NotificationFilter = { user_id: userId, status: 'active' };
+    const filter: NotificationFilter = { userId, status: 'active' };
     if (query.type) filter.type = query.type;
-    if (query.is_read !== undefined) filter.is_read = query.is_read === 'true';
+    if (query.isRead !== undefined) filter.isRead = query.isRead === 'true';
 
     const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
@@ -37,7 +37,7 @@ export class UserNotificationService {
       if (cached !== undefined && cached !== null) return { count: Number(cached) };
     } catch {}
 
-    const count = await this.notifRepo.count({ user_id: userId, is_read: false, status: 'active' });
+    const count = await this.notifRepo.count({ userId, isRead: false, status: 'active' });
 
     try {
       await this.redis?.set(cacheKey, String(count), 30);
@@ -47,22 +47,22 @@ export class UserNotificationService {
   }
 
   async getOne(userId: string, id: PrimaryKey) {
-    const notif = await this.notifRepo.findFirst({ id, user_id: userId });
+    const notif = await this.notifRepo.findFirst({ id, userId });
     if (!notif) throw new NotFoundException(t(this.i18n, 'notification.NOT_FOUND'));
     return notif;
   }
 
   async markAsRead(userId: string, id: PrimaryKey) {
     const notif = await this.getOne(userId, id);
-    const result = await this.notifRepo.update(notif.id, { is_read: true, read_at: new Date() });
+    const result = await this.notifRepo.update(notif.id, { isRead: true, readAt: new Date() });
     await this.invalidateUnreadCount(userId);
     return result;
   }
 
   async markAllAsRead(userId: string) {
     const result = await this.notifRepo.updateMany(
-      { user_id: userId, is_read: false },
-      { is_read: true, read_at: new Date() },
+      { userId, isRead: false },
+      { isRead: true, readAt: new Date() },
     );
     await this.invalidateUnreadCount(userId);
     return { updated: result.count };

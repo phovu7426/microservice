@@ -37,9 +37,9 @@ export class CreateBannerDto {
   image?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'mobile_image must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'mobileImage must be an http(s) URL.' })
   @MaxLength(500)
-  mobile_image?: string;
+  mobileImage?: string;
 
   @IsOptional()
   @IsUrl(URL_OPTS, { message: 'link must be an http(s) URL.' })
@@ -48,7 +48,7 @@ export class CreateBannerDto {
 
   @IsOptional()
   @IsEnum(BannerLinkTarget)
-  link_target?: BannerLinkTarget;
+  linkTarget?: BannerLinkTarget;
 
   @IsOptional()
   @IsString()
@@ -58,25 +58,25 @@ export class CreateBannerDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  button_text?: string;
+  buttonText?: string;
 
   @IsOptional()
   @IsHexColor()
-  button_color?: string;
+  buttonColor?: string;
 
   @IsOptional()
   @IsHexColor()
-  text_color?: string;
+  textColor?: string;
 
   @IsNumber()
   @Min(1)
-  location_id: number;
+  locationId: number;
 
   @IsOptional()
   @IsNumber()
   @Min(0)
   @Max(1_000_000)
-  sort_order?: number;
+  sortOrder?: number;
 
   @IsOptional()
   @IsEnum(BannerStatus)
@@ -84,9 +84,9 @@ export class CreateBannerDto {
 
   @IsOptional()
   @IsDateString()
-  start_date?: string;
+  startDate?: string;
 
   @IsOptional()
   @IsDateString()
-  end_date?: string;
+  endDate?: string;
 }

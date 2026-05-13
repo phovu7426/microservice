@@ -5,7 +5,7 @@ import { t, createPaginationMeta, parseQueryOptions } from '@package/common';
 import { PUBLIC_POST_STATUSES } from '../../enums/post-status.enum';
 import { PostFilter, PostRepository } from '../../repositories/post.repository';
 
-const LIST_KEYS = ['search', 'post_type', 'is_featured', 'is_pinned', 'post_category_id', 'category_id', 'post_tag_id', 'tag_id', 'sort', 'page', 'limit'];
+const LIST_KEYS = ['search', 'postType', 'isFeatured', 'isPinned', 'postCategoryId', 'categoryId', 'postTagId', 'tagId', 'sort', 'page', 'limit'];
 
 @Injectable()
 export class PublicPostService {
@@ -26,18 +26,18 @@ export class PublicPostService {
 
       const filter: PostFilter = { status: PUBLIC_POST_STATUSES };
       if (query.search) filter.search = query.search;
-      if (query.post_type) filter.post_type = query.post_type;
-      if (query.is_featured !== undefined) {
-        filter.is_featured = query.is_featured === 'true' || query.is_featured === true;
+      if (query.postType) filter.postType = query.postType;
+      if (query.isFeatured !== undefined) {
+        filter.isFeatured = query.isFeatured === 'true' || query.isFeatured === true;
       }
-      if (query.is_pinned !== undefined) {
-        filter.is_pinned = query.is_pinned === 'true' || query.is_pinned === true;
+      if (query.isPinned !== undefined) {
+        filter.isPinned = query.isPinned === 'true' || query.isPinned === true;
       }
-      if (query.post_category_id || query.category_id) {
-        filter.category_id = query.post_category_id ?? query.category_id;
+      if (query.postCategoryId || query.categoryId) {
+        filter.categoryId = query.postCategoryId ?? query.categoryId;
       }
-      if (query.post_tag_id || query.tag_id) {
-        filter.tag_id = query.post_tag_id ?? query.tag_id;
+      if (query.postTagId || query.tagId) {
+        filter.tagId = query.postTagId ?? query.tagId;
       }
 
       const [data, total] = await Promise.all([

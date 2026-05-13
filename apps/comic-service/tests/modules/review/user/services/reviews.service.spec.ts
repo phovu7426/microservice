@@ -75,7 +75,7 @@ describe('UserReviewService', () => {
       const review = { id: 1n, user_id: 1n, comic_id: 10n, rating: 5 };
       reviewRepo.upsert.mockResolvedValue(review);
 
-      const result = await service.createOrUpdate(1n, { comic_id: 10n, rating: 5, content: 'Great!' } as any);
+      const result = await service.createOrUpdate(1n, { comicId: 10n, rating: 5, content: 'Great!' } as any);
 
       expect(result).toEqual(review);
       expect(reviewRepo.upsert).toHaveBeenCalledWith(1n, 10n, { rating: 5, content: 'Great!' });

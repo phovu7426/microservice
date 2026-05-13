@@ -2,7 +2,7 @@ import { IsNumber, IsOptional, IsString, Min, Max, MaxLength } from 'class-valid
 
 export class CreateReviewDto {
   @IsNumber()
-  comic_id: number;
+  comicId: number;
 
   @IsNumber()
   @Min(1)

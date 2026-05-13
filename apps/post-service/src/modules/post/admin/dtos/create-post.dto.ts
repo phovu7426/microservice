@@ -48,9 +48,9 @@ export class CreatePostDto {
   image?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'cover_image must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'coverImage must be an http(s) URL.' })
   @MaxLength(500)
-  cover_image?: string;
+  coverImage?: string;
 
   @IsOptional()
   @IsEnum(PostStatus)
@@ -58,47 +58,47 @@ export class CreatePostDto {
 
   @IsOptional()
   @IsEnum(PostType)
-  post_type?: PostType;
+  postType?: PostType;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'video_url must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'videoUrl must be an http(s) URL.' })
   @MaxLength(500)
-  video_url?: string;
+  videoUrl?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'audio_url must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'audioUrl must be an http(s) URL.' })
   @MaxLength(500)
-  audio_url?: string;
+  audioUrl?: string;
 
   @IsOptional()
   @IsBoolean()
-  is_featured?: boolean;
+  isFeatured?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  is_pinned?: boolean;
+  isPinned?: boolean;
 
   // ISO 8601 date — Prisma converts internally; without IsDateString the
   // field accepted any string and `new Date(invalidStr)` quietly produced
   // `Invalid Date` which Prisma rejects with an opaque 500.
   @IsOptional()
   @IsDateString()
-  published_at?: string;
+  publishedAt?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  seo_title?: string;
+  seoTitle?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(2000)
-  seo_description?: string;
+  seoDescription?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  seo_keywords?: string;
+  seoKeywords?: string;
 
   @IsOptional()
   @IsArray()
@@ -107,7 +107,7 @@ export class CreatePostDto {
   @IsInt({ each: true })
   @Min(1, { each: true })
   @IsNumber({}, { each: true })
-  category_ids?: number[];
+  categoryIds?: number[];
 
   @IsOptional()
   @IsArray()
@@ -116,5 +116,5 @@ export class CreatePostDto {
   @IsInt({ each: true })
   @Min(1, { each: true })
   @IsNumber({}, { each: true })
-  tag_ids?: number[];
+  tagIds?: number[];
 }

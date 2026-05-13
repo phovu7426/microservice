@@ -18,17 +18,17 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'message',
   'status',
   'reply',
-  'replied_at',
-  'replied_by',
+  'repliedAt',
+  'repliedBy',
 ]);
 
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'email',
   'status',
-  'created_at',
-  'updated_at',
-  'replied_at',
+  'createdAt',
+  'updatedAt',
+  'repliedAt',
 ]);
 
 @Injectable()
@@ -50,9 +50,9 @@ export class ContactRepository {
   }
 
   private buildOrderBy(sort?: string): Prisma.ContactOrderByWithRelationInput {
-    if (!sort) return { created_at: 'desc' };
+    if (!sort) return { createdAt: 'desc' };
     const [field, dirRaw] = sort.split(':');
-    if (!field || !SORTABLE_FIELDS.has(field)) return { created_at: 'desc' };
+    if (!field || !SORTABLE_FIELDS.has(field)) return { createdAt: 'desc' };
     const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
     return { [field]: dir } as Prisma.ContactOrderByWithRelationInput;
   }
@@ -92,9 +92,9 @@ export class ContactRepository {
     return this.prisma.contact.delete({ where: { id: toPrimaryKey(id) } });
   }
 
-  createOutbox(event_type: string, payload: Record<string, any>, tx?: Tx) {
+  createOutbox(eventType: string, payload: Record<string, any>, tx?: Tx) {
     const client = tx ?? this.prisma;
-    return client.outbox.create({ data: { event_type, payload } });
+    return client.outbox.create({ data: { eventType, payload } });
   }
 
   async withTransaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
@@ -106,11 +106,11 @@ export class ContactRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    if (payload.replied_by !== undefined && payload.replied_by !== null) {
-      payload.replied_by = toPrimaryKey(payload.replied_by);
+    if (payload.repliedBy !== undefined && payload.repliedBy !== null) {
+      payload.repliedBy = toPrimaryKey(payload.repliedBy);
     }
-    if (payload.replied_at !== undefined && payload.replied_at !== null && !(payload.replied_at instanceof Date)) {
-      payload.replied_at = new Date(payload.replied_at);
+    if (payload.repliedAt !== undefined && payload.repliedAt !== null && !(payload.repliedAt instanceof Date)) {
+      payload.repliedAt = new Date(payload.repliedAt);
     }
     return payload;
   }

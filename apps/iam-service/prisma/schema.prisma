@@ -12,21 +12,21 @@ datasource db {
 // ============================================
 
 model Context {
-  id              BigInt   @id @default(autoincrement())
-  type            String   @db.VarChar(50)
-  ref_id          BigInt?
-  name            String   @db.VarChar(255)
-  code            String   @unique @db.VarChar(100)
-  status          String   @default("active") @db.VarChar(30)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  type          String   @db.VarChar(50)
+  refId         BigInt?  @map("ref_id")
+  name          String   @db.VarChar(255)
+  code          String   @unique @db.VarChar(100)
+  status        String   @default("active") @db.VarChar(30)
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  groups        Group[]
-  role_contexts RoleContext[]
+  groups       Group[]
+  roleContexts RoleContext[]
 
-  @@unique([type, ref_id], map: "contexts_idx_contexts_type_ref_id")
+  @@unique([type, refId], map: "contexts_idx_contexts_type_ref_id")
   @@map("contexts")
 }
 
@@ -35,42 +35,42 @@ model Context {
 // ============================================
 
 model Group {
-  id              BigInt   @id @default(autoincrement())
-  type            String   @db.VarChar(50)
-  code            String   @unique @db.VarChar(100)
-  name            String   @db.VarChar(255)
-  description     String?  @db.Text
-  status          String   @default("active") @db.VarChar(30)
-  owner_id        BigInt?
-  context_id      BigInt
-  metadata        Json?
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  type          String   @db.VarChar(50)
+  code          String   @unique @db.VarChar(100)
+  name          String   @db.VarChar(255)
+  description   String?  @db.Text
+  status        String   @default("active") @db.VarChar(30)
+  ownerId       BigInt?  @map("owner_id")
+  contextId     BigInt   @map("context_id")
+  metadata      Json?
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  context               Context              @relation(fields: [context_id], references: [id], onDelete: Restrict)
-  user_groups           UserGroup[]
-  user_role_assignments UserRoleAssignment[]
+  context             Context              @relation(fields: [contextId], references: [id], onDelete: Restrict)
+  userGroups          UserGroup[]
+  userRoleAssignments UserRoleAssignment[]
 
   @@unique([type, code], map: "groups_idx_groups_type_code")
-  @@index([context_id], map: "groups_IDX_groups_context_id")
+  @@index([contextId], map: "groups_IDX_groups_context_id")
   @@map("groups")
 }
 
 // user_id is an application-level reference to auth-service.users (no DB FK)
 model UserGroup {
-  user_id   BigInt
-  group_id  BigInt
-  joined_at DateTime @default(now()) @db.Timestamp(0)
+  userId   BigInt   @map("user_id")
+  groupId  BigInt   @map("group_id")
+  joinedAt DateTime @default(now()) @map("joined_at") @db.Timestamp(0)
 
-  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-  @@id([user_id, group_id])
-  @@index([user_id], map: "user_groups_idx_user_groups_user_id")
-  @@index([user_id, joined_at], map: "user_groups_idx_user_groups_user_joined_at")
-  @@index([group_id], map: "user_groups_idx_user_groups_group_id")
-  @@index([group_id, user_id], map: "user_groups_idx_group_user")
+  @@id([userId, groupId])
+  @@index([userId], map: "user_groups_idx_user_groups_user_id")
+  @@index([userId, joinedAt], map: "user_groups_idx_user_groups_user_joined_at")
+  @@index([groupId], map: "user_groups_idx_user_groups_group_id")
+  @@index([groupId, userId], map: "user_groups_idx_group_user")
   @@map("user_groups")
 }
 
@@ -79,23 +79,23 @@ model UserGroup {
 // ============================================
 
 model Permission {
-  id              BigInt   @id @default(autoincrement())
-  code            String   @unique @db.VarChar(120)
-  scope           String   @default("context") @db.VarChar(30)
-  name            String?  @db.VarChar(150)
-  status          String   @default("active") @db.VarChar(30)
-  parent_id       BigInt?
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  code          String   @unique @db.VarChar(120)
+  scope         String   @default("context") @db.VarChar(30)
+  name          String?  @db.VarChar(150)
+  status        String   @default("active") @db.VarChar(30)
+  parentId      BigInt?  @map("parent_id")
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  parent     Permission?         @relation("PermissionHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
-  children   Permission[]        @relation("PermissionHierarchy")
-  role_links RoleHasPermission[]
+  parent    Permission?         @relation("PermissionHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Permission[]        @relation("PermissionHierarchy")
+  roleLinks RoleHasPermission[]
 
   @@index([scope], map: "permissions_idx_scope")
-  @@index([parent_id], map: "permissions_idx_permissions_parent_id")
+  @@index([parentId], map: "permissions_idx_permissions_parent_id")
   @@map("permissions")
 }
 
@@ -104,68 +104,68 @@ model Permission {
 // ============================================
 
 model Role {
-  id              BigInt   @id @default(autoincrement())
-  code            String   @db.VarChar(100)
-  name            String?  @db.VarChar(150)
-  status          String   @default("active") @db.VarChar(30)
-  parent_id       BigInt?
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  code          String   @db.VarChar(100)
+  name          String?  @db.VarChar(150)
+  status        String   @default("active") @db.VarChar(30)
+  parentId      BigInt?  @map("parent_id")
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  parent                Role?                @relation("RoleHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
-  children              Role[]               @relation("RoleHierarchy")
-  permissions           RoleHasPermission[]
-  role_contexts         RoleContext[]
-  user_role_assignments UserRoleAssignment[]
+  parent              Role?                @relation("RoleHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children            Role[]               @relation("RoleHierarchy")
+  permissions         RoleHasPermission[]
+  roleContexts        RoleContext[]
+  userRoleAssignments UserRoleAssignment[]
 
   @@unique([code], map: "roles_code_key")
   @@map("roles")
 }
 
 model RoleHasPermission {
-  role_id       BigInt @db.BigInt
-  permission_id BigInt @db.BigInt
+  roleId       BigInt @map("role_id") @db.BigInt
+  permissionId BigInt @map("permission_id") @db.BigInt
 
-  role       Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
-  @@id([role_id, permission_id])
-  @@index([role_id], map: "role_has_permissions_idx_role_has_permissions_role_id")
-  @@index([permission_id], map: "role_has_permissions_idx_role_has_permissions_permission_id")
+  @@id([roleId, permissionId])
+  @@index([roleId], map: "role_has_permissions_idx_role_has_permissions_role_id")
+  @@index([permissionId], map: "role_has_permissions_idx_role_has_permissions_permission_id")
   @@map("role_has_permissions")
 }
 
 model RoleContext {
-  role_id    BigInt @db.BigInt
-  context_id BigInt @db.BigInt
+  roleId    BigInt @map("role_id") @db.BigInt
+  contextId BigInt @map("context_id") @db.BigInt
 
-  role    Role    @relation(fields: [role_id], references: [id], onDelete: Cascade)
-  context Context @relation(fields: [context_id], references: [id], onDelete: Cascade)
+  role    Role    @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  context Context @relation(fields: [contextId], references: [id], onDelete: Cascade)
 
-  @@id([role_id, context_id])
-  @@index([role_id], map: "role_contexts_idx_role_contexts_role_id")
-  @@index([context_id], map: "role_contexts_idx_role_contexts_context_id")
+  @@id([roleId, contextId])
+  @@index([roleId], map: "role_contexts_idx_role_contexts_role_id")
+  @@index([contextId], map: "role_contexts_idx_role_contexts_context_id")
   @@map("role_contexts")
 }
 
 // user_id is an application-level reference to auth-service.users (no DB FK)
 model UserRoleAssignment {
-  id         BigInt   @id @default(autoincrement())
-  user_id    BigInt
-  role_id    BigInt
-  group_id   BigInt
-  created_at DateTime @default(now()) @db.Timestamp(0)
+  id        BigInt   @id @default(autoincrement())
+  userId    BigInt   @map("user_id")
+  roleId    BigInt   @map("role_id")
+  groupId   BigInt   @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  role  Role  @relation(fields: [role_id], references: [id], onDelete: Cascade)
-  group Group @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  role  Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
 
-  @@unique([user_id, role_id, group_id], map: "user_role_assignments_idx_user_role_group_unique")
-  @@index([user_id, group_id], map: "user_role_assignments_idx_user_group")
-  @@index([group_id, user_id], map: "user_role_assignments_idx_group_user")
-  @@index([group_id], map: "user_role_assignments_idx_user_role_assignments_group_id")
-  @@index([role_id], map: "user_role_assignments_idx_user_role_assignments_role_id")
+  @@unique([userId, roleId, groupId], map: "user_role_assignments_idx_user_role_group_unique")
+  @@index([userId, groupId], map: "user_role_assignments_idx_user_group")
+  @@index([groupId, userId], map: "user_role_assignments_idx_group_user")
+  @@index([groupId], map: "user_role_assignments_idx_user_role_assignments_group_id")
+  @@index([roleId], map: "user_role_assignments_idx_user_role_assignments_role_id")
   @@map("user_role_assignments")
 }
 
@@ -174,12 +174,12 @@ model UserRoleAssignment {
 // ============================================
 
 model Outbox {
-  id         BigInt   @id @default(autoincrement())
-  event_type String   @db.VarChar(100)
-  payload    Json
-  published  Boolean  @default(false)
-  created_at DateTime @default(now()) @db.Timestamptz()
+  id        BigInt   @id @default(autoincrement())
+  eventType String   @map("event_type") @db.VarChar(100)
+  payload   Json
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  @@index([published, created_at])
+  @@index([published, createdAt])
   @@map("outbox")
 }

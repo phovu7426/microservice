@@ -37,11 +37,11 @@ export class AdminCategoryService {
 
     const filter: CategoryFilter = {};
     if (query.search) filter.search = query.search;
-    if (query.parent_id !== undefined) {
-      filter.parent_id = query.parent_id === 'null' ? null : query.parent_id;
+    if (query.parentId !== undefined) {
+      filter.parentId = query.parentId === 'null' ? null : query.parentId;
     }
-    if (query.is_active !== undefined) {
-      filter.is_active = query.is_active === 'true' || query.is_active === true;
+    if (query.isActive !== undefined) {
+      filter.isActive = query.isActive === 'true' || query.isActive === true;
     }
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
@@ -63,15 +63,15 @@ export class AdminCategoryService {
     const slug = await SlugHelper.uniqueSlug(dto.name, {
       findOne: (filter: any) => this.categoryRepo.findBySlug(filter.slug),
     });
-    if ((dto as any).parent_id) {
+    if ((dto as any).parentId) {
       // Refuse pointing at a non-existent parent at create-time. Cycles
       // can't exist yet because the new node has no descendants.
-      const parent = await this.categoryRepo.findById((dto as any).parent_id);
+      const parent = await this.categoryRepo.findById((dto as any).parentId);
       if (!parent) throw new BadRequestException(t(this.i18n, 'post.PARENT_CATEGORY_NOT_FOUND'));
     }
 
     const data: Record<string, any> = { ...dto, slug };
-    if (actorId) data.created_user_id = actorId;
+    if (actorId) data.createdUserId = actorId;
 
     const result = await this.categoryRepo.create(data);
     await this.invalidateCategoryCache();
@@ -89,10 +89,10 @@ export class AdminCategoryService {
         id,
       );
     }
-    if ((dto as any).parent_id) {
-      await this.assertNoCycle(id, (dto as any).parent_id);
+    if ((dto as any).parentId) {
+      await this.assertNoCycle(id, (dto as any).parentId);
     }
-    if (actorId) data.updated_user_id = actorId;
+    if (actorId) data.updatedUserId = actorId;
 
     const result = await this.categoryRepo.update(id, data);
     await this.invalidateCategoryCache();

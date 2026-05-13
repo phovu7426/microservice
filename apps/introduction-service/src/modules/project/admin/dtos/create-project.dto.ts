@@ -32,12 +32,12 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  short_description?: string;
+  shortDescription?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'cover_image must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'coverImage must be an http(s) URL.' })
   @MaxLength(500)
-  cover_image?: string;
+  coverImage?: string;
 
   @IsOptional()
   @IsString()
@@ -51,11 +51,11 @@ export class CreateProjectDto {
 
   @IsOptional()
   @IsDateString()
-  start_date?: string;
+  startDate?: string;
 
   @IsOptional()
   @IsDateString()
-  end_date?: string;
+  endDate?: string;
 
   @IsOptional()
   @IsEnum(ProjectStatus)
@@ -64,7 +64,7 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  client_name?: string;
+  clientName?: string;
 
   @IsOptional()
   @IsString()
@@ -83,20 +83,20 @@ export class CreateProjectDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  seo_title?: string;
+  seoTitle?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  seo_description?: string;
+  seoDescription?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  seo_keywords?: string;
+  seoKeywords?: string;
 }

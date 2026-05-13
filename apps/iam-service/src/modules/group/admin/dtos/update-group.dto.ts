@@ -18,6 +18,6 @@ export class UpdateGroupDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^(\d{1,20})?$/, { message: 'owner_id must be numeric or empty.' })
-  owner_id?: string | null;
+  @Matches(/^(\d{1,20})?$/, { message: 'ownerId must be numeric or empty.' })
+  ownerId?: string | null;
 }

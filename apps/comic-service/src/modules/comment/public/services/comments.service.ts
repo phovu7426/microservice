@@ -21,10 +21,10 @@ export class PublicCommentService {
 
       const filter: CommentFilter = {
         status: 'visible',
-        parent_id: null,
+        parentId: null,
       };
-      if (query.comic_id) filter.comic_id = query.comic_id;
-      if (query.chapter_id) filter.chapter_id = query.chapter_id;
+      if (query.comicId) filter.comicId = query.comicId;
+      if (query.chapterId) filter.chapterId = query.chapterId;
 
       const [data, total] = await Promise.all([
         this.commentRepo.findManyWithReplies(filter, options),

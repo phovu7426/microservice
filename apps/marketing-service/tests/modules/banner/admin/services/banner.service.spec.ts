@@ -30,18 +30,18 @@ describe('AdminBannerService', () => {
     title: 'Test Banner',
     subtitle: 'Subtitle',
     image: 'image.jpg',
-    mobile_image: 'mobile.jpg',
+    mobileImage: 'mobile.jpg',
     link: 'https://example.com',
-    link_target: '_blank',
+    linkTarget: '_blank',
     description: 'desc',
-    button_text: 'Click',
-    button_color: '#fff',
-    text_color: '#000',
-    location_id: 10n,
-    sort_order: 0,
+    buttonText: 'Click',
+    buttonColor: '#fff',
+    textColor: '#000',
+    locationId: 10n,
+    sortOrder: 0,
     status: 'active',
-    start_date: null,
-    end_date: null,
+    startDate: null,
+    endDate: null,
   };
 
   const mockLocation = {
@@ -105,14 +105,14 @@ describe('AdminBannerService', () => {
       );
     });
 
-    it('should apply status and location_id filters', async () => {
+    it('should apply status and locationId filters', async () => {
       bannerRepo.findMany!.mockResolvedValue([]);
       bannerRepo.count!.mockResolvedValue(0);
 
-      await service.getList({ status: 'active', location_id: '10' });
+      await service.getList({ status: 'active', locationId: '10' });
 
       expect(bannerRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ status: 'active', location_id: '10' }),
+        expect.objectContaining({ status: 'active', locationId: '10' }),
         expect.any(Object),
       );
     });
@@ -157,18 +157,18 @@ describe('AdminBannerService', () => {
       title: 'New Banner',
       subtitle: 'Sub',
       image: 'img.jpg',
-      mobile_image: 'mob.jpg',
+      mobileImage: 'mob.jpg',
       link: 'https://example.com',
-      link_target: '_blank',
+      linkTarget: '_blank',
       description: 'desc',
-      button_text: 'Click',
-      button_color: '#fff',
-      text_color: '#000',
-      location_id: 10n,
-      sort_order: 1,
+      buttonText: 'Click',
+      buttonColor: '#fff',
+      textColor: '#000',
+      locationId: 10n,
+      sortOrder: 1,
       status: 'active',
-      start_date: null,
-      end_date: null,
+      startDate: null,
+      endDate: null,
     };
 
     it('should validate location, create banner, clear cache, and return banner', async () => {
@@ -180,7 +180,7 @@ describe('AdminBannerService', () => {
 
       expect(locationRepo.findById).toHaveBeenCalledWith(10n);
       expect(bannerRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ title: 'New Banner', location_id: 10n }),
+        expect.objectContaining({ title: 'New Banner', locationId: 10n }),
       );
       expect(redis.del).toHaveBeenCalledWith('marketing:public:banners:list');
       expect(result).toEqual(expect.objectContaining({ id: 2n }));
@@ -193,16 +193,16 @@ describe('AdminBannerService', () => {
       await expect(service.create(createDto as any)).rejects.toThrow('Banner location not found');
     });
 
-    it('should default sort_order to 0 when not provided', async () => {
+    it('should default sortOrder to 0 when not provided', async () => {
       locationRepo.findById!.mockResolvedValue(mockLocation as any);
       bannerRepo.create!.mockResolvedValue(mockBanner as any);
       bannerRepo.findById!.mockResolvedValue(mockBanner as any);
 
-      const dtoNoSort = { ...createDto, sort_order: undefined };
+      const dtoNoSort = { ...createDto, sortOrder: undefined };
       await service.create(dtoNoSort as any);
 
       expect(bannerRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ sort_order: 0 }),
+        expect.objectContaining({ sortOrder: 0 }),
       );
     });
 
@@ -232,27 +232,27 @@ describe('AdminBannerService', () => {
       const result = await service.update(1n, updateDto as any);
 
       expect(bannerRepo.findById).toHaveBeenCalledWith(1n);
-      expect(bannerRepo.update).toHaveBeenCalledWith(1n, updateDto);
+      expect(bannerRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ title: 'Updated Banner' }));
       expect(redis.del).toHaveBeenCalledWith('marketing:public:banners:list');
       expect(result).toEqual(mockBanner);
     });
 
-    it('should validate location when location_id is provided', async () => {
+    it('should validate location when locationId is provided', async () => {
       bannerRepo.findById!.mockResolvedValue(mockBanner as any);
       locationRepo.findById!.mockResolvedValue(mockLocation as any);
       bannerRepo.update!.mockResolvedValue(undefined as any);
 
-      await service.update(1n, { location_id: 10n } as any);
+      await service.update(1n, { locationId: 10n } as any);
 
       expect(locationRepo.findById).toHaveBeenCalledWith(10n);
     });
 
-    it('should throw NotFoundException when location_id is invalid', async () => {
+    it('should throw NotFoundException when locationId is invalid', async () => {
       bannerRepo.findById!.mockResolvedValue(mockBanner as any);
       locationRepo.findById!.mockResolvedValue(null);
 
       await expect(
-        service.update(1n, { location_id: 999n } as any),
+        service.update(1n, { locationId: 999n } as any),
       ).rejects.toThrow(NotFoundException);
     });
 

@@ -24,7 +24,7 @@ describe('AdminUserService', () => {
     username: 'testuser',
     phone: '0123456789',
     password: 'secret',
-    remember_token: 'token123',
+    rememberToken: 'token123',
     status: 1,
   };
 
@@ -76,7 +76,7 @@ describe('AdminUserService', () => {
   });
 
   describe('getOne', () => {
-    it('should return sanitized user without password and remember_token', async () => {
+    it('should return sanitized user without password and rememberToken', async () => {
       userRepo.findById!.mockResolvedValue(mockUser);
 
       const result = await service.getOne(1n);
@@ -84,7 +84,7 @@ describe('AdminUserService', () => {
       expect(userRepo.findById).toHaveBeenCalledWith(1n);
       expect(result).toEqual(sanitizedUser);
       expect(result).not.toHaveProperty('password');
-      expect(result).not.toHaveProperty('remember_token');
+      expect(result).not.toHaveProperty('rememberToken');
     });
 
     it('should throw NotFoundException when user not found', async () => {
@@ -118,13 +118,13 @@ describe('AdminUserService', () => {
           username: 'newuser',
           phone: '0987654321',
           password: 'hashed-pw',
-          created_user_id: actorId,
-          updated_user_id: actorId,
+          createdUserId: actorId,
+          updatedUserId: actorId,
         }),
         undefined,
       );
       expect(result).not.toHaveProperty('password');
-      expect(result).not.toHaveProperty('remember_token');
+      expect(result).not.toHaveProperty('rememberToken');
     });
 
     it('should throw BadRequestException for duplicate email', async () => {
@@ -152,14 +152,14 @@ describe('AdminUserService', () => {
       expect(userRepo.createWithProfile).toHaveBeenCalledWith(
         expect.objectContaining({
           password: 'hashed-pw',
-          created_user_id: actorId,
-          updated_user_id: actorId,
+          createdUserId: actorId,
+          updatedUserId: actorId,
         }),
         expect.objectContaining({
           first_name: 'John',
           last_name: 'Doe',
-          created_user_id: actorId,
-          updated_user_id: actorId,
+          createdUserId: actorId,
+          updatedUserId: actorId,
         }),
       );
     });
@@ -192,12 +192,12 @@ describe('AdminUserService', () => {
           email: 'updated@example.com',
           username: 'updateduser',
           phone: '0111222333',
-          updated_user_id: actorId,
+          updatedUserId: actorId,
         }),
         expect.objectContaining({
           first_name: 'Jane',
-          created_user_id: actorId,
-          updated_user_id: actorId,
+          createdUserId: actorId,
+          updatedUserId: actorId,
         }),
       );
     });

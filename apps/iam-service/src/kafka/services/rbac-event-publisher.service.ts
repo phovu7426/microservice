@@ -142,7 +142,7 @@ export class RbacEventPublisher {
     try {
       await tx.outbox.create({
         data: {
-          event_type: eventType,
+          eventType: eventType,
           payload,
         },
       });

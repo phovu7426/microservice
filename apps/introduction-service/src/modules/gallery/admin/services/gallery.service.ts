@@ -58,7 +58,16 @@ export class AdminGalleryService {
       findOne: (filter: any) => this.galleryRepo.findBySlug(filter.slug),
     });
     try {
-      const result = await this.galleryRepo.create({ ...dto, slug, images: dto.images ?? [] });
+      const result = await this.galleryRepo.create({
+        title: dto.title,
+        slug,
+        description: dto.description,
+        coverImage: dto.coverImage,
+        images: dto.images ?? [],
+        featured: dto.featured,
+        status: dto.status,
+        sortOrder: dto.sortOrder,
+      });
       await this.clearCache();
       return result;
     } catch (err) {
@@ -69,7 +78,15 @@ export class AdminGalleryService {
   async update(id: PrimaryKey, dto: UpdateGalleryDto) {
     const current = await this.getOne(id);
 
-    const data: Record<string, any> = { ...dto };
+    const data: Record<string, any> = {
+      title: dto.title,
+      description: dto.description,
+      coverImage: dto.coverImage,
+      images: dto.images,
+      featured: dto.featured,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    };
     const titleChanged = dto.title !== undefined && dto.title !== (current as any).title;
     if (dto.slug || titleChanged) {
       data.slug = await SlugHelper.uniqueSlug(

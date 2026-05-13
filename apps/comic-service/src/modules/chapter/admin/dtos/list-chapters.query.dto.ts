@@ -5,8 +5,8 @@ import { ChapterStatus } from '../../enums/chapter-status.enum';
 export class ListChaptersAdminQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'comic_id must be numeric.' })
-  comic_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'comicId must be numeric.' })
+  comicId?: string;
 
   @IsOptional()
   @IsEnum(ChapterStatus)
@@ -14,6 +14,6 @@ export class ListChaptersAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'team_id must be numeric.' })
-  team_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'teamId must be numeric.' })
+  teamId?: string;
 }

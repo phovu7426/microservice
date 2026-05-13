@@ -20,7 +20,7 @@ export class WardRepository {
     if (filter.code) where.code = filter.code;
     if (filter.status) where.status = filter.status;
     if (filter.provinceId !== undefined && filter.provinceId !== null) {
-      where.province_id = toPrimaryKey(filter.provinceId);
+      where.provinceId = toPrimaryKey(filter.provinceId);
     }
     return where;
   }
@@ -61,15 +61,9 @@ export class WardRepository {
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload: any = { ...data };
 
-    // Map camelCase DTO field → snake_case Prisma field
-    if (payload.provinceId !== undefined) {
-      payload.province_id = payload.provinceId;
-      delete payload.provinceId;
-    }
-
     // Convert BigInt fields
-    if (payload.province_id !== undefined && payload.province_id !== null) {
-      payload.province_id = toPrimaryKey(payload.province_id);
+    if (payload.provinceId !== undefined && payload.provinceId !== null) {
+      payload.provinceId = toPrimaryKey(payload.provinceId);
     }
 
     return payload;

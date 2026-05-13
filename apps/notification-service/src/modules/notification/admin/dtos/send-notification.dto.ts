@@ -18,8 +18,8 @@ export class SendNotificationDto {
   // can blast millions of notifications and block the queue worker.
   @ArrayMaxSize(500)
   @IsString({ each: true })
-  @Matches(/^\d{1,20}$/, { each: true, message: 'user_ids must be numeric.' })
-  user_ids: string[];
+  @Matches(/^\d{1,20}$/, { each: true, message: 'userIds must be numeric.' })
+  userIds: string[];
 
   @IsString()
   @MaxLength(255)

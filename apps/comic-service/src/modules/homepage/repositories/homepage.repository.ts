@@ -6,20 +6,20 @@ const HOMEPAGE_COMIC_SELECT = {
   id: true,
   slug: true,
   title: true,
-  cover_image: true,
+  coverImage: true,
   author: true,
   status: true,
-  last_chapter_updated_at: true,
-  is_featured: true,
+  lastChapterUpdatedAt: true,
+  isFeatured: true,
   stats: true,
   categoryLinks: {
     select: { category: { select: { id: true, name: true, slug: true } } },
   },
   chapters: {
     where: { status: 'published' as const },
-    orderBy: { chapter_index: 'desc' as const },
+    orderBy: { chapterIndex: 'desc' as const },
     take: 1,
-    select: { id: true, title: true, chapter_index: true, chapter_label: true, created_at: true },
+    select: { id: true, title: true, chapterIndex: true, chapterLabel: true, createdAt: true },
   },
 } as const;
 

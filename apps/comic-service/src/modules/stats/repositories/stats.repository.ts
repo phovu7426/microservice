@@ -11,11 +11,11 @@ export class StatsRepository {
   }
 
   aggregateViews() {
-    return this.prisma.stats.aggregate({ _sum: { view_count: true } });
+    return this.prisma.stats.aggregate({ _sum: { viewCount: true } });
   }
 
   aggregateFollows() {
-    return this.prisma.stats.aggregate({ _sum: { follow_count: true } });
+    return this.prisma.stats.aggregate({ _sum: { followCount: true } });
   }
 
   findTopComics(orderBy: Prisma.ComicOrderByWithRelationInput, take: number) {

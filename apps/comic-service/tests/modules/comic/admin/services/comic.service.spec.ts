@@ -141,14 +141,14 @@ describe('AdminComicService', () => {
       const { service, comicRepo } = buildService();
       comicRepo.findMany.mockResolvedValue([]);
 
-      await service.getList({ search: 'naruto', status: 'published', is_featured: 'true', category_id: '5' });
+      await service.getList({ search: 'naruto', status: 'published', isFeatured: 'true', categoryId: '5' });
 
       expect(comicRepo.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           search: 'naruto',
           status: 'published',
-          is_featured: true,
-          category_id: '5',
+          isFeatured: true,
+          categoryId: '5',
         }),
         expect.anything(),
       );
@@ -204,7 +204,7 @@ describe('AdminComicService', () => {
   // create()
   // -----------------------------------------------------------------------
   describe('create()', () => {
-    const dto = { title: 'New Comic', category_ids: [10n] } as any;
+    const dto = { title: 'New Comic', categoryIds: [10n] } as any;
 
     it('creates comic with generated slug and clears cache', async () => {
       const { service, comicRepo, redis } = buildService();
@@ -215,8 +215,8 @@ describe('AdminComicService', () => {
 
       expect(SlugHelper.uniqueSlug).toHaveBeenCalledWith(dto.title, expect.anything());
       expect(comicRepo.createWithRelations).toHaveBeenCalledWith(
-        expect.objectContaining({ slug: 'New Comic-slug', created_user_id: 1n }),
-        dto.category_ids,
+        expect.objectContaining({ slug: 'New Comic-slug', createdUserId: 1n }),
+        dto.categoryIds,
       );
       expect(redis.del).toHaveBeenCalledWith('comic:public:detail:New Comic-slug');
       expect(redis.incr).toHaveBeenCalledWith('comic:public:list:v');

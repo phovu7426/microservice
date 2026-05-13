@@ -17,9 +17,9 @@ export class AdminCommentService {
     const options = parseQueryOptions(query);
 
     const filter: CommentFilter = {};
-    if (query.post_id) filter.post_id = query.post_id;
+    if (query.postId) filter.postId = query.postId;
     if (query.status) filter.status = query.status;
-    if (query.user_id) filter.user_id = query.user_id;
+    if (query.userId) filter.userId = query.userId;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([

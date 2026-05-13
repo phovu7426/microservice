@@ -44,14 +44,36 @@ export class AdminCertificateService {
   }
 
   async create(dto: CreateCertificateDto) {
-    const result = await this.certificateRepo.create({ ...dto, status: dto.status || 'active', sort_order: dto.sort_order ?? 0 });
+    const result = await this.certificateRepo.create({
+      name: dto.name,
+      image: dto.image,
+      issuedBy: dto.issuedBy,
+      issuedDate: dto.issuedDate,
+      expiryDate: dto.expiryDate,
+      certificateNumber: dto.certificateNumber,
+      description: dto.description,
+      type: dto.type,
+      status: dto.status || 'active',
+      sortOrder: dto.sortOrder ?? 0,
+    });
     await this.clearCache();
     return result;
   }
 
   async update(id: PrimaryKey, dto: UpdateCertificateDto) {
     await this.getOne(id);
-    const result = await this.certificateRepo.update(id, dto);
+    const result = await this.certificateRepo.update(id, {
+      name: dto.name,
+      image: dto.image,
+      issuedBy: dto.issuedBy,
+      issuedDate: dto.issuedDate,
+      expiryDate: dto.expiryDate,
+      certificateNumber: dto.certificateNumber,
+      description: dto.description,
+      type: dto.type,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    });
     await this.clearCache(id);
     return result;
   }

@@ -66,7 +66,7 @@ describe('UserReadingHistoryService', () => {
 
       expect(result.data).toEqual(history);
       expect(historyRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: 1n }),
+        expect.objectContaining({ userId: 1n }),
         expect.anything(),
       );
     });
@@ -93,8 +93,8 @@ describe('UserReadingHistoryService', () => {
 
       expect(result).toEqual({ success: true });
       expect(historyRepo.deleteByUserComic).toHaveBeenCalledWith({
-        user_id: 1n,
-        comic_id: 10n,
+        userId: 1n,
+        comicId: 10n,
       });
     });
   });

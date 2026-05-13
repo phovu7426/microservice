@@ -26,20 +26,20 @@ export class CreateCertificateDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  issued_by?: string;
+  issuedBy?: string;
 
   @IsOptional()
   @IsDateString()
-  issued_date?: string;
+  issuedDate?: string;
 
   @IsOptional()
   @IsDateString()
-  expiry_date?: string;
+  expiryDate?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  certificate_number?: string;
+  certificateNumber?: string;
 
   @IsOptional()
   @IsString()
@@ -57,5 +57,5 @@ export class CreateCertificateDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

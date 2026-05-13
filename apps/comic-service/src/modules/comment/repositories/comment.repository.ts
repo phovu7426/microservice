@@ -8,11 +8,11 @@ import { ChapterStatus } from '../../chapter/enums/chapter-status.enum';
 type Tx = Prisma.TransactionClient | PrismaService;
 
 export interface CommentFilter {
-  comic_id?: any;
-  chapter_id?: any;
-  parent_id?: any;
+  comicId?: any;
+  chapterId?: any;
+  parentId?: any;
   status?: string;
-  user_id?: any;
+  userId?: any;
 }
 
 @Injectable()
@@ -21,13 +21,13 @@ export class CommentRepository {
 
   private buildWhere(filter: CommentFilter): Prisma.CommentWhereInput {
     const where: Prisma.CommentWhereInput = {};
-    if (filter.comic_id !== undefined) where.comic_id = toPrimaryKey(filter.comic_id);
-    if (filter.user_id !== undefined) where.user_id = toPrimaryKey(filter.user_id);
-    if (filter.chapter_id !== undefined) {
-      where.chapter_id = filter.chapter_id === null ? null : toPrimaryKey(filter.chapter_id);
+    if (filter.comicId !== undefined) where.comicId = toPrimaryKey(filter.comicId);
+    if (filter.userId !== undefined) where.userId = toPrimaryKey(filter.userId);
+    if (filter.chapterId !== undefined) {
+      where.chapterId = filter.chapterId === null ? null : toPrimaryKey(filter.chapterId);
     }
-    if (filter.parent_id !== undefined) {
-      where.parent_id = filter.parent_id === null ? null : toPrimaryKey(filter.parent_id);
+    if (filter.parentId !== undefined) {
+      where.parentId = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
     }
     if (filter.status) where.status = filter.status;
     return where;
@@ -36,7 +36,7 @@ export class CommentRepository {
   findMany(filter: CommentFilter, options: { skip: number; take: number }) {
     return this.prisma.comment.findMany({
       where: this.buildWhere(filter),
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -50,11 +50,11 @@ export class CommentRepository {
         // would otherwise return megabytes per request.
         replies: {
           where: { status: CommentStatus.visible },
-          orderBy: { created_at: 'asc' },
+          orderBy: { createdAt: 'asc' },
           take: 50,
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -75,9 +75,9 @@ export class CommentRepository {
     });
   }
 
-  createOutbox(event_type: string, payload: Record<string, any>, tx?: Tx) {
+  createOutbox(eventType: string, payload: Record<string, any>, tx?: Tx) {
     const client = tx ?? this.prisma;
-    return client.outbox.create({ data: { event_type, payload } });
+    return client.outbox.create({ data: { eventType, payload } });
   }
 
   async withTransaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
@@ -93,7 +93,7 @@ export class CommentRepository {
 
   existsPublishedChapter(chapterId: any, comicId: any) {
     return this.prisma.chapter.findFirst({
-      where: { id: toPrimaryKey(chapterId), comic_id: toPrimaryKey(comicId), status: ChapterStatus.published },
+      where: { id: toPrimaryKey(chapterId), comicId: toPrimaryKey(comicId), status: ChapterStatus.published },
       select: { id: true },
     });
   }
@@ -112,13 +112,13 @@ export class CommentRepository {
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     // Strict allowlist — defense-in-depth against mass-assignment via spread.
     const ALLOWED: ReadonlySet<string> = new Set([
-      'user_id', 'comic_id', 'chapter_id', 'parent_id', 'content', 'status',
+      'userId', 'comicId', 'chapterId', 'parentId', 'content', 'status',
     ]);
     const payload: Record<string, any> = {};
     for (const key of Object.keys(data)) {
       if (ALLOWED.has(key)) payload[key] = data[key];
     }
-    const bigIntFields = ['user_id', 'comic_id', 'chapter_id', 'parent_id'];
+    const bigIntFields = ['userId', 'comicId', 'chapterId', 'parentId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

@@ -23,19 +23,19 @@ export class PublicGeneralConfigService extends CachedService {
     if (!config) return config;
     const item = { ...config };
 
-    if (item.contact_channels) {
-      if (typeof item.contact_channels === 'string') {
+    if (item.contactChannels) {
+      if (typeof item.contactChannels === 'string') {
         try {
-          item.contact_channels = JSON.parse(item.contact_channels);
+          item.contactChannels = JSON.parse(item.contactChannels);
         } catch {
-          item.contact_channels = [];
+          item.contactChannels = [];
         }
       }
-      if (!Array.isArray(item.contact_channels)) {
-        item.contact_channels = [];
+      if (!Array.isArray(item.contactChannels)) {
+        item.contactChannels = [];
       }
     } else {
-      item.contact_channels = [];
+      item.contactChannels = [];
     }
 
     return item;

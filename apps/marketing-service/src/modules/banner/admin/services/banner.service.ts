@@ -25,7 +25,7 @@ export class AdminBannerService {
     const filter: BannerFilter = {};
     if (query.search) filter.search = query.search;
     if (query.status) filter.status = query.status;
-    if (query.location_id) filter.location_id = query.location_id;
+    if (query.locationId) filter.locationId = query.locationId;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([
@@ -43,24 +43,24 @@ export class AdminBannerService {
   }
 
   async create(dto: CreateBannerDto) {
-    await this.assertLocationExists(dto.location_id);
+    await this.assertLocationExists(dto.locationId);
 
     const banner = await this.bannerRepo.create({
       title: dto.title,
       subtitle: dto.subtitle,
       image: dto.image,
-      mobile_image: dto.mobile_image,
+      mobileImage: dto.mobileImage,
       link: dto.link,
-      link_target: dto.link_target,
+      linkTarget: dto.linkTarget,
       description: dto.description,
-      button_text: dto.button_text,
-      button_color: dto.button_color,
-      text_color: dto.text_color,
-      location_id: dto.location_id,
-      sort_order: dto.sort_order ?? 0,
+      buttonText: dto.buttonText,
+      buttonColor: dto.buttonColor,
+      textColor: dto.textColor,
+      locationId: dto.locationId,
+      sortOrder: dto.sortOrder ?? 0,
       status: dto.status || 'active',
-      start_date: dto.start_date,
-      end_date: dto.end_date,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
     });
 
     await this.clearCache();
@@ -70,11 +70,27 @@ export class AdminBannerService {
   async update(id: PrimaryKey, dto: UpdateBannerDto) {
     await this.getOne(id);
 
-    if (dto.location_id) {
-      await this.assertLocationExists(dto.location_id);
+    if (dto.locationId) {
+      await this.assertLocationExists(dto.locationId);
     }
 
-    await this.bannerRepo.update(id, dto);
+    await this.bannerRepo.update(id, {
+      title: dto.title,
+      subtitle: dto.subtitle,
+      image: dto.image,
+      mobileImage: dto.mobileImage,
+      link: dto.link,
+      linkTarget: dto.linkTarget,
+      description: dto.description,
+      buttonText: dto.buttonText,
+      buttonColor: dto.buttonColor,
+      textColor: dto.textColor,
+      locationId: dto.locationId,
+      sortOrder: dto.sortOrder,
+      status: dto.status,
+      startDate: dto.startDate,
+      endDate: dto.endDate,
+    });
     await this.clearCache();
     return this.getOne(id);
   }

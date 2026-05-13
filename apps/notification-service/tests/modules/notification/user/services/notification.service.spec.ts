@@ -24,12 +24,12 @@ describe('UserNotificationService', () => {
 
   const mockNotification = {
     id: 1n,
-    user_id: 100n,
+    userId: 100n,
     title: 'Test',
     message: 'Hello',
     type: 'info',
     status: 'active',
-    is_read: false,
+    isRead: false,
   };
 
   beforeEach(() => {
@@ -40,7 +40,7 @@ describe('UserNotificationService', () => {
       findFirst: jest.fn(),
       create: jest.fn(),
       createMany: jest.fn(),
-      update: jest.fn().mockResolvedValue({ ...mockNotification, is_read: true }),
+      update: jest.fn().mockResolvedValue({ ...mockNotification, isRead: true }),
       updateMany: jest.fn().mockResolvedValue({ count: 3 }),
       delete: jest.fn(),
     };
@@ -71,7 +71,7 @@ describe('UserNotificationService', () => {
       const result = await service.getList(userId, query);
 
       expect(notifRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: userId, status: 'active' }),
+        expect.objectContaining({ userId, status: 'active' }),
         expect.any(Object),
       );
       expect(result).toHaveProperty('data');
@@ -88,12 +88,12 @@ describe('UserNotificationService', () => {
       );
     });
 
-    it('should apply is_read filter', async () => {
-      const query = { is_read: 'true' } as any;
+    it('should apply isRead filter', async () => {
+      const query = { isRead: 'true' } as any;
       await service.getList(userId, query);
 
       expect(notifRepo.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({ is_read: true }),
+        expect.objectContaining({ isRead: true }),
         expect.any(Object),
       );
     });
@@ -110,7 +110,7 @@ describe('UserNotificationService', () => {
       await service.getList(userId, query);
 
       expect(notifRepo.count).toHaveBeenCalledWith(
-        expect.objectContaining({ user_id: userId, status: 'active' }),
+        expect.objectContaining({ userId, status: 'active' }),
       );
     });
   });
@@ -133,8 +133,8 @@ describe('UserNotificationService', () => {
 
       expect(result).toEqual({ count: 5 });
       expect(notifRepo.count).toHaveBeenCalledWith({
-        user_id: userId,
-        is_read: false,
+        userId,
+        isRead: false,
         status: 'active',
       });
       expect(redis.set).toHaveBeenCalledWith(`notif:unread:${userId}`, '5', 30);
@@ -175,7 +175,7 @@ describe('UserNotificationService', () => {
 
       const result = await service.getOne(userId, 1n);
 
-      expect(notifRepo.findFirst).toHaveBeenCalledWith({ id: 1n, user_id: userId });
+      expect(notifRepo.findFirst).toHaveBeenCalledWith({ id: 1n, userId });
       expect(result).toEqual(mockNotification);
     });
 
@@ -194,10 +194,10 @@ describe('UserNotificationService', () => {
 
       expect(notifRepo.update).toHaveBeenCalledWith(
         mockNotification.id,
-        expect.objectContaining({ is_read: true, read_at: expect.any(Date) }),
+        expect.objectContaining({ isRead: true, readAt: expect.any(Date) }),
       );
       expect(redis.del).toHaveBeenCalledWith(`notif:unread:${userId}`);
-      expect(result).toEqual(expect.objectContaining({ is_read: true }));
+      expect(result).toEqual(expect.objectContaining({ isRead: true }));
     });
 
     it('should throw NotFoundException when notification does not belong to user', async () => {
@@ -214,8 +214,8 @@ describe('UserNotificationService', () => {
       const result = await service.markAllAsRead(userId);
 
       expect(notifRepo.updateMany).toHaveBeenCalledWith(
-        { user_id: userId, is_read: false },
-        expect.objectContaining({ is_read: true, read_at: expect.any(Date) }),
+        { userId, isRead: false },
+        expect.objectContaining({ isRead: true, readAt: expect.any(Date) }),
       );
       expect(result).toEqual({ updated: 3 });
     });

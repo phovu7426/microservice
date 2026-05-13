@@ -109,9 +109,9 @@ describe('AdminTagService', () => {
       expect(tagRepo.findMany).toHaveBeenCalled();
     });
 
-    it('should apply is_active filter', async () => {
+    it('should apply isActive filter', async () => {
       tagRepo.findMany.mockResolvedValue([]);
-      await service.getList({ is_active: 'true' });
+      await service.getList({ isActive: 'true' });
       expect(tagRepo.findMany).toHaveBeenCalled();
     });
   });
@@ -136,7 +136,7 @@ describe('AdminTagService', () => {
       const result = await service.create({ name: 'JavaScript' } as any, 1n);
 
       expect(tagRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'JavaScript', slug: 'generated-slug', created_user_id: 1n }),
+        expect.objectContaining({ name: 'JavaScript', slug: 'generated-slug', createdUserId: 1n }),
       );
       expect(redis.del).toHaveBeenCalledWith('post:public:tags:list');
       expect(result).toHaveProperty('id');
@@ -145,7 +145,7 @@ describe('AdminTagService', () => {
     it('should create without actorId', async () => {
       const result = await service.create({ name: 'Go' } as any);
       expect(tagRepo.create).toHaveBeenCalledWith(
-        expect.not.objectContaining({ created_user_id: expect.anything() }),
+        expect.not.objectContaining({ createdUserId: expect.anything() }),
       );
       expect(result).toHaveProperty('id');
     });
@@ -159,7 +159,7 @@ describe('AdminTagService', () => {
 
       expect(tagRepo.update).toHaveBeenCalledWith(
         1n,
-        expect.objectContaining({ name: 'New', slug: 'generated-slug', updated_user_id: 2n }),
+        expect.objectContaining({ name: 'New', slug: 'generated-slug', updatedUserId: 2n }),
       );
       expect(redis.del).toHaveBeenCalledWith('post:public:tags:list');
       expect(result).toBeDefined();

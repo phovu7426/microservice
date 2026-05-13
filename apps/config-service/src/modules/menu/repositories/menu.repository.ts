@@ -17,17 +17,17 @@ const DEFAULT_SELECT = {
   name: true,
   icon: true,
   path: true,
-  api_path: true,
+  apiPath: true,
   type: true,
   status: true,
-  sort_order: true,
-  parent_id: true,
-  required_permission_code: true,
-  is_public: true,
-  show_in_menu: true,
+  sortOrder: true,
+  parentId: true,
+  requiredPermissionCode: true,
+  isPublic: true,
+  showInMenu: true,
   group: true,
-  created_at: true,
-  updated_at: true,
+  createdAt: true,
+  updatedAt: true,
   parent: { select: { id: true, name: true, code: true } },
 } as const;
 
@@ -47,7 +47,7 @@ export class MenuRepository {
     if (filter.status) where.status = filter.status as any;
     if (filter.type) where.type = filter.type as any;
     if (filter.parentId !== undefined) {
-      where.parent_id = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
+      where.parentId = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
     }
     if (filter.group) where.group = filter.group;
     return where;
@@ -57,9 +57,9 @@ export class MenuRepository {
     return this.prisma.menu.findMany({
       where: this.buildWhere(filter),
       select: DEFAULT_SELECT,
-      // Tie-break by id so duplicate sort_order doesn't make pagination
+      // Tie-break by id so duplicate sortOrder doesn't make pagination
       // non-deterministic (skipping/duplicating rows across pages).
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });
@@ -87,7 +87,7 @@ export class MenuRepository {
     return this.prisma.menu.findMany({
       where: this.buildWhere(filter),
       select: DEFAULT_SELECT,
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
     }) as any;
   }
 
@@ -113,19 +113,8 @@ export class MenuRepository {
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload = { ...data };
 
-    // Map camelCase DTO fields → snake_case Prisma fields
-    if (payload.apiPath !== undefined) { payload.api_path = payload.apiPath; delete payload.apiPath; }
-    if (payload.parentId !== undefined) { payload.parent_id = payload.parentId; delete payload.parentId; }
-    if (payload.sortOrder !== undefined) { payload.sort_order = payload.sortOrder; delete payload.sortOrder; }
-    if (payload.isPublic !== undefined) { payload.is_public = payload.isPublic; delete payload.isPublic; }
-    if (payload.showInMenu !== undefined) { payload.show_in_menu = payload.showInMenu; delete payload.showInMenu; }
-    if (payload.requiredPermissionCode !== undefined) {
-      payload.required_permission_code = payload.requiredPermissionCode;
-      delete payload.requiredPermissionCode;
-    }
-
     // Convert BigInt fields
-    const bigIntFields = ['parent_id', 'created_user_id', 'updated_user_id'];
+    const bigIntFields = ['parentId', 'createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

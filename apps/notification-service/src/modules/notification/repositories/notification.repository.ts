@@ -5,14 +5,14 @@ import { PrimaryKey } from 'src/types';
 
 export interface NotificationFilter {
   id?: PrimaryKey;
-  user_id?: string;
+  userId?: string;
   type?: string;
   status?: string;
-  is_read?: boolean;
+  isRead?: boolean;
 }
 
 export interface CreateNotificationData {
-  user_id: string | PrimaryKey;
+  userId: string | PrimaryKey;
   title: string;
   message: string;
   type?: string;
@@ -34,23 +34,23 @@ export class NotificationRepository {
   private buildWhere(filter: NotificationFilter): Prisma.NotificationWhereInput {
     const where: Prisma.NotificationWhereInput = {};
     if (filter.id !== undefined) where.id = filter.id;
-    if (filter.user_id !== undefined) {
+    if (filter.userId !== undefined) {
       // BigInt(non-numeric) throws SyntaxError → 500. Validate the input
       // before conversion and surface bad values as a 400 at the service layer.
-      if (!/^\d{1,20}$/.test(String(filter.user_id))) {
+      if (!/^\d{1,20}$/.test(String(filter.userId))) {
         throw new Error('user_id must be a positive integer');
       }
-      where.user_id = BigInt(filter.user_id);
+      where.userId = BigInt(filter.userId);
     }
     if (filter.type !== undefined) where.type = filter.type;
     if (filter.status !== undefined) where.status = filter.status;
-    if (filter.is_read !== undefined) where.is_read = filter.is_read;
+    if (filter.isRead !== undefined) where.isRead = filter.isRead;
     return where;
   }
 
   private buildOrderBy(sortBy?: string, order?: 'asc' | 'desc'): Prisma.NotificationOrderByWithRelationInput {
     if (sortBy) return { [sortBy]: order ?? 'desc' };
-    return { created_at: 'desc' };
+    return { createdAt: 'desc' };
   }
 
   findMany(filter: NotificationFilter, options: FindManyOptions) {
@@ -76,7 +76,7 @@ export class NotificationRepository {
 
   create(data: CreateNotificationData) {
     return this.prisma.notification.create({
-      data: { ...data, user_id: BigInt(data.user_id) },
+      data: { ...data, userId: BigInt(data.userId) },
     });
   }
 
@@ -84,7 +84,7 @@ export class NotificationRepository {
     const BATCH_SIZE = 500;
     let totalCount = 0;
     for (let i = 0; i < data.length; i += BATCH_SIZE) {
-      const batch = data.slice(i, i + BATCH_SIZE).map((d) => ({ ...d, user_id: BigInt(d.user_id) }));
+      const batch = data.slice(i, i + BATCH_SIZE).map((d) => ({ ...d, userId: BigInt(d.userId) }));
       const result = await this.prisma.notification.createMany({
         data: batch,
         skipDuplicates: true,

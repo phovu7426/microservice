@@ -6,9 +6,9 @@ import { PrismaService } from '../../../core/database/prisma.service';
 export interface BannerFilter {
   search?: string;
   status?: string;
-  location_id?: any;
-  location_code?: string;
-  active_at?: Date;
+  locationId?: any;
+  locationCode?: string;
+  activeAt?: Date;
 }
 
 // Allowlist: defeat mass-assignment via spread on update path. The
@@ -19,24 +19,24 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'title',
   'subtitle',
   'image',
-  'mobile_image',
+  'mobileImage',
   'link',
-  'link_target',
+  'linkTarget',
   'description',
-  'button_text',
-  'button_color',
-  'text_color',
-  'location_id',
-  'sort_order',
+  'buttonText',
+  'buttonColor',
+  'textColor',
+  'locationId',
+  'sortOrder',
   'status',
-  'start_date',
-  'end_date',
+  'startDate',
+  'endDate',
 ]);
 
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
-  'sort_order',
-  'created_at',
-  'updated_at',
+  'sortOrder',
+  'createdAt',
+  'updatedAt',
   'title',
   'status',
 ]);
@@ -59,21 +59,21 @@ export class BannerRepository {
       ];
     }
     if (filter.status) where.status = filter.status;
-    if (filter.location_id !== undefined) where.location_id = toPrimaryKey(filter.location_id);
-    if (filter.location_code) where.location = { code: filter.location_code };
-    if (filter.active_at) {
+    if (filter.locationId !== undefined) where.locationId = toPrimaryKey(filter.locationId);
+    if (filter.locationCode) where.location = { code: filter.locationCode };
+    if (filter.activeAt) {
       where.AND = [
-        { OR: [{ start_date: null }, { start_date: { lte: filter.active_at } }] },
-        { OR: [{ end_date: null }, { end_date: { gte: filter.active_at } }] },
+        { OR: [{ startDate: null }, { startDate: { lte: filter.activeAt } }] },
+        { OR: [{ endDate: null }, { endDate: { gte: filter.activeAt } }] },
       ];
     }
     return where;
   }
 
   private buildOrderBy(sort?: string): Prisma.BannerOrderByWithRelationInput[] {
-    if (!sort) return [{ sort_order: 'asc' }, { id: 'asc' }];
+    if (!sort) return [{ sortOrder: 'asc' }, { id: 'asc' }];
     const [field, dirRaw] = sort.split(':');
-    if (!field || !SORTABLE_FIELDS.has(field)) return [{ sort_order: 'asc' }, { id: 'asc' }];
+    if (!field || !SORTABLE_FIELDS.has(field)) return [{ sortOrder: 'asc' }, { id: 'asc' }];
     const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
     return [{ [field]: dir } as Prisma.BannerOrderByWithRelationInput, { id: 'asc' }];
   }
@@ -131,14 +131,14 @@ export class BannerRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    if (payload.location_id !== undefined && payload.location_id !== null) {
-      payload.location_id = toPrimaryKey(payload.location_id);
+    if (payload.locationId !== undefined && payload.locationId !== null) {
+      payload.locationId = toPrimaryKey(payload.locationId);
     }
-    if (payload.start_date !== undefined && payload.start_date !== null) {
-      payload.start_date = new Date(payload.start_date);
+    if (payload.startDate !== undefined && payload.startDate !== null) {
+      payload.startDate = new Date(payload.startDate);
     }
-    if (payload.end_date !== undefined && payload.end_date !== null) {
-      payload.end_date = new Date(payload.end_date);
+    if (payload.endDate !== undefined && payload.endDate !== null) {
+      payload.endDate = new Date(payload.endDate);
     }
     return payload;
   }

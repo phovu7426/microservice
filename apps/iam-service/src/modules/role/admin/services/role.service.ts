@@ -49,30 +49,30 @@ export class RoleService {
     if (existing) {
       throw new ConflictException(t(this.i18n, 'role.CODE_EXISTS'));
     }
-    const data: any = { code: dto.code, name: dto.name, created_user_id: actorId };
-    if (dto.parent_id) {
+    const data: any = { code: dto.code, name: dto.name, createdUserId: actorId };
+    if (dto.parentId) {
       // Check the parent exists; cycle check is N/A on create (no children yet).
-      data.parent = { connect: { id: dto.parent_id } };
+      data.parent = { connect: { id: dto.parentId } };
     }
     return this.repo.create(data);
   }
 
   async update(id: PrimaryKey, dto: UpdateRoleDto, actorId: PrimaryKey) {
     await this.getOne(id);
-    if (dto.parent_id) {
+    if (dto.parentId) {
       await assertNoCycle(
         id,
-        dto.parent_id,
+        dto.parentId,
         (cur) => this.repo.getParentId(cur),
         t(this.i18n, 'role.CYCLE_DETECTED'),
       );
     }
-    const data: any = { updated_user_id: actorId };
+    const data: any = { updatedUserId: actorId };
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.status !== undefined) data.status = dto.status;
-    if ('parent_id' in dto) {
-      data.parent = dto.parent_id
-        ? { connect: { id: dto.parent_id } }
+    if ('parentId' in dto) {
+      data.parent = dto.parentId
+        ? { connect: { id: dto.parentId } }
         : { disconnect: true };
     }
     const result = await this.repo.update(id, data);

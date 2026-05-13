@@ -21,7 +21,7 @@ describe('PublicContactService', () => {
     phone: '0987654321',
     message: 'I need help',
     status: 'New',
-    created_at: new Date('2025-01-01T00:00:00.000Z'),
+    createdAt: new Date('2025-01-01T00:00:00.000Z'),
   };
 
   const createDto = {
@@ -78,7 +78,7 @@ describe('PublicContactService', () => {
           email: 'jane@example.com',
           phone: '0987654321',
           message: 'I need help',
-          created_at: mockCreatedContact.created_at.toISOString(),
+          created_at: mockCreatedContact.createdAt.toISOString(),
         }),
         mockTx,
       );
@@ -89,7 +89,7 @@ describe('PublicContactService', () => {
           id: 1n,
           name: 'Jane Doe',
           email: 'jane@example.com',
-          created_at: mockCreatedContact.created_at,
+          created_at: mockCreatedContact.createdAt,
         },
       });
     });

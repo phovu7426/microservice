@@ -48,7 +48,7 @@ export class UserRepository {
 
   updateLastLogin(id: PrimaryKey) {
     return this.prisma.user
-      .update({ where: { id }, data: { last_login_at: new Date() } })
+      .update({ where: { id }, data: { lastLoginAt: new Date() } })
       .catch((err) => {
         this.logger.warn(`updateLastLogin failed for user ${id}: ${(err as Error).message}`);
         return undefined;
@@ -63,7 +63,7 @@ export class UserRepository {
   ) {
     return tx.outbox.create({
       data: {
-        event_type: eventType,
+        eventType: eventType,
         payload: payload as any,
       },
     });

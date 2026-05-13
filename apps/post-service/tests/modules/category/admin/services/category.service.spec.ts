@@ -104,15 +104,15 @@ describe('AdminCategoryService', () => {
       expect(result.meta).toEqual({ total: 0 });
     });
 
-    it('should apply search and is_active filters', async () => {
+    it('should apply search and isActive filters', async () => {
       categoryRepo.findMany.mockResolvedValue([]);
-      await service.getList({ search: 'tech', is_active: 'true' });
+      await service.getList({ search: 'tech', isActive: 'true' });
       expect(categoryRepo.findMany).toHaveBeenCalled();
     });
 
-    it('should handle parent_id=null filter', async () => {
+    it('should handle parentId=null filter', async () => {
       categoryRepo.findMany.mockResolvedValue([]);
-      await service.getList({ parent_id: 'null' });
+      await service.getList({ parentId: 'null' });
       expect(categoryRepo.findMany).toHaveBeenCalled();
     });
   });
@@ -137,22 +137,22 @@ describe('AdminCategoryService', () => {
       const result = await service.create({ name: 'Tech' } as any, 1n);
 
       expect(categoryRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'Tech', slug: 'generated-slug', created_user_id: 1n }),
+        expect.objectContaining({ name: 'Tech', slug: 'generated-slug', createdUserId: 1n }),
       );
       expect(redis.del).toHaveBeenCalledWith('post:public:categories:list');
       expect(result).toHaveProperty('id');
     });
 
-    it('should validate parent exists when parent_id is set', async () => {
+    it('should validate parent exists when parentId is set', async () => {
       categoryRepo.findById.mockResolvedValue(null);
       await expect(
-        service.create({ name: 'Sub', parent_id: '999' } as any),
+        service.create({ name: 'Sub', parentId: '999' } as any),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should allow create with valid parent', async () => {
       categoryRepo.findById.mockResolvedValue({ id: 1n, name: 'Parent' });
-      const result = await service.create({ name: 'Sub', parent_id: '1' } as any);
+      const result = await service.create({ name: 'Sub', parentId: '1' } as any);
       expect(result).toHaveProperty('id');
     });
   });
@@ -165,7 +165,7 @@ describe('AdminCategoryService', () => {
 
       expect(categoryRepo.update).toHaveBeenCalledWith(
         1n,
-        expect.objectContaining({ name: 'New', slug: 'generated-slug', updated_user_id: 2n }),
+        expect.objectContaining({ name: 'New', slug: 'generated-slug', updatedUserId: 2n }),
       );
       expect(redis.del).toHaveBeenCalledWith('post:public:categories:list');
       expect(result).toBeDefined();
@@ -176,10 +176,10 @@ describe('AdminCategoryService', () => {
       await expect(service.update(999n, { name: 'x' } as any)).rejects.toThrow(NotFoundException);
     });
 
-    it('should detect cycle when setting parent_id to self', async () => {
+    it('should detect cycle when setting parentId to self', async () => {
       categoryRepo.findById.mockResolvedValue({ id: 1n, name: 'Cat' });
       await expect(
-        service.update(1n, { parent_id: '1' } as any),
+        service.update(1n, { parentId: '1' } as any),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -188,7 +188,7 @@ describe('AdminCategoryService', () => {
       categoryRepo.getParentId.mockResolvedValueOnce(1n);
 
       await expect(
-        service.update(1n, { parent_id: '2' } as any),
+        service.update(1n, { parentId: '2' } as any),
       ).rejects.toThrow(BadRequestException);
     });
   });

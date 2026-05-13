@@ -137,7 +137,7 @@ describe('PublicPostService', () => {
       postRepo.findManyPublic.mockResolvedValue([]);
       postRepo.count.mockResolvedValue(0);
 
-      await service.getList({ search: 'hello', is_featured: 'true', category_id: '1' });
+      await service.getList({ search: 'hello', isFeatured: 'true', categoryId: '1' });
 
       expect(postRepo.findManyPublic).toHaveBeenCalled();
     });

@@ -13,13 +13,13 @@ export class QueryMenuDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'parent_id must be numeric.' })
-  parent_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'parentId must be numeric.' })
+  parentId?: string;
 
   @IsOptional()
   @IsBoolean()
   @Transform(toBool)
-  show_in_menu?: boolean;
+  showInMenu?: boolean;
 
   @IsOptional()
   @IsString()

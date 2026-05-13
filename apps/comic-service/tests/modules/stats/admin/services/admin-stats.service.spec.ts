@@ -106,7 +106,7 @@ describe('AdminStatsService', () => {
       const { service, statsRepo } = buildService();
       statsRepo.findTopComics.mockResolvedValue([]);
 
-      await service.getTopComics({ sort_by: 'follows', limit: 5 });
+      await service.getTopComics({ sortBy: 'follows', limit: 5 });
 
       expect(statsRepo.findTopComics).toHaveBeenCalledWith(
         { stats: { follow_count: 'desc' } },
@@ -118,7 +118,7 @@ describe('AdminStatsService', () => {
       const { service, statsRepo } = buildService();
       statsRepo.findTopComics.mockResolvedValue([]);
 
-      await service.getTopComics({ sort_by: 'rating' });
+      await service.getTopComics({ sortBy: 'rating' });
 
       expect(statsRepo.findTopComics).toHaveBeenCalledWith(
         { stats: { rating_sum: 'desc' } },

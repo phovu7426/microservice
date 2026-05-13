@@ -7,21 +7,21 @@ import { CommentStatus } from '../enums/comment-status.enum';
 type Tx = Prisma.TransactionClient | PrismaService;
 
 export interface CommentFilter {
-  post_id?: any;
-  parent_id?: any;
+  postId?: any;
+  parentId?: any;
   status?: string;
-  user_id?: any;
+  userId?: any;
 }
 
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
-  'post_id', 'parent_id', 'user_id', 'content', 'status',
-  'guest_name', 'guest_email',
-  'created_user_id', 'updated_user_id',
+  'postId', 'parentId', 'userId', 'content', 'status',
+  'guestName', 'guestEmail',
+  'createdUserId', 'updatedUserId',
 ]);
 
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
-  'created_at',
-  'updated_at',
+  'createdAt',
+  'updatedAt',
 ]);
 
 @Injectable()
@@ -30,11 +30,11 @@ export class CommentRepository {
 
   private buildWhere(filter: CommentFilter): Prisma.CommentWhereInput {
     const where: Prisma.CommentWhereInput = {};
-    if (filter.post_id !== undefined) where.post_id = toPrimaryKey(filter.post_id);
-    if (filter.user_id !== undefined) where.user_id = toPrimaryKey(filter.user_id);
+    if (filter.postId !== undefined) where.postId = toPrimaryKey(filter.postId);
+    if (filter.userId !== undefined) where.userId = toPrimaryKey(filter.userId);
     if (filter.status) where.status = filter.status;
-    if (filter.parent_id !== undefined) {
-      where.parent_id = filter.parent_id === null ? null : toPrimaryKey(filter.parent_id);
+    if (filter.parentId !== undefined) {
+      where.parentId = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
     }
     return where;
   }
@@ -42,7 +42,7 @@ export class CommentRepository {
   findMany(filter: CommentFilter, options: { skip: number; take: number }) {
     return this.prisma.comment.findMany({
       where: this.buildWhere(filter),
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -54,13 +54,13 @@ export class CommentRepository {
       include: {
         replies: {
           where: { status: CommentStatus.visible },
-          orderBy: { created_at: 'asc' },
+          orderBy: { createdAt: 'asc' },
           // Cap replies per parent so a hot thread can't return megabytes
           // per request (the include used to be unbounded).
           take: 50,
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -92,9 +92,9 @@ export class CommentRepository {
     });
   }
 
-  createOutbox(event_type: string, payload: Record<string, any>, tx?: Tx) {
+  createOutbox(eventType: string, payload: Record<string, any>, tx?: Tx) {
     const client = tx ?? this.prisma;
-    return client.outbox.create({ data: { event_type, payload } });
+    return client.outbox.create({ data: { eventType, payload } });
   }
 
   async withTransaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
@@ -117,7 +117,7 @@ export class CommentRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    const bigIntFields = ['post_id', 'parent_id', 'user_id', 'created_user_id', 'updated_user_id'];
+    const bigIntFields = ['postId', 'parentId', 'userId', 'createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

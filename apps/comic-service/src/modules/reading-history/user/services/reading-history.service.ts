@@ -10,7 +10,7 @@ export class UserReadingHistoryService {
   async getList(userId: PrimaryKey, query: any = {}) {
     const options = parseQueryOptions(query);
 
-    const filter: ReadingHistoryFilter = { user_id: userId };
+    const filter: ReadingHistoryFilter = { userId: userId };
 
     const [data, total] = await Promise.all([
       this.historyRepo.findMany(filter, options),
@@ -25,7 +25,7 @@ export class UserReadingHistoryService {
   }
 
   async clear(userId: PrimaryKey, comicId: PrimaryKey) {
-    await this.historyRepo.deleteByUserComic({ user_id: userId, comic_id: comicId });
+    await this.historyRepo.deleteByUserComic({ userId: userId, comicId: comicId });
     return { success: true };
   }
 }

@@ -20,13 +20,13 @@ export class ProvinceRepository {
     if (filter.code) where.code = filter.code;
     if (filter.status) where.status = filter.status;
     if (filter.countryId !== undefined && filter.countryId !== null) {
-      where.country_id = toPrimaryKey(filter.countryId);
+      where.countryId = toPrimaryKey(filter.countryId);
     }
     return where;
   }
 
   countWards(provinceId: any) {
-    return this.prisma.ward.count({ where: { province_id: toPrimaryKey(provinceId) } });
+    return this.prisma.ward.count({ where: { provinceId: toPrimaryKey(provinceId) } });
   }
 
   findMany(filter: ProvinceFilter, options: { skip: number; take: number }) {
@@ -65,27 +65,9 @@ export class ProvinceRepository {
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload: any = { ...data };
 
-    // Map camelCase DTO fields → snake_case Prisma fields
-    if (payload.countryId !== undefined) {
-      payload.country_id = payload.countryId;
-      delete payload.countryId;
-    }
-    if (payload.phoneCode !== undefined) {
-      payload.phone_code = payload.phoneCode;
-      delete payload.phoneCode;
-    }
-    if (payload.codeBnv !== undefined) {
-      payload.code_bnv = payload.codeBnv;
-      delete payload.codeBnv;
-    }
-    if (payload.codeTms !== undefined) {
-      payload.code_tms = payload.codeTms;
-      delete payload.codeTms;
-    }
-
     // Convert BigInt fields
-    if (payload.country_id !== undefined && payload.country_id !== null) {
-      payload.country_id = toPrimaryKey(payload.country_id);
+    if (payload.countryId !== undefined && payload.countryId !== null) {
+      payload.countryId = toPrimaryKey(payload.countryId);
     }
 
     return payload;

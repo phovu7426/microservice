@@ -15,8 +15,8 @@ export class UserBookmarkService {
   async getList(userId: PrimaryKey, query: any = {}) {
     const options = parseQueryOptions(query);
 
-    const filter: BookmarkFilter = { user_id: userId };
-    if (query.chapter_id) filter.chapter_id = query.chapter_id;
+    const filter: BookmarkFilter = { userId: userId };
+    if (query.chapterId) filter.chapterId = query.chapterId;
 
     const [data, total] = await Promise.all([
       this.bookmarkRepo.findMany(filter, options),
@@ -30,16 +30,16 @@ export class UserBookmarkService {
     // Upsert — double-tap is idempotent now that Bookmark has a unique
     // constraint on (user_id, chapter_id, page_number).
     return this.bookmarkRepo.upsert({
-      user_id: userId,
-      chapter_id: dto.chapter_id,
-      page_number: dto.page_number,
+      userId: userId,
+      chapterId: dto.chapterId,
+      pageNumber: dto.pageNumber,
     });
   }
 
   async delete(userId: PrimaryKey, id: PrimaryKey) {
     const bookmark = await this.bookmarkRepo.findById(id);
     if (!bookmark) throw new NotFoundException(t(this.i18n, 'comic.BOOKMARK_NOT_FOUND'));
-    if (String(bookmark.user_id) !== String(userId)) throw new ForbiddenException(t(this.i18n, 'comic.FORBIDDEN'));
+    if (String(bookmark.userId) !== String(userId)) throw new ForbiddenException(t(this.i18n, 'comic.FORBIDDEN'));
     await this.bookmarkRepo.delete(id);
     return { success: true };
   }

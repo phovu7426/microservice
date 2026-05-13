@@ -5,33 +5,33 @@ import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface CategoryFilter {
   search?: string;
-  parent_id?: any;
-  is_active?: boolean;
+  parentId?: any;
+  isActive?: boolean;
 }
 
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'slug',
   'description',
-  'parent_id',
-  'sort_order',
-  'is_active',
-  'seo_title',
-  'seo_description',
-  'seo_keywords',
-  'created_user_id',
-  'updated_user_id',
+  'parentId',
+  'sortOrder',
+  'isActive',
+  'seoTitle',
+  'seoDescription',
+  'seoKeywords',
+  'createdUserId',
+  'updatedUserId',
 ]);
 
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
   'name',
-  'sort_order',
-  'created_at',
-  'updated_at',
+  'sortOrder',
+  'createdAt',
+  'updatedAt',
 ]);
 
 const WITH_CHILDREN = {
-  children: { orderBy: { sort_order: 'asc' as const } },
+  children: { orderBy: { sortOrder: 'asc' as const } },
 } as const;
 
 const PUBLIC_TREE_SELECT = {
@@ -39,24 +39,24 @@ const PUBLIC_TREE_SELECT = {
   name: true,
   slug: true,
   description: true,
-  parent_id: true,
-  sort_order: true,
-  seo_title: true,
-  seo_description: true,
-  seo_keywords: true,
+  parentId: true,
+  sortOrder: true,
+  seoTitle: true,
+  seoDescription: true,
+  seoKeywords: true,
   children: {
-    where: { is_active: true },
+    where: { isActive: true },
     select: {
       id: true,
       name: true,
       slug: true,
       description: true,
-      sort_order: true,
-      seo_title: true,
-      seo_description: true,
-      seo_keywords: true,
+      sortOrder: true,
+      seoTitle: true,
+      seoDescription: true,
+      seoKeywords: true,
     },
-    orderBy: { sort_order: 'asc' as const },
+    orderBy: { sortOrder: 'asc' as const },
   },
 } as const;
 
@@ -73,10 +73,10 @@ export class CategoryRepository {
         { slug: { contains: search, mode: 'insensitive' } },
       ];
     }
-    if (filter.parent_id !== undefined) {
-      where.parent_id = filter.parent_id === null ? null : toPrimaryKey(filter.parent_id);
+    if (filter.parentId !== undefined) {
+      where.parentId = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
     }
-    if (filter.is_active !== undefined) where.is_active = filter.is_active;
+    if (filter.isActive !== undefined) where.isActive = filter.isActive;
     return where;
   }
 
@@ -84,16 +84,16 @@ export class CategoryRepository {
   async getParentId(id: bigint): Promise<bigint | null> {
     const row = await this.prisma.category.findUnique({
       where: { id },
-      select: { parent_id: true },
+      select: { parentId: true },
     });
-    return row?.parent_id ?? null;
+    return row?.parentId ?? null;
   }
 
   findMany(filter: CategoryFilter, options: { skip: number; take: number }) {
     return this.prisma.category.findMany({
       where: this.buildWhere(filter),
       include: WITH_CHILDREN,
-      orderBy: { sort_order: 'asc' },
+      orderBy: { sortOrder: 'asc' },
       skip: options.skip,
       take: options.take,
     });
@@ -116,9 +116,9 @@ export class CategoryRepository {
 
   findRootActiveTree() {
     return this.prisma.category.findMany({
-      where: { is_active: true, parent_id: null },
+      where: { isActive: true, parentId: null },
       select: PUBLIC_TREE_SELECT,
-      orderBy: { sort_order: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
   }
 
@@ -140,9 +140,9 @@ export class CategoryRepository {
   }
 
   private buildOrderBy(sort?: string): Prisma.CategoryOrderByWithRelationInput {
-    if (!sort) return { sort_order: 'asc' };
+    if (!sort) return { sortOrder: 'asc' };
     const [field, dirRaw] = sort.split(':');
-    if (!field || !SORTABLE_FIELDS.has(field)) return { sort_order: 'asc' };
+    if (!field || !SORTABLE_FIELDS.has(field)) return { sortOrder: 'asc' };
     const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
     return { [field]: dir } as Prisma.CategoryOrderByWithRelationInput;
   }
@@ -152,13 +152,13 @@ export class CategoryRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    if (payload.parent_id !== undefined) {
-      payload.parent_id =
-        payload.parent_id === null || payload.parent_id === ''
+    if (payload.parentId !== undefined) {
+      payload.parentId =
+        payload.parentId === null || payload.parentId === ''
           ? null
-          : toPrimaryKey(payload.parent_id);
+          : toPrimaryKey(payload.parentId);
     }
-    const bigIntFields = ['created_user_id', 'updated_user_id'];
+    const bigIntFields = ['createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

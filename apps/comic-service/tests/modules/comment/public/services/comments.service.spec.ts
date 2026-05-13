@@ -72,7 +72,7 @@ describe('PublicCommentService', () => {
       commentRepo.findManyWithReplies.mockResolvedValue(comments);
       commentRepo.count.mockResolvedValue(1);
 
-      const result = await service.getList({ comic_id: 10n });
+      const result = await service.getList({ comicId: 10n });
 
       expect(result.data).toEqual(comments);
       expect(result.meta).toEqual({ total: 1 });
@@ -84,24 +84,24 @@ describe('PublicCommentService', () => {
       const cached = { data: [{ id: 1, content: 'Cached' }], meta: { total: 1 } };
       redis.get.mockResolvedValue(JSON.stringify(cached));
 
-      const result = await service.getList({ comic_id: 10n });
+      const result = await service.getList({ comicId: 10n });
 
       expect(result).toEqual(cached);
       expect(commentRepo.findManyWithReplies).not.toHaveBeenCalled();
     });
 
-    it('applies comic_id and chapter_id filters with status=visible and parent_id=null', async () => {
+    it('applies comicId and chapterId filters with status=visible and parentId=null', async () => {
       const { service, commentRepo } = buildService();
       commentRepo.findManyWithReplies.mockResolvedValue([]);
 
-      await service.getList({ comic_id: 10n, chapter_id: 100n });
+      await service.getList({ comicId: 10n, chapterId: 100n });
 
       expect(commentRepo.findManyWithReplies).toHaveBeenCalledWith(
         expect.objectContaining({
           status: 'visible',
-          parent_id: null,
-          comic_id: 10n,
-          chapter_id: 100n,
+          parentId: null,
+          comicId: 10n,
+          chapterId: 100n,
         }),
         expect.anything(),
       );

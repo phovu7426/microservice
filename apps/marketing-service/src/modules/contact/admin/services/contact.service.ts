@@ -43,8 +43,8 @@ export class AdminContactService {
     const updated = await this.contactRepo.update(id, {
       reply: replyText,
       status: 'Replied',
-      replied_at: new Date(),
-      replied_by: actorId,
+      repliedAt: new Date(),
+      repliedBy: actorId,
     });
     await this.clearCache();
     return updated;

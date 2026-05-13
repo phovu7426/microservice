@@ -104,7 +104,7 @@ describe('UserCommentService', () => {
 
   // ---- create ----
   describe('create', () => {
-    const baseDto = { post_id: '1', content: 'Nice post!' } as any;
+    const baseDto = { postId: '1', content: 'Nice post!' } as any;
 
     it('should create a comment on a public post', async () => {
       const result = await service.create(userId, baseDto);
@@ -113,8 +113,8 @@ describe('UserCommentService', () => {
       expect(commentRepo.withTransaction).toHaveBeenCalled();
       expect(commentRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          user_id: userId,
-          post_id: '1',
+          userId: userId,
+          postId: '1',
           content: 'Nice post!',
         }),
         expect.anything(),
@@ -129,10 +129,10 @@ describe('UserCommentService', () => {
     });
 
     it('should allow reply to existing parent comment', async () => {
-      const parent = { id: 50n, post_id: 1n, user_id: 20n, parent_id: null };
+      const parent = { id: 50n, postId: 1n, userId: 20n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
-      const dto = { ...baseDto, parent_id: '50' };
+      const dto = { ...baseDto, parentId: '50' };
       await service.create(userId, dto);
 
       expect(commentRepo.findById).toHaveBeenCalledWith('50');
@@ -141,32 +141,32 @@ describe('UserCommentService', () => {
 
     it('should throw NotFoundException when parent comment not found', async () => {
       commentRepo.findById.mockResolvedValue(null);
-      const dto = { ...baseDto, parent_id: '999' };
+      const dto = { ...baseDto, parentId: '999' };
       await expect(service.create(userId, dto)).rejects.toThrow(NotFoundException);
     });
 
     it('should throw ForbiddenException when parent belongs to different post', async () => {
-      const parent = { id: 50n, post_id: 999n, user_id: 20n, parent_id: null };
+      const parent = { id: 50n, postId: 999n, userId: 20n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
-      const dto = { ...baseDto, parent_id: '50' };
+      const dto = { ...baseDto, parentId: '50' };
       await expect(service.create(userId, dto)).rejects.toThrow(ForbiddenException);
     });
 
     it('should throw BadRequestException when reply depth exceeds limit', async () => {
-      const parent = { id: 50n, post_id: 1n, user_id: 20n, parent_id: 30n };
+      const parent = { id: 50n, postId: 1n, userId: 20n, parentId: 30n };
       commentRepo.findById.mockResolvedValue(parent);
 
-      const dto = { ...baseDto, parent_id: '50' };
+      const dto = { ...baseDto, parentId: '50' };
       await expect(service.create(userId, dto)).rejects.toThrow(BadRequestException);
     });
 
     it('should create outbox when kafka enabled and replying to another user', async () => {
       config.get.mockReturnValue(true);
-      const parent = { id: 50n, post_id: 1n, user_id: 20n, parent_id: null };
+      const parent = { id: 50n, postId: 1n, userId: 20n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
-      const dto = { ...baseDto, parent_id: '50' };
+      const dto = { ...baseDto, parentId: '50' };
       await service.create(userId, dto);
 
       expect(commentRepo.createOutbox).toHaveBeenCalledWith(
@@ -180,10 +180,10 @@ describe('UserCommentService', () => {
 
     it('should NOT create outbox when replying to own comment', async () => {
       config.get.mockReturnValue(true);
-      const parent = { id: 50n, post_id: 1n, user_id: userId, parent_id: null };
+      const parent = { id: 50n, postId: 1n, userId: userId, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
-      const dto = { ...baseDto, parent_id: '50' };
+      const dto = { ...baseDto, parentId: '50' };
       await service.create(userId, dto);
 
       expect(commentRepo.createOutbox).not.toHaveBeenCalled();
@@ -191,10 +191,10 @@ describe('UserCommentService', () => {
 
     it('should NOT create outbox when kafka is disabled', async () => {
       config.get.mockReturnValue(false);
-      const parent = { id: 50n, post_id: 1n, user_id: 20n, parent_id: null };
+      const parent = { id: 50n, postId: 1n, userId: 20n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
-      const dto = { ...baseDto, parent_id: '50' };
+      const dto = { ...baseDto, parentId: '50' };
       await service.create(userId, dto);
 
       expect(commentRepo.createOutbox).not.toHaveBeenCalled();
@@ -204,12 +204,12 @@ describe('UserCommentService', () => {
   // ---- update ----
   describe('update', () => {
     it('should update own comment', async () => {
-      commentRepo.findById.mockResolvedValue({ id: 100n, user_id: userId });
+      commentRepo.findById.mockResolvedValue({ id: 100n, userId: userId });
       const result = await service.update(userId, 100n, 'Updated text');
 
       expect(commentRepo.update).toHaveBeenCalledWith(100n, {
         content: 'Updated text',
-        updated_user_id: userId,
+        updatedUserId: userId,
       });
       expect(redis.incr).toHaveBeenCalledWith('post:public:comments:v');
       expect(result).toBeDefined();
@@ -221,7 +221,7 @@ describe('UserCommentService', () => {
     });
 
     it('should throw ForbiddenException when updating other user comment', async () => {
-      commentRepo.findById.mockResolvedValue({ id: 100n, user_id: 999n });
+      commentRepo.findById.mockResolvedValue({ id: 100n, userId: 999n });
       await expect(service.update(userId, 100n, 'text')).rejects.toThrow(ForbiddenException);
     });
   });
@@ -229,7 +229,7 @@ describe('UserCommentService', () => {
   // ---- delete ----
   describe('delete', () => {
     it('should delete own comment', async () => {
-      commentRepo.findById.mockResolvedValue({ id: 100n, user_id: userId });
+      commentRepo.findById.mockResolvedValue({ id: 100n, userId: userId });
       const result = await service.delete(userId, 100n);
 
       expect(commentRepo.delete).toHaveBeenCalledWith(100n);
@@ -243,7 +243,7 @@ describe('UserCommentService', () => {
     });
 
     it('should throw ForbiddenException when deleting other user comment', async () => {
-      commentRepo.findById.mockResolvedValue({ id: 100n, user_id: 999n });
+      commentRepo.findById.mockResolvedValue({ id: 100n, userId: 999n });
       await expect(service.delete(userId, 100n)).rejects.toThrow(ForbiddenException);
     });
   });

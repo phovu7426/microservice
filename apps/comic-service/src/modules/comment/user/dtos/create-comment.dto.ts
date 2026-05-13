@@ -2,15 +2,15 @@ import { IsString, IsNumber, IsOptional, MaxLength } from 'class-validator';
 
 export class CreateCommentDto {
   @IsNumber()
-  comic_id: number;
+  comicId: number;
 
   @IsOptional()
   @IsNumber()
-  chapter_id?: number;
+  chapterId?: number;
 
   @IsOptional()
   @IsNumber()
-  parent_id?: number;
+  parentId?: number;
 
   @IsString()
   @MaxLength(5000)

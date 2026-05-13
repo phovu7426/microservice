@@ -104,13 +104,13 @@ describe('AdminCommentService', () => {
       const { service, commentRepo } = buildService();
       commentRepo.findMany.mockResolvedValue([]);
 
-      await service.getList({ comic_id: 10n, chapter_id: 100n, user_id: 1n, status: 'visible' });
+      await service.getList({ comicId: 10n, chapterId: 100n, userId: 1n, status: 'visible' });
 
       expect(commentRepo.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          comic_id: 10n,
-          chapter_id: 100n,
-          user_id: 1n,
+          comicId: 10n,
+          chapterId: 100n,
+          userId: 1n,
           status: 'visible',
         }),
         expect.anything(),

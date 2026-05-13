@@ -17,7 +17,7 @@ describe('AdminCertificateService', () => {
   let certificateRepo: Record<string, jest.Mock>;
   let redis: Record<string, jest.Mock>;
 
-  const mockItem = { id: 1n, name: 'ISO 9001', status: 'active', sort_order: 0 };
+  const mockItem = { id: 1n, name: 'ISO 9001', status: 'active', sortOrder: 0 };
 
   beforeEach(() => {
     certificateRepo = {
@@ -82,7 +82,7 @@ describe('AdminCertificateService', () => {
       const result = await service.create(dto as any);
       expect(result).toEqual(mockItem);
       expect(certificateRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'ISO 9001', status: 'active', sort_order: 0 }),
+        expect.objectContaining({ name: 'ISO 9001', status: 'active', sortOrder: 0 }),
       );
       expect(redis.del).toHaveBeenCalled();
     });
@@ -92,7 +92,7 @@ describe('AdminCertificateService', () => {
     it('should update and clear cache', async () => {
       const result = await service.update(1n, { name: 'Updated' } as any);
       expect(result).toEqual(mockItem);
-      expect(certificateRepo.update).toHaveBeenCalledWith(1n, { name: 'Updated' });
+      expect(certificateRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ name: 'Updated' }));
       expect(redis.del).toHaveBeenCalled();
     });
 

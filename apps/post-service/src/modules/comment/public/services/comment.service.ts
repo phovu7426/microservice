@@ -13,11 +13,11 @@ export class PublicCommentService {
   ) {}
 
   async getList(query: any = {}) {
-    // Require `post_id` on the public list. Without this the endpoint dumps
+    // Require `postId` on the public list. Without this the endpoint dumps
     // every visible comment site-wide, which is both a privacy issue (any
     // user's comment text is browsable) and a perf foot-gun.
-    if (!query.post_id) {
-      throw new BadRequestException('post_id query parameter is required');
+    if (!query.postId) {
+      throw new BadRequestException('postId query parameter is required');
     }
 
     const version = await this.getVersion('post:public:comments:v');
@@ -29,8 +29,8 @@ export class PublicCommentService {
 
       const filter: CommentFilter = {
         status: 'visible',
-        parent_id: null,
-        post_id: query.post_id,
+        parentId: null,
+        postId: query.postId,
       };
 
       const [data, total] = await Promise.all([

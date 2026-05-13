@@ -10,23 +10,23 @@ export class ListPostsAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsEnum(PostType)
-  post_type?: PostType;
+  postType?: PostType;
 
   @IsOptional()
   @IsBooleanString()
-  is_featured?: string;
+  isFeatured?: string;
 
   @IsOptional()
   @IsBooleanString()
-  is_pinned?: string;
+  isPinned?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'category_id must be numeric.' })
-  category_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'categoryId must be numeric.' })
+  categoryId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'tag_id must be numeric.' })
-  tag_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'tagId must be numeric.' })
+  tagId?: string;
 }

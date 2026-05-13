@@ -22,15 +22,15 @@ export class AdminNotificationService {
     const options = parseQueryOptions(query);
 
     const filter: NotificationFilter = {};
-    if (query.user_id) {
-      if (!NUMERIC_RE.test(String(query.user_id))) {
+    if (query.userId) {
+      if (!NUMERIC_RE.test(String(query.userId))) {
         throw new BadRequestException(t(this.i18n, 'notification.INVALID_USER_ID'));
       }
-      filter.user_id = String(query.user_id);
+      filter.userId = String(query.userId);
     }
     if (query.type) filter.type = query.type;
     if (query.status) filter.status = query.status;
-    if (query.is_read !== undefined) filter.is_read = query.is_read === 'true';
+    if (query.isRead !== undefined) filter.isRead = query.isRead === 'true';
 
     const skipCount = query.skipCount === 'true';
     const [data, total] = await Promise.all([
@@ -43,8 +43,8 @@ export class AdminNotificationService {
 
   async send(dto: SendNotificationDto) {
     const result = await this.notifRepo.createMany(
-      dto.user_ids.map((user_id) => ({
-        user_id,
+      dto.userIds.map((userId) => ({
+        userId,
         title: dto.title,
         message: dto.message,
         type: dto.type,
@@ -52,7 +52,7 @@ export class AdminNotificationService {
         status: NotificationStatus.active,
       })),
     );
-    await this.invalidateUnreadCounts(dto.user_ids);
+    await this.invalidateUnreadCounts(dto.userIds);
     return result;
   }
 
@@ -65,15 +65,15 @@ export class AdminNotificationService {
 
   // --- internal methods called from Kafka events ---
 
-  async create(data: { user_id: string | bigint; title: string; message: string; type?: string; data?: any }) {
+  async create(data: { userId: string | bigint; title: string; message: string; type?: string; data?: any }) {
     const result = await this.notifRepo.create({ ...data, status: NotificationStatus.active });
-    await this.invalidateUnreadCounts([data.user_id]);
+    await this.invalidateUnreadCounts([data.userId]);
     return result;
   }
 
-  async createMany(notifications: Array<{ user_id: string | bigint; title: string; message: string; type?: string; data?: any }>) {
+  async createMany(notifications: Array<{ userId: string | bigint; title: string; message: string; type?: string; data?: any }>) {
     const result = await this.notifRepo.createMany(notifications.map((n) => ({ ...n, status: NotificationStatus.active })));
-    const userIds = [...new Set(notifications.map((n) => n.user_id))];
+    const userIds = [...new Set(notifications.map((n) => n.userId))];
     await this.invalidateUnreadCounts(userIds);
     return result;
   }

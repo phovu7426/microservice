@@ -6,8 +6,8 @@ import { NotificationStatus } from '../../enums/notification-status.enum';
 export class ListNotificationsAdminQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'user_id must be numeric.' })
-  user_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'userId must be numeric.' })
+  userId?: string;
 
   @IsOptional()
   @IsEnum(NotificationType)
@@ -19,5 +19,5 @@ export class ListNotificationsAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsBooleanString()
-  is_read?: string;
+  isRead?: string;
 }

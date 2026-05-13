@@ -20,8 +20,8 @@ export class AdminTagService {
 
     const filter: TagFilter = {};
     if (query.search) filter.search = query.search;
-    if (query.is_active !== undefined) {
-      filter.is_active = query.is_active === 'true' || query.is_active === true;
+    if (query.isActive !== undefined) {
+      filter.isActive = query.isActive === 'true' || query.isActive === true;
     }
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
@@ -45,7 +45,7 @@ export class AdminTagService {
     });
 
     const data: Record<string, any> = { ...dto, slug };
-    if (actorId) data.created_user_id = actorId;
+    if (actorId) data.createdUserId = actorId;
 
     const result = await this.tagRepo.create(data);
     await this.invalidateTagCache();
@@ -63,7 +63,7 @@ export class AdminTagService {
         id,
       );
     }
-    if (actorId) data.updated_user_id = actorId;
+    if (actorId) data.updatedUserId = actorId;
 
     const result = await this.tagRepo.update(id, data);
     await this.invalidateTagCache();

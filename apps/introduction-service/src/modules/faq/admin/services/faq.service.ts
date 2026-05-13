@@ -47,7 +47,7 @@ export class AdminFaqService {
       question: dto.question,
       answer: dto.answer,
       status: dto.status || 'active',
-      sort_order: dto.sort_order ?? 0,
+      sortOrder: dto.sortOrder ?? 0,
     });
     await this.clearCache();
     return result;
@@ -55,7 +55,12 @@ export class AdminFaqService {
 
   async update(id: PrimaryKey, dto: UpdateFaqDto) {
     await this.getOne(id);
-    const result = await this.faqRepo.update(id, dto);
+    const result = await this.faqRepo.update(id, {
+      question: dto.question,
+      answer: dto.answer,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    });
     await this.clearCache(id);
     return result;
   }

@@ -47,7 +47,7 @@ export class MenuService {
     return this.getList({
       ...query,
       limit: query.limit ?? 50,
-      sort: query.sort ?? 'sort_order:ASC',
+      sort: query.sort ?? 'sortOrder:ASC',
       skipCount: true,
     });
   }
@@ -80,7 +80,7 @@ export class MenuService {
   }
 
   async createWithUser(dto: any, userId?: any) {
-    if (userId) dto.created_user_id = userId;
+    if (userId) dto.createdUserId = userId;
     return this.create(dto);
   }
 
@@ -109,7 +109,7 @@ export class MenuService {
   }
 
   async updateById(id: any, dto: any, userId?: any) {
-    if (userId) dto.updated_user_id = userId;
+    if (userId) dto.updatedUserId = userId;
     return this.update(id, dto);
   }
 
@@ -147,7 +147,7 @@ export class MenuService {
         throw new BadRequestException(this.t('menu.CYCLE_DETECTED'));
       }
       const node: any = await this.menuRepo.findById(current);
-      current = node?.parent_id ?? null;
+      current = node?.parentId ?? null;
     }
   }
 }

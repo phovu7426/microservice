@@ -14,8 +14,8 @@ const LIST_SELECT = {
   name: true,
   image: true,
   status: true,
-  created_at: true,
-  last_login_at: true,
+  createdAt: true,
+  lastLoginAt: true,
 } satisfies Prisma.UserSelect;
 
 const DETAIL_SELECT = {
@@ -27,13 +27,13 @@ const DETAIL_SELECT = {
   image: true,
   googleId: true,
   status: true,
-  email_verified_at: true,
-  phone_verified_at: true,
-  last_login_at: true,
-  created_user_id: true,
-  updated_user_id: true,
-  created_at: true,
-  updated_at: true,
+  emailVerifiedAt: true,
+  phoneVerifiedAt: true,
+  lastLoginAt: true,
+  createdUserId: true,
+  updatedUserId: true,
+  createdAt: true,
+  updatedAt: true,
   profile: true,
 } satisfies Prisma.UserSelect;
 
@@ -157,8 +157,8 @@ export class UserAdminRepository {
   upsertProfile(userId: PrimaryKey, data: Record<string, any>, tx: Tx = this.prisma) {
     const normalized = this.normalizePayload(data);
     return tx.profile.upsert({
-      where: { user_id: userId },
-      create: { user_id: userId, ...normalized } as Prisma.ProfileUncheckedCreateInput,
+      where: { userId: userId },
+      create: { userId: userId, ...normalized } as Prisma.ProfileUncheckedCreateInput,
       update: normalized as Prisma.ProfileUncheckedUpdateInput,
     });
   }
@@ -238,15 +238,10 @@ export class UserAdminRepository {
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const result = { ...data };
 
-    // Map camelCase DTO fields → snake_case Prisma fields
-    if (result.countryId !== undefined) { result.country_id = result.countryId; delete result.countryId; }
-    if (result.provinceId !== undefined) { result.province_id = result.provinceId; delete result.provinceId; }
-    if (result.wardId !== undefined) { result.ward_id = result.wardId; delete result.wardId; }
-
     if (result.birthday) result.birthday = new Date(result.birthday);
-    if (result.country_id) result.country_id = toPrimaryKey(result.country_id);
-    if (result.province_id) result.province_id = toPrimaryKey(result.province_id);
-    if (result.ward_id) result.ward_id = toPrimaryKey(result.ward_id);
+    if (result.countryId) result.countryId = toPrimaryKey(result.countryId);
+    if (result.provinceId) result.provinceId = toPrimaryKey(result.provinceId);
+    if (result.wardId) result.wardId = toPrimaryKey(result.wardId);
 
     return result;
   }
@@ -255,7 +250,7 @@ export class UserAdminRepository {
     if (!sort) return { id: 'desc' };
 
     const [field, direction] = sort.split(':');
-    const allowedFields = ['id', 'email', 'username', 'name', 'status', 'created_at', 'last_login_at'];
+    const allowedFields = ['id', 'email', 'username', 'name', 'status', 'createdAt', 'lastLoginAt'];
     const dir = direction?.toLowerCase() === 'asc' ? 'asc' : 'desc';
 
     if (allowedFields.includes(field)) {

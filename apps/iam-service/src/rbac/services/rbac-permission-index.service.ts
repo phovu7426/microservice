@@ -96,15 +96,15 @@ export class RbacPermissionIndexService implements OnModuleInit, OnModuleDestroy
     this.permissionIndexRefreshInFlight = (async () => {
       const byCode = new Map<string, PermissionNode>();
       const nodes = await this.rbacRepo.findPermissions();
-      const byId = new Map<string, { code: string; parent_id: string | null }>();
+      const byId = new Map<string, { code: string; parentId: string | null }>();
       for (const n of nodes) {
         byId.set(String(n.id), {
           code: n.code,
-          parent_id: n.parent_id != null ? String(n.parent_id) : null,
+          parentId: n.parentId != null ? String(n.parentId) : null,
         });
       }
       for (const n of nodes) {
-        const parent = n.parent_id != null ? byId.get(String(n.parent_id)) : null;
+        const parent = n.parentId != null ? byId.get(String(n.parentId)) : null;
         if (n.code) byCode.set(n.code, { code: n.code, parentCode: parent?.code ?? null });
       }
       this.permissionByCode = byCode;

@@ -90,7 +90,7 @@ describe('RbacRoleAssignmentService', () => {
 
     it('should sync roles when group exists', async () => {
       const { service, rbacRepo } = createService();
-      rbacRepo.findActiveGroup.mockResolvedValue({ id: BigInt(1), context_id: BigInt(10) });
+      rbacRepo.findActiveGroup.mockResolvedValue({ id: BigInt(1), contextId: BigInt(10) });
       rbacRepo.syncRolesInGroup.mockResolvedValue({ before: [], after: [BigInt(1)] });
 
       const result = await service.syncRolesInGroup('u1', 'g1', ['r1']);
@@ -102,7 +102,7 @@ describe('RbacRoleAssignmentService', () => {
 
     it('should throw BadRequestException when invalid roles detected', async () => {
       const { service, rbacRepo } = createService();
-      rbacRepo.findActiveGroup.mockResolvedValue({ id: BigInt(1), context_id: BigInt(10) });
+      rbacRepo.findActiveGroup.mockResolvedValue({ id: BigInt(1), contextId: BigInt(10) });
       rbacRepo.syncRolesInGroup.mockResolvedValue({
         before: [],
         after: [],
@@ -116,7 +116,7 @@ describe('RbacRoleAssignmentService', () => {
 
     it('should pass skipValidation flag through', async () => {
       const { service, rbacRepo } = createService();
-      rbacRepo.findActiveGroup.mockResolvedValue({ id: BigInt(1), context_id: BigInt(10) });
+      rbacRepo.findActiveGroup.mockResolvedValue({ id: BigInt(1), contextId: BigInt(10) });
       rbacRepo.syncRolesInGroup.mockResolvedValue({ before: [], after: [] });
 
       await service.syncRolesInGroup('u1', 'g1', ['r1'], true);

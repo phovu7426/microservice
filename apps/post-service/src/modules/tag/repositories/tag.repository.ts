@@ -5,22 +5,22 @@ import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface TagFilter {
   search?: string;
-  is_active?: boolean;
+  isActive?: boolean;
 }
 
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'slug',
   'description',
-  'is_active',
-  'created_user_id',
-  'updated_user_id',
+  'isActive',
+  'createdUserId',
+  'updatedUserId',
 ]);
 
 const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
   'name',
-  'created_at',
-  'updated_at',
+  'createdAt',
+  'updatedAt',
 ]);
 
 @Injectable()
@@ -36,7 +36,7 @@ export class TagRepository {
         { slug: { contains: search, mode: 'insensitive' } },
       ];
     }
-    if (filter.is_active !== undefined) where.is_active = filter.is_active;
+    if (filter.isActive !== undefined) where.isActive = filter.isActive;
     return where;
   }
 
@@ -71,7 +71,7 @@ export class TagRepository {
 
   findAllActive() {
     return this.prisma.tag.findMany({
-      where: { is_active: true },
+      where: { isActive: true },
       select: { id: true, name: true, slug: true, description: true },
       orderBy: { name: 'asc' },
     });
@@ -99,7 +99,7 @@ export class TagRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    const bigIntFields = ['created_user_id', 'updated_user_id'];
+    const bigIntFields = ['createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

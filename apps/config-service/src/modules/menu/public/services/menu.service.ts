@@ -18,7 +18,7 @@ export class PublicMenuService extends CachedService {
     return this.getOrSet('config:public:menu', 600, async () => {
       const dbFilter: MenuFilter = { status: BasicStatus.active, group: 'client' };
       const allMenus = await this.menuRepo.findAllWithChildren(dbFilter);
-      const visible = allMenus.filter((m: any) => m.show_in_menu);
+      const visible = allMenus.filter((m: any) => m.showInMenu);
       const filtered = filterPublicMenus(visible);
       return buildMenuTree(filtered);
     });

@@ -58,20 +58,20 @@ describe('PublicBannerService', () => {
       expect(result).toHaveProperty('meta');
     });
 
-    it('should apply location_id filter', async () => {
-      await service.getList({ location_id: '10' });
+    it('should apply locationId filter', async () => {
+      await service.getList({ locationId: '10' });
 
       expect(bannerRepo.findManyPublic).toHaveBeenCalledWith(
-        expect.objectContaining({ location_id: '10', status: 'active' }),
+        expect.objectContaining({ locationId: '10', status: 'active' }),
         expect.any(Object),
       );
     });
 
-    it('should apply location_code filter', async () => {
-      await service.getList({ location_code: 'HERO' });
+    it('should apply locationCode filter', async () => {
+      await service.getList({ locationCode: 'HERO' });
 
       expect(bannerRepo.findManyPublic).toHaveBeenCalledWith(
-        expect.objectContaining({ location_code: 'HERO', status: 'active' }),
+        expect.objectContaining({ locationCode: 'HERO', status: 'active' }),
         expect.any(Object),
       );
     });

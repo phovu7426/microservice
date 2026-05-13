@@ -68,7 +68,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'role.changed',
+          eventType: 'role.changed',
           payload: expect.objectContaining({
             role_id: '1',
             action: 'created',
@@ -90,7 +90,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'role.changed',
+          eventType: 'role.changed',
           payload: expect.objectContaining({
             role_id: '1',
             action: 'deleted',
@@ -113,7 +113,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'permission.changed',
+          eventType: 'permission.changed',
           payload: expect.objectContaining({
             permission_id: '5',
             action: 'updated',
@@ -136,7 +136,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'role.permission.changed',
+          eventType: 'role.permission.changed',
           payload: expect.objectContaining({
             role_id: '1',
             permission_ids: ['10', '20'],
@@ -159,7 +159,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'user.role.assigned',
+          eventType: 'user.role.assigned',
           payload: {
             user_id: '1',
             role_id: '2',
@@ -182,7 +182,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'user.role.revoked',
+          eventType: 'user.role.revoked',
           payload: {
             user_id: '1',
             role_id: '2',
@@ -205,7 +205,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'rbac.cache.invalidate',
+          eventType: 'rbac.cache.invalidate',
           payload: {
             pattern: '*',
             reason: 'role updated',
@@ -225,7 +225,7 @@ describe('RbacEventPublisher', () => {
 
       expect(prisma.outbox.create).toHaveBeenCalledWith({
         data: {
-          event_type: 'rbac.cache.invalidate',
+          eventType: 'rbac.cache.invalidate',
           payload: {
             pattern: 'user:*',
             reason: 'bulk update',

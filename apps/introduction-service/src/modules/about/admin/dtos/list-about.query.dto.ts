@@ -10,12 +10,12 @@ export class ListAboutAdminQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  section_type?: string;
+  sectionType?: string;
 }
 
 export class ListAboutPublicQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  section_type?: string;
+  sectionType?: string;
 }

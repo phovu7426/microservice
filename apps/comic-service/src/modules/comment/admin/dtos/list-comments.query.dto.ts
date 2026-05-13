@@ -10,18 +10,18 @@ import { CommentStatus } from '../../enums/comment-status.enum';
 export class ListCommentsAdminQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'comic_id must be numeric.' })
-  comic_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'comicId must be numeric.' })
+  comicId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'chapter_id must be numeric.' })
-  chapter_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'chapterId must be numeric.' })
+  chapterId?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'user_id must be numeric.' })
-  user_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'userId must be numeric.' })
+  userId?: string;
 
   @IsOptional()
   @IsEnum(CommentStatus)

@@ -51,7 +51,7 @@ export class RegistrationService {
             password: hashedPassword,
             name: dto.name,
             status: UserStatus.active,
-            email_verified_at: new Date(),
+            emailVerifiedAt: new Date(),
           },
           tx,
         );

@@ -182,7 +182,7 @@ describe('AdminPostService', () => {
       const post = makePost();
       postRepo.createWithRelations.mockResolvedValue(post);
 
-      const dto = { name: 'Test', category_ids: [1n], tag_ids: [1n] } as any;
+      const dto = { name: 'Test', categoryIds: [1n], tagIds: [1n] } as any;
       const result = await service.create(dto, 1n);
 
       expect(SlugHelper.uniqueSlug).toHaveBeenCalledWith('Test', expect.any(Object));

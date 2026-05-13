@@ -49,15 +49,15 @@ export class ContextService {
       type: dto.type,
       code: dto.code,
       name: dto.name,
-      created_user_id: actorId,
+      createdUserId: actorId,
     };
-    if (dto.ref_id) data.ref_id = dto.ref_id;
+    if (dto.refId) data.refId = dto.refId;
     return this.repo.create(data);
   }
 
   async update(id: PrimaryKey, dto: UpdateContextDto, actorId: PrimaryKey) {
     await this.getOne(id);
-    const data: any = { updated_user_id: actorId };
+    const data: any = { updatedUserId: actorId };
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.status !== undefined) data.status = dto.status;
     const result = await this.repo.update(id, data);

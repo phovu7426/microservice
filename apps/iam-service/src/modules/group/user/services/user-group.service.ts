@@ -8,6 +8,6 @@ export class UserGroupService {
 
   async getUserGroups(userId: string) {
     const rows = await this.repo.findUserGroups(toPrimaryKey(userId));
-    return rows.map((r) => ({ ...r.group, joined_at: r.joined_at }));
+    return rows.map((r) => ({ ...r.group, joinedAt: r.joinedAt }));
   }
 }

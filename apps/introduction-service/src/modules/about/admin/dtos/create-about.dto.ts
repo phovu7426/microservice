@@ -34,13 +34,13 @@ export class CreateAboutDto {
   image?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'video_url must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'videoUrl must be an http(s) URL.' })
   @MaxLength(500)
-  video_url?: string;
+  videoUrl?: string;
 
   @IsOptional()
   @IsEnum(AboutSectionType)
-  section_type?: AboutSectionType;
+  sectionType?: AboutSectionType;
 
   @IsOptional()
   @IsEnum(BasicStatus)
@@ -49,5 +49,5 @@ export class CreateAboutDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

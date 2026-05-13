@@ -4,11 +4,11 @@ import { BaseListQueryDto } from '@package/common';
 export class ListBannersPublicQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'location_id must be numeric.' })
-  location_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'locationId must be numeric.' })
+  locationId?: string;
 
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  location_code?: string;
+  locationCode?: string;
 }

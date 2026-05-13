@@ -22,7 +22,7 @@ export class GroupService {
     const filter: GroupFilter = {};
     if (query.type) filter.type = query.type;
     if (query.status) filter.status = query.status;
-    if (query.context_id) filter.context_id = query.context_id;
+    if (query.contextId) filter.contextId = query.contextId;
     if (query.search) filter.search = query.search;
 
     const skipCount = query.skipCount === 'true';
@@ -51,21 +51,21 @@ export class GroupService {
       code: dto.code,
       name: dto.name,
       description: dto.description,
-      context_id: dto.context_id,
-      created_user_id: actorId,
+      contextId: dto.contextId,
+      createdUserId: actorId,
     };
-    if (dto.owner_id) data.owner_id = dto.owner_id;
+    if (dto.ownerId) data.ownerId = dto.ownerId;
     return this.repo.create(data);
   }
 
   async update(id: PrimaryKey, dto: UpdateGroupDto, actorId: PrimaryKey) {
     await this.getOne(id);
-    const data: any = { updated_user_id: actorId };
+    const data: any = { updatedUserId: actorId };
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.description !== undefined) data.description = dto.description;
     if (dto.status !== undefined) data.status = dto.status;
-    if ('owner_id' in dto) {
-      data.owner_id = dto.owner_id ? dto.owner_id : null;
+    if ('ownerId' in dto) {
+      data.ownerId = dto.ownerId ? dto.ownerId : null;
     }
     const result = await this.repo.update(id, data);
     if (dto.status !== undefined) {

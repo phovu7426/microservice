@@ -20,7 +20,7 @@ export class PublicReviewService {
       const options = parseQueryOptions(query);
 
       const filter: ReviewFilter = {};
-      if (query.comic_id) filter.comic_id = query.comic_id;
+      if (query.comicId) filter.comicId = query.comicId;
 
       const [data, total, agg] = await Promise.all([
         this.reviewRepo.findMany(filter, options),

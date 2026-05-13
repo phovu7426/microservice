@@ -94,9 +94,9 @@ describe('ProfileService', () => {
         birthday: '2000-01-01',
         gender: 'male',
         address: '123 Street',
-        country_id: 1,
-        province_id: 2,
-        ward_id: 3,
+        countryId: 1,
+        provinceId: 2,
+        wardId: 3,
         about: 'Hello',
       };
 
@@ -109,9 +109,9 @@ describe('ProfileService', () => {
           birthday: '2000-01-01',
           gender: 'male',
           address: '123 Street',
-          country_id: 1,
-          province_id: 2,
-          ward_id: 3,
+          countryId: 1,
+          provinceId: 2,
+          wardId: 3,
           about: 'Hello',
         },
       );

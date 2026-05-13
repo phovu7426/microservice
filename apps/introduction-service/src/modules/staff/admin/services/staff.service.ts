@@ -45,10 +45,18 @@ export class AdminStaffService {
 
   async create(dto: CreateStaffDto) {
     const result = await this.staffRepo.create({
-      ...dto,
-      social_links: dto.social_links ?? {},
+      name: dto.name,
+      position: dto.position,
+      department: dto.department,
+      bio: dto.bio,
+      avatar: dto.avatar,
+      email: dto.email,
+      phone: dto.phone,
+      socialLinks: dto.socialLinks ?? {},
+      experience: dto.experience,
+      expertise: dto.expertise,
       status: dto.status || 'active',
-      sort_order: dto.sort_order ?? 0,
+      sortOrder: dto.sortOrder ?? 0,
     });
     await this.clearCache();
     return result;
@@ -56,7 +64,20 @@ export class AdminStaffService {
 
   async update(id: PrimaryKey, dto: UpdateStaffDto) {
     await this.getOne(id);
-    const result = await this.staffRepo.update(id, dto);
+    const result = await this.staffRepo.update(id, {
+      name: dto.name,
+      position: dto.position,
+      department: dto.department,
+      bio: dto.bio,
+      avatar: dto.avatar,
+      email: dto.email,
+      phone: dto.phone,
+      socialLinks: dto.socialLinks,
+      experience: dto.experience,
+      expertise: dto.expertise,
+      status: dto.status,
+      sortOrder: dto.sortOrder,
+    });
     await this.clearCache(id);
     return result;
   }

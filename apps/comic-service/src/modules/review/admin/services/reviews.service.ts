@@ -17,8 +17,8 @@ export class AdminReviewService {
     const options = parseQueryOptions(query);
 
     const filter: ReviewFilter = {};
-    if (query.comic_id) filter.comic_id = query.comic_id;
-    if (query.user_id) filter.user_id = query.user_id;
+    if (query.comicId) filter.comicId = query.comicId;
+    if (query.userId) filter.userId = query.userId;
     if (query.rating) filter.rating = Number(query.rating);
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
@@ -35,7 +35,7 @@ export class AdminReviewService {
     if (!review) throw new NotFoundException(t(this.i18n, 'comic.REVIEW_NOT_FOUND'));
 
     await this.reviewRepo.delete(id);
-    await this.reviewRepo.syncRatingStats(review.comic_id);
+    await this.reviewRepo.syncRatingStats(review.comicId);
     await this.incrementVersion('comic:public:reviews:v');
 
     return { success: true };

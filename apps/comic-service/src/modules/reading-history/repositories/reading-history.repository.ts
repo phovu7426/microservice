@@ -4,8 +4,8 @@ import { toPrimaryKey } from 'src/types';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface ReadingHistoryFilter {
-  user_id?: any;
-  comic_id?: any;
+  userId?: any;
+  comicId?: any;
 }
 
 @Injectable()
@@ -14,8 +14,8 @@ export class ReadingHistoryRepository {
 
   private buildWhere(filter: ReadingHistoryFilter): Prisma.ReadingHistoryWhereInput {
     const where: Prisma.ReadingHistoryWhereInput = {};
-    if (filter.user_id !== undefined) where.user_id = toPrimaryKey(filter.user_id);
-    if (filter.comic_id !== undefined) where.comic_id = toPrimaryKey(filter.comic_id);
+    if (filter.userId !== undefined) where.userId = toPrimaryKey(filter.userId);
+    if (filter.comicId !== undefined) where.comicId = toPrimaryKey(filter.comicId);
     return where;
   }
 
@@ -23,10 +23,10 @@ export class ReadingHistoryRepository {
     return this.prisma.readingHistory.findMany({
       where: this.buildWhere(filter),
       include: {
-        comic: { select: { id: true, title: true, slug: true, cover_image: true } },
-        chapter: { select: { id: true, title: true, chapter_index: true, chapter_label: true } },
+        comic: { select: { id: true, title: true, slug: true, coverImage: true } },
+        chapter: { select: { id: true, title: true, chapterIndex: true, chapterLabel: true } },
       },
-      orderBy: { updated_at: 'desc' },
+      orderBy: { updatedAt: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -39,7 +39,7 @@ export class ReadingHistoryRepository {
   /**
    * Track furthest chapter a user has read for a comic. Two parallel reads
    * of different chapters used to race — the loser by SQL order overwrote
-   * the winner. We compare `chapter_index` inside a transaction so the
+   * the winner. We compare `chapterIndex` inside a transaction so the
    * pointer only moves forward (or stays put on re-reads of earlier
    * chapters).
    */
@@ -51,36 +51,36 @@ export class ReadingHistoryRepository {
     return this.prisma.$transaction(async (tx) => {
       const incoming = await tx.chapter.findUnique({
         where: { id: chid },
-        select: { chapter_index: true, comic_id: true },
+        select: { chapterIndex: true, comicId: true },
       });
-      if (!incoming || incoming.comic_id !== cid) {
+      if (!incoming || incoming.comicId !== cid) {
         throw new Error('Chapter does not belong to comic');
       }
 
       const existing = await tx.readingHistory.findUnique({
-        where: { user_id_comic_id: { user_id: uid, comic_id: cid } },
-        include: { chapter: { select: { chapter_index: true } } },
+        where: { userId_comicId: { userId: uid, comicId: cid } },
+        include: { chapter: { select: { chapterIndex: true } } },
       });
 
       if (!existing) {
         return tx.readingHistory.create({
-          data: { user_id: uid, comic_id: cid, chapter_id: chid },
+          data: { userId: uid, comicId: cid, chapterId: chid },
         });
       }
 
-      if (existing.chapter_id === chid) {
+      if (existing.chapterId === chid) {
         return tx.readingHistory.update({
-          where: { user_id_comic_id: { user_id: uid, comic_id: cid } },
-          data: { updated_at: new Date() },
+          where: { userId_comicId: { userId: uid, comicId: cid } },
+          data: { updatedAt: new Date() },
         });
       }
 
-      const incomingIdx = incoming.chapter_index ?? 0;
-      const existingIdx = existing.chapter?.chapter_index ?? 0;
+      const incomingIdx = incoming.chapterIndex ?? 0;
+      const existingIdx = existing.chapter?.chapterIndex ?? 0;
       if (incomingIdx >= existingIdx) {
         return tx.readingHistory.update({
-          where: { user_id_comic_id: { user_id: uid, comic_id: cid } },
-          data: { chapter_id: chid },
+          where: { userId_comicId: { userId: uid, comicId: cid } },
+          data: { chapterId: chid },
         });
       }
       return existing;

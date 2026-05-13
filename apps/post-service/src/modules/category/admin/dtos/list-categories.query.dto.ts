@@ -5,10 +5,10 @@ export class ListCategoriesAdminQueryDto extends BaseListQueryDto {
   // Accepts a numeric id or the literal string 'null' (filter for top-level).
   @IsOptional()
   @IsString()
-  @Matches(/^(\d{1,20}|null)$/, { message: 'parent_id must be numeric or "null".' })
-  parent_id?: string;
+  @Matches(/^(\d{1,20}|null)$/, { message: 'parentId must be numeric or "null".' })
+  parentId?: string;
 
   @IsOptional()
   @IsBooleanString()
-  is_active?: string;
+  isActive?: string;
 }

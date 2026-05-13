@@ -12,52 +12,52 @@ datasource db {
 // ============================================
 
 model User {
-  id                BigInt    @id @default(autoincrement())
-  username          String?   @unique @db.VarChar(50)
-  email             String?   @unique @db.VarChar(255)
-  phone             String?   @unique @db.VarChar(20)
-  password          String?   @db.VarChar(255)
-  name              String?   @db.VarChar(255)
-  image             String?   @db.VarChar(255)
-  googleId          String?   @unique @db.VarChar(255)
-  status            String    @default("active") @db.VarChar(30)
-  email_verified_at DateTime? @db.Timestamp(0)
-  phone_verified_at DateTime? @db.Timestamp(0)
-  last_login_at     DateTime? @db.Timestamp(0)
-  remember_token    String?   @db.VarChar(100)
-  created_user_id   BigInt?
-  updated_user_id   BigInt?
-  created_at        DateTime  @default(now()) @db.Timestamp(0)
-  updated_at        DateTime  @updatedAt @db.Timestamp(0)
+  id              BigInt    @id @default(autoincrement())
+  username        String?   @unique @db.VarChar(50)
+  email           String?   @unique @db.VarChar(255)
+  phone           String?   @unique @db.VarChar(20)
+  password        String?   @db.VarChar(255)
+  name            String?   @db.VarChar(255)
+  image           String?   @db.VarChar(255)
+  googleId        String?   @unique @db.VarChar(255)
+  status          String    @default("active") @db.VarChar(30)
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamp(0)
+  phoneVerifiedAt DateTime? @map("phone_verified_at") @db.Timestamp(0)
+  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamp(0)
+  rememberToken   String?   @map("remember_token") @db.VarChar(100)
+  createdUserId   BigInt?   @map("created_user_id")
+  updatedUserId   BigInt?   @map("updated_user_id")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
 
   profile Profile?
 
   @@index([status], map: "users_idx_status")
-  @@index([created_at], map: "users_idx_created_at")
-  @@index([status, created_at], map: "users_idx_status_created")
+  @@index([createdAt], map: "users_idx_created_at")
+  @@index([status, createdAt], map: "users_idx_status_created")
   @@map("users")
 }
 
 model Profile {
-  id              BigInt    @id @default(autoincrement())
-  user_id         BigInt    @unique
-  birthday        DateTime? @db.Date
-  gender          String?   @db.VarChar(20)
-  address         String?   @db.Text
-  country_id      BigInt?
-  province_id     BigInt?
-  ward_id         BigInt?
-  about           String?   @db.Text
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime  @default(now()) @db.Timestamp(0)
-  updated_at      DateTime  @updatedAt @db.Timestamp(0)
+  id            BigInt    @id @default(autoincrement())
+  userId        BigInt    @unique @map("user_id")
+  birthday      DateTime? @db.Date
+  gender        String?   @db.VarChar(20)
+  address       String?   @db.Text
+  countryId     BigInt?   @map("country_id")
+  provinceId    BigInt?   @map("province_id")
+  wardId        BigInt?   @map("ward_id")
+  about         String?   @db.Text
+  createdUserId BigInt?   @map("created_user_id")
+  updatedUserId BigInt?   @map("updated_user_id")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([province_id], map: "profiles_idx_province_id")
-  @@index([country_id], map: "profiles_idx_country_id")
-  @@index([user_id], map: "profiles_idx_user_id")
+  @@index([provinceId], map: "profiles_idx_province_id")
+  @@index([countryId], map: "profiles_idx_country_id")
+  @@index([userId], map: "profiles_idx_user_id")
   @@map("profiles")
 }
 
@@ -66,12 +66,12 @@ model Profile {
 // ============================================
 
 model Outbox {
-  id         BigInt   @id @default(autoincrement())
-  event_type String   @db.VarChar(100)
-  payload    Json
-  published  Boolean  @default(false)
-  created_at DateTime @default(now()) @db.Timestamptz()
+  id        BigInt   @id @default(autoincrement())
+  eventType String   @map("event_type") @db.VarChar(100)
+  payload   Json
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz()
 
-  @@index([published, created_at])
+  @@index([published, createdAt])
   @@map("outbox")
 }

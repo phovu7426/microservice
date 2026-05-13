@@ -7,31 +7,31 @@ import { ChapterStatus } from '../enums/chapter-status.enum';
 type Tx = Prisma.TransactionClient | PrismaService;
 
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
-  'comic_id',
-  'team_id',
+  'comicId',
+  'teamId',
   'title',
-  'chapter_index',
-  'chapter_label',
+  'chapterIndex',
+  'chapterLabel',
   'status',
-  'created_user_id',
-  'updated_user_id',
+  'createdUserId',
+  'updatedUserId',
 ]);
 
 export interface ChapterFilter {
-  comic_id?: any;
+  comicId?: any;
   status?: string;
-  team_id?: any;
+  teamId?: any;
 }
 
 const WITH_PAGES = {
-  pages: { orderBy: { page_number: 'asc' as const } },
+  pages: { orderBy: { pageNumber: 'asc' as const } },
 } as const;
 
 const SIMPLE_SELECT = {
   id: true,
   title: true,
-  chapter_index: true,
-  chapter_label: true,
+  chapterIndex: true,
+  chapterLabel: true,
   status: true,
 } as const;
 
@@ -41,8 +41,8 @@ export class ChapterRepository {
 
   private buildWhere(filter: ChapterFilter): Prisma.ChapterWhereInput {
     const where: Prisma.ChapterWhereInput = {};
-    if (filter.comic_id !== undefined) where.comic_id = toPrimaryKey(filter.comic_id);
-    if (filter.team_id !== undefined) where.team_id = toPrimaryKey(filter.team_id);
+    if (filter.comicId !== undefined) where.comicId = toPrimaryKey(filter.comicId);
+    if (filter.teamId !== undefined) where.teamId = toPrimaryKey(filter.teamId);
     if (filter.status) where.status = filter.status;
     return where;
   }
@@ -51,7 +51,7 @@ export class ChapterRepository {
     return this.prisma.chapter.findMany({
       where: this.buildWhere(filter),
       include: WITH_PAGES,
-      orderBy: { chapter_index: 'desc' },
+      orderBy: { chapterIndex: 'desc' },
       skip: options.skip,
       take: options.take,
     });
@@ -61,7 +61,7 @@ export class ChapterRepository {
     return this.prisma.chapter.findMany({
       where: this.buildWhere(filter),
       select: SIMPLE_SELECT,
-      orderBy: { chapter_index: 'desc' },
+      orderBy: { chapterIndex: 'desc' },
       take,
     });
   }
@@ -80,9 +80,9 @@ export class ChapterRepository {
   findByIndex(comicId: any, chapterIndex: number) {
     return this.prisma.chapter.findUnique({
       where: {
-        comic_id_chapter_index: {
-          comic_id: toPrimaryKey(comicId),
-          chapter_index: chapterIndex,
+        comicId_chapterIndex: {
+          comicId: toPrimaryKey(comicId),
+          chapterIndex: chapterIndex,
         },
       },
     });
@@ -92,7 +92,7 @@ export class ChapterRepository {
     return this.prisma.chapter.findFirst({
       where: { id: toPrimaryKey(id), status: ChapterStatus.published },
       include: {
-        pages: { orderBy: { page_number: 'asc' } },
+        pages: { orderBy: { pageNumber: 'asc' } },
         comic: { select: { id: true, title: true, slug: true } },
       },
     });
@@ -100,20 +100,20 @@ export class ChapterRepository {
 
   findPages(chapterId: any) {
     return this.prisma.page.findMany({
-      where: { chapter_id: toPrimaryKey(chapterId) },
-      orderBy: { page_number: 'asc' },
+      where: { chapterId: toPrimaryKey(chapterId) },
+      orderBy: { pageNumber: 'asc' },
     });
   }
 
   findPublishedNeighbor(comicId: any, currentIndex: number, direction: 'next' | 'prev') {
     return this.prisma.chapter.findFirst({
       where: {
-        comic_id: toPrimaryKey(comicId),
-        chapter_index: direction === 'next' ? { gt: currentIndex } : { lt: currentIndex },
+        comicId: toPrimaryKey(comicId),
+        chapterIndex: direction === 'next' ? { gt: currentIndex } : { lt: currentIndex },
         status: ChapterStatus.published,
       },
-      orderBy: { chapter_index: direction === 'next' ? 'asc' : 'desc' },
-      select: { id: true, title: true, chapter_index: true, chapter_label: true },
+      orderBy: { chapterIndex: direction === 'next' ? 'asc' : 'desc' },
+      select: { id: true, title: true, chapterIndex: true, chapterLabel: true },
     });
   }
 
@@ -128,7 +128,7 @@ export class ChapterRepository {
   }
 
   deletePages(chapterId: any) {
-    return this.prisma.page.deleteMany({ where: { chapter_id: toPrimaryKey(chapterId) } });
+    return this.prisma.page.deleteMany({ where: { chapterId: toPrimaryKey(chapterId) } });
   }
 
   update(id: any, data: Record<string, any>) {
@@ -143,8 +143,8 @@ export class ChapterRepository {
   }
 
   /**
-   * Update `last_chapter_id` only when the new chapter is genuinely the
-   * latest. Without the `chapter_index` guard, re-publishing an old chapter
+   * Update `lastChapterId` only when the new chapter is genuinely the
+   * latest. Without the `chapterIndex` guard, re-publishing an old chapter
    * (e.g. fixing typos in chapter 1) overwrote the pointer with the wrong
    * chapter and the homepage "latest update" went backwards.
    */
@@ -153,23 +153,23 @@ export class ChapterRepository {
     const chid = toPrimaryKey(chapterId);
     const chapter = await this.prisma.chapter.findUnique({
       where: { id: chid },
-      select: { chapter_index: true },
+      select: { chapterIndex: true },
     });
     if (!chapter) return null;
 
     const max = await this.prisma.chapter.aggregate({
-      where: { comic_id: cid, status: ChapterStatus.published },
-      _max: { chapter_index: true },
+      where: { comicId: cid, status: ChapterStatus.published },
+      _max: { chapterIndex: true },
     });
 
     const isLatest =
-      max._max.chapter_index == null ||
-      chapter.chapter_index >= max._max.chapter_index;
+      max._max.chapterIndex == null ||
+      chapter.chapterIndex >= max._max.chapterIndex;
     if (!isLatest) return null;
 
     return this.prisma.comic.update({
       where: { id: cid },
-      data: { last_chapter_id: chid, last_chapter_updated_at: new Date() },
+      data: { lastChapterId: chid, lastChapterUpdatedAt: new Date() },
     });
   }
 
@@ -188,18 +188,18 @@ export class ChapterRepository {
     const chid = toPrimaryKey(chapterId);
 
     const max = await client.chapter.aggregate({
-      where: { comic_id: cid, status: ChapterStatus.published },
-      _max: { chapter_index: true },
+      where: { comicId: cid, status: ChapterStatus.published },
+      _max: { chapterIndex: true },
     });
 
     const isLatest =
-      max._max.chapter_index == null ||
-      chapterIndex >= max._max.chapter_index;
+      max._max.chapterIndex == null ||
+      chapterIndex >= max._max.chapterIndex;
     if (!isLatest) return null;
 
     return client.comic.update({
       where: { id: cid },
-      data: { last_chapter_id: chid, last_chapter_updated_at: new Date() },
+      data: { lastChapterId: chid, lastChapterUpdatedAt: new Date() },
     });
   }
 
@@ -211,9 +211,9 @@ export class ChapterRepository {
     });
   }
 
-  createOutbox(event_type: string, payload: Record<string, any>, tx?: Tx) {
+  createOutbox(eventType: string, payload: Record<string, any>, tx?: Tx) {
     const client = tx ?? this.prisma;
-    return client.outbox.create({ data: { event_type, payload } });
+    return client.outbox.create({ data: { eventType, payload } });
   }
 
   async withTransaction<T>(fn: (tx: Prisma.TransactionClient) => Promise<T>): Promise<T> {
@@ -225,7 +225,7 @@ export class ChapterRepository {
     for (const key of Object.keys(data)) {
       if (ALLOWED_FIELDS.has(key)) payload[key] = data[key];
     }
-    const bigIntFields = ['comic_id', 'team_id', 'created_user_id', 'updated_user_id'];
+    const bigIntFields = ['comicId', 'teamId', 'createdUserId', 'updatedUserId'];
     for (const field of bigIntFields) {
       const value = payload[field];
       if (value === undefined) continue;

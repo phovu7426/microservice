@@ -14,7 +14,7 @@ import { ChapterStatus } from '../../enums/chapter-status.enum';
 export class CreateChapterPageDto {
   @IsString()
   @MaxLength(500)
-  image_url: string;
+  imageUrl: string;
 
   @IsOptional()
   @IsNumber()
@@ -26,16 +26,16 @@ export class CreateChapterPageDto {
 
   @IsOptional()
   @IsNumber()
-  file_size?: number;
+  fileSize?: number;
 }
 
 export class CreateChapterDto {
   @IsNumber()
-  comic_id: number;
+  comicId: number;
 
   @IsOptional()
   @IsNumber()
-  team_id?: number;
+  teamId?: number;
 
   @IsString()
   @MaxLength(255)
@@ -43,12 +43,12 @@ export class CreateChapterDto {
 
   @IsNumber()
   @Min(1)
-  chapter_index: number;
+  chapterIndex: number;
 
   @IsOptional()
   @IsString()
   @MaxLength(50)
-  chapter_label?: string;
+  chapterLabel?: string;
 
   @IsOptional()
   @IsEnum(ChapterStatus)

@@ -30,9 +30,9 @@ export class CreateGalleryDto {
   description?: string;
 
   @IsOptional()
-  @IsUrl(URL_OPTS, { message: 'cover_image must be an http(s) URL.' })
+  @IsUrl(URL_OPTS, { message: 'coverImage must be an http(s) URL.' })
   @MaxLength(500)
-  cover_image?: string;
+  coverImage?: string;
 
   @IsOptional()
   @IsArray()
@@ -50,5 +50,5 @@ export class CreateGalleryDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  sort_order?: number;
+  sortOrder?: number;
 }

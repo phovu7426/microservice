@@ -56,13 +56,13 @@ export class PublicFaqService {
 
   async incrementViewCount(id: PrimaryKey) {
     const item = await this.getOne(id);
-    await this.faqRepo.update(id, { view_count: { increment: 1 } });
-    return { success: true, view_count: item.view_count + 1 };
+    await this.faqRepo.update(id, { viewCount: { increment: 1 } });
+    return { success: true, view_count: item.viewCount + 1 };
   }
 
   async incrementHelpfulCount(id: PrimaryKey) {
     const item = await this.getOne(id);
-    await this.faqRepo.update(id, { helpful_count: { increment: 1 } });
-    return { success: true, helpful_count: item.helpful_count + 1 };
+    await this.faqRepo.update(id, { helpfulCount: { increment: 1 } });
+    return { success: true, helpful_count: item.helpfulCount + 1 };
   }
 }

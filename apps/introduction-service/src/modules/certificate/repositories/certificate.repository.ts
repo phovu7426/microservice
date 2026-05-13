@@ -19,7 +19,7 @@ export class CertificateRepository {
     if (filter.search) {
       where.OR = [
         { name: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
-        { issued_by: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
+        { issuedBy: { contains: filter.search.slice(0, 100), mode: 'insensitive' } },
       ];
     }
     if (filter.status) where.status = filter.status;
@@ -30,7 +30,7 @@ export class CertificateRepository {
   findMany(filter: CertificateFilter, options: { skip: number; take: number }) {
     return this.prisma.certificate.findMany({
       where: this.buildWhere(filter),
-      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
+      orderBy: [{ sortOrder: 'asc' }, { id: 'asc' }],
       skip: options.skip,
       take: options.take,
     });
@@ -69,11 +69,11 @@ export class CertificateRepository {
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {
     const payload = { ...data };
-    if (payload.issued_date && !(payload.issued_date instanceof Date)) {
-      payload.issued_date = new Date(payload.issued_date);
+    if (payload.issuedDate && !(payload.issuedDate instanceof Date)) {
+      payload.issuedDate = new Date(payload.issuedDate);
     }
-    if (payload.expiry_date && !(payload.expiry_date instanceof Date)) {
-      payload.expiry_date = new Date(payload.expiry_date);
+    if (payload.expiryDate && !(payload.expiryDate instanceof Date)) {
+      payload.expiryDate = new Date(payload.expiryDate);
     }
     return payload;
   }

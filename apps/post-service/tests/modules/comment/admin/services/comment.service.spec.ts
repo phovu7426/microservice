@@ -99,9 +99,9 @@ describe('AdminCommentService', () => {
       expect(result.meta).toEqual({ total: 0 });
     });
 
-    it('should apply post_id filter', async () => {
+    it('should apply postId filter', async () => {
       commentRepo.findMany.mockResolvedValue([]);
-      await service.getList({ post_id: '1' });
+      await service.getList({ postId: '1' });
       expect(commentRepo.findMany).toHaveBeenCalled();
     });
 

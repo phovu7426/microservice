@@ -39,10 +39,10 @@ export class PublicBannerService {
 
     const filter: BannerFilter = {
       status: BannerStatus.active,
-      active_at: new Date(),
+      activeAt: new Date(),
     };
-    if (query.location_id) filter.location_id = query.location_id;
-    if (query.location_code) filter.location_code = query.location_code;
+    if (query.locationId) filter.locationId = query.locationId;
+    if (query.locationCode) filter.locationCode = query.locationCode;
 
     return this.getOrSet('marketing:public:banners:list', 300, async () => {
       const [data, total] = await Promise.all([

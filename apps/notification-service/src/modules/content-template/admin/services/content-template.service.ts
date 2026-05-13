@@ -41,7 +41,16 @@ export class AdminContentTemplateService {
   async create(dto: CreateContentTemplateDto) {
     const existing = await this.templateRepo.findByCode(dto.code);
     if (existing) throw new BadRequestException(t(this.i18n, 'content-template.CODE_EXISTS'));
-    return this.templateRepo.create(dto as any);
+    return this.templateRepo.create({
+      code: dto.code,
+      name: dto.name,
+      category: dto.category,
+      type: dto.type,
+      content: dto.content,
+      filePath: dto.filePath,
+      metadata: dto.metadata,
+      variables: dto.variables,
+    } as any);
   }
 
   async update(id: PrimaryKey, dto: UpdateContentTemplateDto) {
@@ -50,7 +59,16 @@ export class AdminContentTemplateService {
       const existing = await this.templateRepo.findFirst({ code: dto.code, id: { not: id } });
       if (existing) throw new BadRequestException(t(this.i18n, 'content-template.CODE_EXISTS'));
     }
-    return this.templateRepo.update(id, dto as any);
+    return this.templateRepo.update(id, {
+      code: dto.code,
+      name: dto.name,
+      category: dto.category,
+      type: dto.type,
+      content: dto.content,
+      filePath: dto.filePath,
+      metadata: dto.metadata,
+      variables: dto.variables,
+    } as any);
   }
 
   async delete(id: PrimaryKey) {

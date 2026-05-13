@@ -12,54 +12,54 @@ datasource db {
 // ============================================
 
 model GeneralConfig {
-  id                    BigInt   @id @default(autoincrement())
-  site_name             String   @db.VarChar(255)
-  site_description      String?  @db.Text
-  site_logo             String?  @db.VarChar(500)
-  site_favicon          String?  @db.VarChar(500)
-  site_email            String?  @db.VarChar(255)
-  site_phone            String?  @db.VarChar(20)
-  site_address          String?  @db.Text
-  site_country_id       BigInt?
-  site_province_id      BigInt?
-  site_ward_id          BigInt?
-  site_copyright        String?  @db.VarChar(255)
-  timezone              String   @default("Asia/Ho_Chi_Minh") @db.VarChar(50)
-  locale                String   @default("vi") @db.VarChar(10)
-  currency              String   @default("VND") @db.VarChar(10)
-  contact_channels      Json?
-  meta_title            String?  @db.VarChar(255)
-  meta_keywords         String?  @db.Text
-  og_title              String?  @db.VarChar(255)
-  og_description        String?  @db.Text
-  og_image              String?  @db.VarChar(500)
-  canonical_url         String?  @db.VarChar(500)
-  google_analytics_id   String?  @db.VarChar(50)
-  google_search_console String?  @db.VarChar(255)
-  facebook_pixel_id     String?  @db.VarChar(50)
-  twitter_site          String?  @db.VarChar(50)
-  created_user_id       BigInt?
-  updated_user_id       BigInt?
-  created_at            DateTime @default(now()) @db.Timestamp(0)
-  updated_at            DateTime @updatedAt @db.Timestamp(0)
+  id                   BigInt   @id @default(autoincrement())
+  siteName             String   @map("site_name") @db.VarChar(255)
+  siteDescription      String?  @map("site_description") @db.Text
+  siteLogo             String?  @map("site_logo") @db.VarChar(500)
+  siteFavicon          String?  @map("site_favicon") @db.VarChar(500)
+  siteEmail            String?  @map("site_email") @db.VarChar(255)
+  sitePhone            String?  @map("site_phone") @db.VarChar(20)
+  siteAddress          String?  @map("site_address") @db.Text
+  siteCountryId        BigInt?  @map("site_country_id")
+  siteProvinceId       BigInt?  @map("site_province_id")
+  siteWardId           BigInt?  @map("site_ward_id")
+  siteCopyright        String?  @map("site_copyright") @db.VarChar(255)
+  timezone             String   @default("Asia/Ho_Chi_Minh") @db.VarChar(50)
+  locale               String   @default("vi") @db.VarChar(10)
+  currency             String   @default("VND") @db.VarChar(10)
+  contactChannels      Json?    @map("contact_channels")
+  metaTitle            String?  @map("meta_title") @db.VarChar(255)
+  metaKeywords         String?  @map("meta_keywords") @db.Text
+  ogTitle              String?  @map("og_title") @db.VarChar(255)
+  ogDescription        String?  @map("og_description") @db.Text
+  ogImage              String?  @map("og_image") @db.VarChar(500)
+  canonicalUrl         String?  @map("canonical_url") @db.VarChar(500)
+  googleAnalyticsId    String?  @map("google_analytics_id") @db.VarChar(50)
+  googleSearchConsole  String?  @map("google_search_console") @db.VarChar(255)
+  facebookPixelId      String?  @map("facebook_pixel_id") @db.VarChar(50)
+  twitterSite          String?  @map("twitter_site") @db.VarChar(50)
+  createdUserId        BigInt?  @map("created_user_id")
+  updatedUserId        BigInt?  @map("updated_user_id")
+  createdAt            DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt            DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@map("general_configs")
 }
 
 model EmailConfig {
-  id              BigInt   @id @default(autoincrement())
-  smtp_host       String   @db.VarChar(255)
-  smtp_port       Int      @default(587)
-  smtp_secure     Boolean  @default(true)
-  smtp_username   String   @db.VarChar(255)
-  smtp_password   String   @db.VarChar(500)
-  from_email      String   @db.VarChar(255)
-  from_name       String   @db.VarChar(255)
-  reply_to_email  String?  @db.VarChar(255)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  smtpHost      String   @map("smtp_host") @db.VarChar(255)
+  smtpPort      Int      @default(587) @map("smtp_port")
+  smtpSecure    Boolean  @default(true) @map("smtp_secure")
+  smtpUsername   String   @map("smtp_username") @db.VarChar(255)
+  smtpPassword   String   @map("smtp_password") @db.VarChar(500)
+  fromEmail     String   @map("from_email") @db.VarChar(255)
+  fromName      String   @map("from_name") @db.VarChar(255)
+  replyToEmail  String?  @map("reply_to_email") @db.VarChar(255)
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@map("email_configs")
 }
@@ -69,31 +69,31 @@ model EmailConfig {
 // ============================================
 
 model Menu {
-  id                       BigInt   @id @default(autoincrement())
-  code                     String   @unique @db.VarChar(120)
-  name                     String   @db.VarChar(150)
-  path                     String?  @db.VarChar(255)
-  api_path                 String?  @db.VarChar(255)
-  icon                     String?  @db.VarChar(120)
-  type                     String   @default("route") @db.VarChar(30)
-  status                   String   @default("active") @db.VarChar(30)
-  parent_id                BigInt?
-  sort_order               Int      @default(0)
-  is_public                Boolean  @default(false)
-  show_in_menu             Boolean  @default(true)
-  group                    String   @default("admin") @db.VarChar(50)
-  required_permission_code String?  @db.VarChar(120)
-  created_user_id          BigInt?
-  updated_user_id          BigInt?
-  created_at               DateTime @default(now()) @db.Timestamp(0)
-  updated_at               DateTime @updatedAt @db.Timestamp(0)
+  id                     BigInt   @id @default(autoincrement())
+  code                   String   @unique @db.VarChar(120)
+  name                   String   @db.VarChar(150)
+  path                   String?  @db.VarChar(255)
+  apiPath                String?  @map("api_path") @db.VarChar(255)
+  icon                   String?  @db.VarChar(120)
+  type                   String   @default("route") @db.VarChar(30)
+  status                 String   @default("active") @db.VarChar(30)
+  parentId               BigInt?  @map("parent_id")
+  sortOrder              Int      @default(0) @map("sort_order")
+  isPublic               Boolean  @default(false) @map("is_public")
+  showInMenu             Boolean  @default(true) @map("show_in_menu")
+  group                  String   @default("admin") @db.VarChar(50)
+  requiredPermissionCode String?  @map("required_permission_code") @db.VarChar(120)
+  createdUserId          BigInt?  @map("created_user_id")
+  updatedUserId          BigInt?  @map("updated_user_id")
+  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt              DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  parent   Menu?  @relation("MenuHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
+  parent   Menu?  @relation("MenuHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
   children Menu[] @relation("MenuHierarchy")
 
   @@index([code], map: "menus_idx_code")
-  @@index([parent_id], map: "menus_idx_parent_id")
-  @@index([status, show_in_menu], map: "menus_idx_status_show_in_menu")
+  @@index([parentId], map: "menus_idx_parent_id")
+  @@index([status, showInMenu], map: "menus_idx_status_show_in_menu")
   @@index([group], map: "menus_idx_group")
   @@map("menus")
 }
@@ -103,19 +103,19 @@ model Menu {
 // ============================================
 
 model Country {
-  id              BigInt   @id @default(autoincrement())
-  code            String   @unique @db.VarChar(10)
-  code_alpha3     String?  @db.VarChar(10)
-  name            String   @db.VarChar(255)
-  official_name   String?  @db.VarChar(255)
-  phone_code      String?  @db.VarChar(20)
-  currency_code   String?  @db.VarChar(20)
-  flag_emoji      String?  @db.VarChar(20)
-  status          String   @default("active") @db.VarChar(30)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  code          String   @unique @db.VarChar(10)
+  codeAlpha3    String?  @map("code_alpha3") @db.VarChar(10)
+  name          String   @db.VarChar(255)
+  officialName  String?  @map("official_name") @db.VarChar(255)
+  phoneCode     String?  @map("phone_code") @db.VarChar(20)
+  currencyCode  String?  @map("currency_code") @db.VarChar(20)
+  flagEmoji     String?  @map("flag_emoji") @db.VarChar(20)
+  status        String   @default("active") @db.VarChar(30)
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
   provinces Province[]
 
@@ -124,46 +124,46 @@ model Country {
 }
 
 model Province {
-  id              BigInt   @id @default(autoincrement())
-  code            String   @unique @db.VarChar(20)
-  name            String   @db.VarChar(255)
-  type            String   @db.VarChar(50)
-  phone_code      String?  @db.VarChar(20)
-  country_id      BigInt
-  status          String   @default("active") @db.VarChar(30)
-  note            String?  @db.Text
-  code_bnv        String?  @db.VarChar(20)
-  code_tms        String?  @db.VarChar(20)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  code          String   @unique @db.VarChar(20)
+  name          String   @db.VarChar(255)
+  type          String   @db.VarChar(50)
+  phoneCode     String?  @map("phone_code") @db.VarChar(20)
+  countryId     BigInt   @map("country_id")
+  status        String   @default("active") @db.VarChar(30)
+  note          String?  @db.Text
+  codeBnv       String?  @map("code_bnv") @db.VarChar(20)
+  codeTms       String?  @map("code_tms") @db.VarChar(20)
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  country Country @relation(fields: [country_id], references: [id], onDelete: Restrict)
+  country Country @relation(fields: [countryId], references: [id], onDelete: Restrict)
   wards   Ward[]
 
-  @@index([country_id], map: "provinces_idx_provinces_country_id")
+  @@index([countryId], map: "provinces_idx_provinces_country_id")
   @@index([status], map: "provinces_idx_provinces_status")
   @@map("provinces")
 }
 
 model Ward {
-  id              BigInt   @id @default(autoincrement())
-  province_id     BigInt
-  name            String   @db.VarChar(255)
-  type            String   @db.VarChar(50)
-  code            String   @db.VarChar(20)
-  status          String   @default("active") @db.VarChar(30)
-  created_user_id BigInt?
-  updated_user_id BigInt?
-  created_at      DateTime @default(now()) @db.Timestamp(0)
-  updated_at      DateTime @updatedAt @db.Timestamp(0)
+  id            BigInt   @id @default(autoincrement())
+  provinceId    BigInt   @map("province_id")
+  name          String   @db.VarChar(255)
+  type          String   @db.VarChar(50)
+  code          String   @db.VarChar(20)
+  status        String   @default("active") @db.VarChar(30)
+  createdUserId BigInt?  @map("created_user_id")
+  updatedUserId BigInt?  @map("updated_user_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  province Province @relation(fields: [province_id], references: [id], onDelete: Cascade)
+  province Province @relation(fields: [provinceId], references: [id], onDelete: Cascade)
 
-  @@index([province_id], map: "wards_idx_wards_province_id")
+  @@index([provinceId], map: "wards_idx_wards_province_id")
   @@index([code], map: "wards_idx_wards_code")
   @@index([status], map: "wards_idx_wards_status")
-  @@index([province_id, status], map: "wards_idx_wards_province_status")
+  @@index([provinceId, status], map: "wards_idx_wards_province_status")
   @@map("wards")
 }

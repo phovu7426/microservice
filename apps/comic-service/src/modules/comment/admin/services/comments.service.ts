@@ -17,9 +17,9 @@ export class AdminCommentService {
     const options = parseQueryOptions(query);
 
     const filter: CommentFilter = {};
-    if (query.comic_id) filter.comic_id = query.comic_id;
-    if (query.chapter_id) filter.chapter_id = query.chapter_id;
-    if (query.user_id) filter.user_id = query.user_id;
+    if (query.comicId) filter.comicId = query.comicId;
+    if (query.chapterId) filter.chapterId = query.chapterId;
+    if (query.userId) filter.userId = query.userId;
     if (query.status) filter.status = query.status;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';

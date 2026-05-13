@@ -17,7 +17,7 @@ describe('AdminTestimonialService', () => {
   let testimonialRepo: Record<string, jest.Mock>;
   let redis: Record<string, jest.Mock>;
 
-  const mockItem = { id: 1n, client_name: 'Client A', content: 'Great!', rating: 5, featured: false, status: 'active', sort_order: 0 };
+  const mockItem = { id: 1n, clientName: 'Client A', content: 'Great!', rating: 5, featured: false, status: 'active', sortOrder: 0 };
 
   beforeEach(() => {
     testimonialRepo = {
@@ -57,8 +57,8 @@ describe('AdminTestimonialService', () => {
       expect(testimonialRepo.count).not.toHaveBeenCalled();
     });
 
-    it('should pass search, status, featured, and project_id filters', async () => {
-      await service.getList({ search: 'great', status: 'active', featured: 'true', project_id: '1' });
+    it('should pass search, status, featured, and projectId filters', async () => {
+      await service.getList({ search: 'great', status: 'active', featured: 'true', projectId: '1' });
       expect(testimonialRepo.findMany).toHaveBeenCalled();
     });
   });
@@ -78,11 +78,11 @@ describe('AdminTestimonialService', () => {
 
   describe('create', () => {
     it('should create with defaults and clear cache', async () => {
-      const dto = { client_name: 'Client A', content: 'Great!' };
+      const dto = { clientName: 'Client A', content: 'Great!' };
       const result = await service.create(dto as any);
       expect(result).toEqual(mockItem);
       expect(testimonialRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ client_name: 'Client A', content: 'Great!', rating: 5, featured: false, status: 'active', sort_order: 0 }),
+        expect.objectContaining({ clientName: 'Client A', content: 'Great!', rating: 5, featured: false, status: 'active', sortOrder: 0 }),
       );
       expect(redis.del).toHaveBeenCalled();
     });
@@ -92,7 +92,7 @@ describe('AdminTestimonialService', () => {
     it('should update and clear cache', async () => {
       const result = await service.update(1n, { content: 'Updated' } as any);
       expect(result).toEqual(mockItem);
-      expect(testimonialRepo.update).toHaveBeenCalledWith(1n, { content: 'Updated' });
+      expect(testimonialRepo.update).toHaveBeenCalledWith(1n, expect.objectContaining({ content: 'Updated' }));
       expect(redis.del).toHaveBeenCalled();
     });
 

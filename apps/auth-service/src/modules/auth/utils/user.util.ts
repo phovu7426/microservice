@@ -1,10 +1,10 @@
-export function safeUser<T extends { password?: any; remember_token?: any }>(
+export function safeUser<T extends { password?: any; rememberToken?: any }>(
   user: T,
 ) {
   const {
     password: _password,
-    remember_token: _remember_token,
+    rememberToken: _rememberToken,
     ...rest
   } = user as any;
-  return rest as Omit<T, 'password' | 'remember_token'>;
+  return rest as Omit<T, 'password' | 'rememberToken'>;
 }

@@ -15,29 +15,29 @@ export class ListComicsAdminQueryDto extends BaseListQueryDto {
 
   @IsOptional()
   @IsBooleanString()
-  is_featured?: string;
+  isFeatured?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'category_id must be numeric.' })
-  category_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'categoryId must be numeric.' })
+  categoryId?: string;
 }
 
 export class ListComicsPublicQueryDto extends BaseListQueryDto {
   @IsOptional()
   @IsBooleanString()
-  is_featured?: string;
+  isFeatured?: string;
 
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'category_id must be numeric.' })
-  category_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'categoryId must be numeric.' })
+  categoryId?: string;
 
-  // Frontend sometimes uses `comic_category_id` as alias.
+  // Frontend sometimes uses `comicCategoryId` as alias.
   @IsOptional()
   @IsString()
-  @Matches(/^\d{1,20}$/, { message: 'comic_category_id must be numeric.' })
-  comic_category_id?: string;
+  @Matches(/^\d{1,20}$/, { message: 'comicCategoryId must be numeric.' })
+  comicCategoryId?: string;
 }
 
 export class ListChaptersBySlugQueryDto extends BaseListQueryDto {}

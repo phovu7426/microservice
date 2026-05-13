@@ -38,7 +38,7 @@ describe('CommentCreatedHandler', () => {
 
     expect(notifService.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        user_id: '10',
+        userId: '10',
         type: 'info',
         data: { comic_id: '1', comment_id: '99' },
       }),

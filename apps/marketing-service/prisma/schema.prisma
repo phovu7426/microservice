@@ -25,8 +25,8 @@ model BannerLocation {
   name        String   @db.VarChar(255)
   description String?  @db.Text
   status      String   @default("active") @db.VarChar(30)
-  created_at  DateTime @default(now()) @db.Timestamp(0)
-  updated_at  DateTime @updatedAt @db.Timestamp(0)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
 
   banners Banner[]
 
@@ -36,61 +36,61 @@ model BannerLocation {
 }
 
 model Banner {
-  id           BigInt           @id @default(autoincrement())
-  title        String           @db.VarChar(255)
-  subtitle     String?          @db.VarChar(500)
-  image        String?          @db.VarChar(500)
-  mobile_image String?          @db.VarChar(500)
-  link         String?          @db.VarChar(500)
-  link_target  BannerLinkTarget @default(SELF)
-  description  String?          @db.Text
-  button_text  String?          @db.VarChar(100)
-  button_color String?          @db.VarChar(50)
-  text_color   String?          @db.VarChar(50)
-  location_id  BigInt
-  sort_order   Int              @default(0)
-  status       String           @default("active") @db.VarChar(30)
-  start_date   DateTime?        @db.Timestamp(0)
-  end_date     DateTime?        @db.Timestamp(0)
-  created_at   DateTime         @default(now()) @db.Timestamp(0)
-  updated_at   DateTime         @updatedAt @db.Timestamp(0)
+  id          BigInt           @id @default(autoincrement())
+  title       String           @db.VarChar(255)
+  subtitle    String?          @db.VarChar(500)
+  image       String?          @db.VarChar(500)
+  mobileImage String?          @map("mobile_image") @db.VarChar(500)
+  link        String?          @db.VarChar(500)
+  linkTarget  BannerLinkTarget @default(SELF) @map("link_target")
+  description String?          @db.Text
+  buttonText  String?          @map("button_text") @db.VarChar(100)
+  buttonColor String?          @map("button_color") @db.VarChar(50)
+  textColor   String?          @map("text_color") @db.VarChar(50)
+  locationId  BigInt           @map("location_id")
+  sortOrder   Int              @default(0) @map("sort_order")
+  status      String           @default("active") @db.VarChar(30)
+  startDate   DateTime?        @map("start_date") @db.Timestamp(0)
+  endDate     DateTime?        @map("end_date") @db.Timestamp(0)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt   DateTime         @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  location BannerLocation @relation(fields: [location_id], references: [id], onDelete: Cascade)
+  location BannerLocation @relation(fields: [locationId], references: [id], onDelete: Cascade)
 
-  @@index([location_id], map: "banners_idx_location_id")
+  @@index([locationId], map: "banners_idx_location_id")
   @@index([status], map: "banners_idx_status")
-  @@index([sort_order], map: "banners_idx_sort_order")
-  @@index([start_date], map: "banners_idx_start_date")
-  @@index([end_date], map: "banners_idx_end_date")
+  @@index([sortOrder], map: "banners_idx_sort_order")
+  @@index([startDate], map: "banners_idx_start_date")
+  @@index([endDate], map: "banners_idx_end_date")
   @@map("banners")
 }
 
 model Contact {
-  id         BigInt        @id @default(autoincrement())
-  name       String        @db.VarChar(255)
-  email      String        @db.VarChar(255)
-  phone      String?       @db.VarChar(50)
-  message    String        @db.Text
-  status     ContactStatus @default(Pending)
-  reply      String?       @db.Text
-  replied_at DateTime?     @db.Timestamp(0)
-  replied_by BigInt?
-  created_at DateTime      @default(now()) @db.Timestamp(0)
-  updated_at DateTime      @updatedAt @db.Timestamp(0)
+  id        BigInt        @id @default(autoincrement())
+  name      String        @db.VarChar(255)
+  email     String        @db.VarChar(255)
+  phone     String?       @db.VarChar(50)
+  message   String        @db.Text
+  status    ContactStatus @default(Pending)
+  reply     String?       @db.Text
+  repliedAt DateTime?     @map("replied_at") @db.Timestamp(0)
+  repliedBy BigInt?       @map("replied_by")
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamp(0)
+  updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamp(0)
 
   @@index([status], map: "contacts_idx_status")
   @@index([email], map: "contacts_idx_email")
-  @@index([created_at], map: "contacts_idx_created_at")
+  @@index([createdAt], map: "contacts_idx_created_at")
   @@map("contacts")
 }
 
 model Outbox {
-  id         BigInt   @id @default(autoincrement())
-  event_type String   @db.VarChar(100)
-  payload    Json
-  published  Boolean  @default(false)
-  created_at DateTime @default(now()) @db.Timestamp(0)
+  id        BigInt   @id @default(autoincrement())
+  eventType String   @map("event_type") @db.VarChar(100)
+  payload   Json
+  published Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
 
-  @@index([published, created_at], map: "outbox_idx_published")
+  @@index([published, createdAt], map: "outbox_idx_published")
   @@map("outbox")
 }

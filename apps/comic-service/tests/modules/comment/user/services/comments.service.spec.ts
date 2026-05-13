@@ -91,7 +91,7 @@ describe('UserCommentService', () => {
   // create()
   // -----------------------------------------------------------------------
   describe('create()', () => {
-    const dto = { comic_id: 10n, content: 'Great comic!' } as any;
+    const dto = { comicId: 10n, content: 'Great comic!' } as any;
 
     it('creates a top-level comment', async () => {
       const { service, commentRepo } = buildService();
@@ -114,52 +114,52 @@ describe('UserCommentService', () => {
     it('validates chapter belongs to comic', async () => {
       const { service, commentRepo } = buildService();
       commentRepo.existsPublishedChapter.mockResolvedValue(false);
-      const dtoWithChapter = { ...dto, chapter_id: 100n };
+      const dtoWithChapter = { ...dto, chapterId: 100n };
 
       await expect(service.create(1n, dtoWithChapter)).rejects.toThrow(BadRequestException);
     });
 
     it('creates a reply to a parent comment', async () => {
       const { service, commentRepo } = buildService();
-      const parent = { id: 5n, user_id: 2n, comic_id: 10n, parent_id: null };
+      const parent = { id: 5n, userId: 2n, comicId: 10n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
-      commentRepo.create.mockResolvedValue({ id: 6n, parent_id: 5n });
+      commentRepo.create.mockResolvedValue({ id: 6n, parentId: 5n });
 
-      const result = await service.create(1n, { ...dto, parent_id: 5n });
+      const result = await service.create(1n, { ...dto, parentId: 5n });
 
-      expect(result.parent_id).toBe(5n);
+      expect(result.parentId).toBe(5n);
     });
 
     it('throws NotFoundException when parent comment not found', async () => {
       const { service, commentRepo } = buildService();
       commentRepo.findById.mockResolvedValue(null);
 
-      await expect(service.create(1n, { ...dto, parent_id: 999n })).rejects.toThrow(NotFoundException);
+      await expect(service.create(1n, { ...dto, parentId: 999n })).rejects.toThrow(NotFoundException);
     });
 
     it('throws ForbiddenException when parent belongs to different comic', async () => {
       const { service, commentRepo } = buildService();
-      commentRepo.findById.mockResolvedValue({ id: 5n, user_id: 2n, comic_id: 99n, parent_id: null });
+      commentRepo.findById.mockResolvedValue({ id: 5n, userId: 2n, comicId: 99n, parentId: null });
 
-      await expect(service.create(1n, { ...dto, parent_id: 5n })).rejects.toThrow(ForbiddenException);
+      await expect(service.create(1n, { ...dto, parentId: 5n })).rejects.toThrow(ForbiddenException);
     });
 
     it('throws BadRequestException when reply depth exceeds 1', async () => {
       const { service, commentRepo } = buildService();
-      // parent itself has a parent_id, so it's already depth 1
-      commentRepo.findById.mockResolvedValue({ id: 5n, user_id: 2n, comic_id: 10n, parent_id: 3n });
+      // parent itself has a parentId, so it's already depth 1
+      commentRepo.findById.mockResolvedValue({ id: 5n, userId: 2n, comicId: 10n, parentId: 3n });
 
-      await expect(service.create(1n, { ...dto, parent_id: 5n })).rejects.toThrow(BadRequestException);
+      await expect(service.create(1n, { ...dto, parentId: 5n })).rejects.toThrow(BadRequestException);
     });
 
     it('creates Kafka outbox when replying to another user with kafka enabled', async () => {
       const { service, commentRepo, config } = buildService();
       config.get.mockReturnValue(true);
-      const parent = { id: 5n, user_id: 2n, comic_id: 10n, parent_id: null };
+      const parent = { id: 5n, userId: 2n, comicId: 10n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
-      commentRepo.create.mockResolvedValue({ id: 6n, parent_id: 5n });
+      commentRepo.create.mockResolvedValue({ id: 6n, parentId: 5n });
 
-      await service.create(1n, { ...dto, parent_id: 5n });
+      await service.create(1n, { ...dto, parentId: 5n });
 
       expect(commentRepo.createOutbox).toHaveBeenCalledWith(
         'comic.comment.created',
@@ -174,11 +174,11 @@ describe('UserCommentService', () => {
     it('does not create outbox when replying to own comment', async () => {
       const { service, commentRepo, config } = buildService();
       config.get.mockReturnValue(true);
-      const parent = { id: 5n, user_id: 1n, comic_id: 10n, parent_id: null };
+      const parent = { id: 5n, userId: 1n, comicId: 10n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
       commentRepo.create.mockResolvedValue({ id: 6n });
 
-      await service.create(1n, { ...dto, parent_id: 5n });
+      await service.create(1n, { ...dto, parentId: 5n });
 
       expect(commentRepo.createOutbox).not.toHaveBeenCalled();
     });

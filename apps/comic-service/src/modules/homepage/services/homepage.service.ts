@@ -7,19 +7,19 @@ export class HomepageService {
   constructor(private readonly homepageRepo: HomepageRepository) {}
 
   async getTopViewed(limit: number) {
-    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { stats: { view_count: 'desc' } }, limit);
+    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { stats: { viewCount: 'desc' } }, limit);
   }
 
   async getPopular(limit: number) {
-    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { stats: { follow_count: 'desc' } }, limit);
+    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { stats: { followCount: 'desc' } }, limit);
   }
 
   async getNewest(limit: number) {
-    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { created_at: 'desc' }, limit);
+    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { createdAt: 'desc' }, limit);
   }
 
   async getRecentlyUpdated(limit: number) {
-    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { last_chapter_updated_at: 'desc' }, limit);
+    return this.homepageRepo.findComics(PUBLIC_COMIC_STATUSES, { lastChapterUpdatedAt: 'desc' }, limit);
   }
 
   async getCategories() {

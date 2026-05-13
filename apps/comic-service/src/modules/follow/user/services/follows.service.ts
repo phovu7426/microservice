@@ -16,7 +16,7 @@ export class UserFollowService {
   async getList(userId: PrimaryKey, query: any = {}) {
     const options = parseQueryOptions(query);
 
-    const filter: FollowFilter = { user_id: userId };
+    const filter: FollowFilter = { userId: userId };
 
     const [data, total] = await Promise.all([
       this.followRepo.findMany(filter, options),
