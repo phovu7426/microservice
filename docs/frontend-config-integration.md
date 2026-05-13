@@ -16,7 +16,14 @@
   "code": "SUCCESS",
   "httpStatus": 200,
   "data": [...],
-  "meta": { "page": 1, "limit": 10, "total": 100, "totalPages": 10 },
+  "meta": {
+    "page": 1,
+    "limit": 10,
+    "total": 100,
+    "totalPages": 10,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+  },
   "timestamp": "2026-05-13T10:00:00+07:00"
 }
 
@@ -40,7 +47,7 @@
 |---------|-------|
 | Public | Khong can dang nhap |
 | User | Can header `Authorization: Bearer {token}` |
-| Admin | Can JWT co quyen admin |
+| Admin | Can JWT co quyen admin tuong ung |
 
 ---
 
@@ -60,10 +67,23 @@
 | Param | Kieu | Default | Mo ta |
 |-------|------|---------|-------|
 | `page` | number | `1` | Trang hien tai |
-| `limit` | number | `10` | So ban ghi moi trang |
-| `search` | string | — | Tim kiem toan van |
+| `limit` | number | `10` | So ban ghi moi trang (max 100) |
+| `search` | string | — | Tim kiem toan van (max 200) |
 | `sort` | string | — | Vi du: `name:ASC`, `createdAt:DESC` |
-| `skipCount` | boolean | `false` | `true` -> bo qua dem tong (tang hieu nang) |
+| `skipCount` | boolean string | `"false"` | `"true"` -> bo qua dem tong (tang hieu nang) |
+
+**Response `meta` cho List:**
+
+```json
+{
+  "page": 1,
+  "limit": 10,
+  "total": 100,
+  "totalPages": 10,
+  "hasNextPage": true,
+  "hasPreviousPage": false
+}
+```
 
 ---
 
@@ -111,7 +131,11 @@ Lay cau hinh chung cua site (cache Redis 10 phut).
   "canonicalUrl": "https://example.com",
   "googleAnalyticsId": "G-XXXXXXXXXX",
   "facebookPixelId": "123456789",
-  "twitterSite": "@handle"
+  "twitterSite": "@handle",
+  "createdUserId": null,
+  "updatedUserId": null,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-05-13T10:00:00.000Z"
 }
 ```
 
@@ -119,13 +143,13 @@ Lay cau hinh chung cua site (cache Redis 10 phut).
 
 ### Admin GET `/api/config/admin/general`
 
-Lay cau hinh (admin). Giong public, them `googleSearchConsole`.
+Lay cau hinh (admin, quyen `config.manage`). Giong public, them `googleSearchConsole`.
 
 ---
 
 ### Admin PUT `/api/config/admin/general`
 
-Cap nhat cau hinh chung. Tat ca field optional — chi gui field can thay doi.
+Cap nhat cau hinh chung (quyen `config.manage`). Tat ca field optional — chi gui field can thay doi.
 
 **Request Body:**
 
@@ -138,17 +162,17 @@ Cap nhat cau hinh chung. Tat ca field optional — chi gui field can thay doi.
   "siteEmail": "email (max 255)",
   "sitePhone": "string (max 20)",
   "siteAddress": "string",
-  "siteCountryId": "numeric string",
-  "siteProvinceId": "numeric string",
-  "siteWardId": "numeric string",
+  "siteCountryId": "numeric string (1-20 digits)",
+  "siteProvinceId": "numeric string (1-20 digits)",
+  "siteWardId": "numeric string (1-20 digits)",
   "siteCopyright": "string (max 255)",
   "timezone": "string (max 50), VD: 'Asia/Ho_Chi_Minh'",
   "locale": "string (max 10), VD: 'vi'",
   "currency": "string (max 10), VD: 'VND'",
   "contactChannels": [
     {
-      "type": "string",
-      "value": "string",
+      "type": "string (bat buoc)",
+      "value": "string (bat buoc)",
       "label": "string? (max 255)",
       "icon": "string? (max 500)",
       "urlTemplate": "string? (max 500)",
@@ -160,8 +184,8 @@ Cap nhat cau hinh chung. Tat ca field optional — chi gui field can thay doi.
   "metaKeywords": "string",
   "ogTitle": "string (max 255)",
   "ogDescription": "string",
-  "ogImage": "URL (max 500)",
-  "canonicalUrl": "URL (max 500)",
+  "ogImage": "URL http/https (max 500)",
+  "canonicalUrl": "URL http/https (max 500)",
   "googleAnalyticsId": "string (max 50)",
   "googleSearchConsole": "string (max 255)",
   "facebookPixelId": "string (max 50)",
@@ -171,7 +195,50 @@ Cap nhat cau hinh chung. Tat ca field optional — chi gui field can thay doi.
 
 ---
 
-## 2. Menu
+## 2. Email Config
+
+### Admin PUT `/api/config/admin/email`
+
+Cap nhat cau hinh SMTP email (quyen `config.manage`). Tat ca field optional.
+
+**Request Body:**
+
+```json
+{
+  "smtpHost": "string (valid public hostname, max 255)",
+  "smtpPort": "number (1-65535)",
+  "smtpSecure": "boolean",
+  "smtpUsername": "string (max 255)",
+  "smtpPassword": "string (min 6, max 500)",
+  "fromEmail": "email (max 255)",
+  "fromName": "string (max 255)",
+  "replyToEmail": "email (max 255)"
+}
+```
+
+**Response `data`:**
+
+```json
+{
+  "id": "1",
+  "smtpHost": "smtp.example.com",
+  "smtpPort": 587,
+  "smtpSecure": true,
+  "smtpUsername": "user@example.com",
+  "smtpPassword": "••••••",
+  "fromEmail": "noreply@example.com",
+  "fromName": "Comic Platform",
+  "replyToEmail": null,
+  "createdUserId": null,
+  "updatedUserId": null,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-05-13T10:00:00.000Z"
+}
+```
+
+---
+
+## 3. Menu
 
 ### Public GET `/api/config/menus`
 
@@ -223,7 +290,7 @@ Lay cay menu admin theo quyen cua user dang dang nhap.
 
 ### Admin GET `/api/config/admin/menus`
 
-Danh sach menu co phan trang.
+Danh sach menu co phan trang (quyen `menu.manage`).
 
 **Query params:**
 
@@ -231,8 +298,8 @@ Danh sach menu co phan trang.
 |-------|------|-------|
 | `status` | `active` \| `inactive` | |
 | `parentId` | numeric string | Loc theo menu cha |
-| `showInMenu` | `true` \| `false` | |
-| `group` | string | `admin`, `client`, ... |
+| `showInMenu` | boolean string | `"true"` \| `"false"` |
+| `group` | string (max 50) | `admin`, `client`, ... |
 | + phan trang | | |
 
 ---
@@ -275,7 +342,7 @@ Chi tiet menu.
 
 ### Admin POST `/api/config/admin/menus`
 
-Tao menu moi.
+Tao menu moi. (HTTP 201)
 
 ```json
 {
@@ -307,15 +374,15 @@ Cap nhat menu. Giong POST, tat ca optional. `parentId` truyen `null` hoac `""` d
 
 ### Admin DELETE `/api/config/admin/menus/:id`
 
-Xoa menu.
+Xoa menu. **Response `data`:** `true`
 
 ---
 
-## 3. Quoc gia (Country)
+## 4. Quoc gia (Country)
 
 ### Public GET `/api/config/countries`
 
-Danh sach quoc gia (chi active).
+Danh sach quoc gia (chi active, cache 24h).
 
 **Query params:** `name`, `code` + phan trang
 
@@ -331,7 +398,11 @@ Danh sach quoc gia (chi active).
   "phoneCode": "+84",
   "currencyCode": "VND",
   "flagEmoji": "VN",
-  "status": "active"
+  "status": "active",
+  "createdUserId": null,
+  "updatedUserId": null,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
 }
 ```
 
@@ -339,7 +410,7 @@ Danh sach quoc gia (chi active).
 
 ### Public GET `/api/config/countries/:id/provinces`
 
-Danh sach tinh/thanh cua quoc gia (chi active).
+Danh sach tinh/thanh cua quoc gia (chi active, cache 24h).
 
 **Query params:** `name`, `code` + phan trang
 
@@ -347,7 +418,7 @@ Danh sach tinh/thanh cua quoc gia (chi active).
 
 ### Admin GET `/api/config/admin/countries`
 
-Danh sach quoc gia admin (bao gom inactive).
+Danh sach quoc gia admin (bao gom inactive, quyen `country.manage`).
 
 **Query params them:** `status` (`active` | `inactive`), `name`, `code` + phan trang
 
@@ -355,17 +426,19 @@ Danh sach quoc gia admin (bao gom inactive).
 
 ### Admin GET `/api/config/admin/countries/simple`
 
-Danh sach rut gon (limit 1000, skipCount) — dung cho dropdown.
+Danh sach rut gon (limit 1000, skipCount forced) — dung cho dropdown.
 
 ---
 
 ### Admin GET `/api/config/admin/countries/:id`
 
-Chi tiet quoc gia.
+Chi tiet quoc gia. Response giong `data[i]` cua list.
 
 ---
 
 ### Admin POST `/api/config/admin/countries`
+
+Tao quoc gia moi. (HTTP 201)
 
 ```json
 {
@@ -390,27 +463,48 @@ Cap nhat. Tat ca optional.
 
 ### Admin DELETE `/api/config/admin/countries/:id`
 
-Xoa. **`409 Conflict`** neu con tinh/thanh lien ket.
+Xoa. **`409 Conflict`** neu con tinh/thanh lien ket. **Response `data`:** `true`
 
 ---
 
-## 4. Tinh/Thanh pho (Province)
+## 5. Tinh/Thanh pho (Province)
 
 ### Public GET `/api/config/provinces`
 
 **Query params:** `name`, `code` + phan trang
 
+**Response `data[i]`:**
+
+```json
+{
+  "id": "1",
+  "code": "HCM",
+  "name": "Ho Chi Minh",
+  "type": "Thanh pho Truc thuoc Trung uong",
+  "phoneCode": "028",
+  "countryId": "1",
+  "status": "active",
+  "note": null,
+  "codeBnv": null,
+  "codeTms": null,
+  "createdUserId": null,
+  "updatedUserId": null,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
 ---
 
 ### Public GET `/api/config/countries/:countryId/provinces`
 
-Tinh theo quoc gia.
+Tinh theo quoc gia (cache 24h).
 
 ---
 
 ### Public GET `/api/config/provinces/:id/wards`
 
-Phuong/xa theo tinh. **Query params:** `name`, `code` + phan trang
+Phuong/xa theo tinh (cache 24h). **Query params:** `name`, `code` + phan trang
 
 ---
 
@@ -422,19 +516,27 @@ Phuong/xa theo tinh. **Query params:** `name`, `code` + phan trang
 
 ### Admin GET `/api/config/admin/provinces/simple`
 
-Dropdown — limit 2000, skipCount.
+Dropdown — limit 1000, skipCount forced.
+
+---
+
+### Admin GET `/api/config/admin/provinces/:id`
+
+Chi tiet tinh. Response giong `data[i]` cua list.
 
 ---
 
 ### Admin POST `/api/config/admin/provinces`
 
+Tao tinh moi. (HTTP 201)
+
 ```json
 {
   "code": "string (max 20, bat buoc)",
   "name": "string (max 255, bat buoc)",
-  "type": "string (max 50, bat buoc) — VD: 'Tinh', 'Thanh pho Trung uong'",
+  "type": "string (max 50, bat buoc) — VD: 'Tinh', 'Thanh pho Truc thuoc Trung uong'",
   "phoneCode": "string? (max 20)",
-  "countryId": "numeric string (bat buoc)",
+  "countryId": "numeric string (1-20 digits, bat buoc)",
   "status": "active | inactive",
   "note": "string? (max 2000)",
   "codeBnv": "string? (max 20)",
@@ -444,21 +546,38 @@ Dropdown — limit 2000, skipCount.
 
 ### Admin GET `:id` / PATCH `:id` / DELETE `:id`
 
-CRUD tieu chuan.
+CRUD tieu chuan. DELETE tra `true`. Wards bi cascade xoa khi xoa tinh.
 
 ---
 
-## 5. Phuong/Xa (Ward)
+## 6. Phuong/Xa (Ward)
 
 ### Public GET `/api/config/wards`
 
 **Query params:** `name`, `code` + phan trang
 
+**Response `data[i]`:**
+
+```json
+{
+  "id": "1",
+  "provinceId": "1",
+  "name": "Phuong Ben Nghe",
+  "type": "Phuong",
+  "code": "26734",
+  "status": "active",
+  "createdUserId": null,
+  "updatedUserId": null,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}
+```
+
 ---
 
 ### Public GET `/api/config/provinces/:provinceId/wards`
 
-Phuong/xa theo tinh.
+Phuong/xa theo tinh (cache 24h).
 
 ---
 
@@ -470,15 +589,23 @@ Phuong/xa theo tinh.
 
 ### Admin GET `/api/config/admin/wards/simple`
 
-Dropdown.
+Dropdown — limit 1000, skipCount forced.
+
+---
+
+### Admin GET `/api/config/admin/wards/:id`
+
+Chi tiet phuong/xa. Response giong `data[i]` cua list.
 
 ---
 
 ### Admin POST `/api/config/admin/wards`
 
+Tao phuong/xa moi. (HTTP 201)
+
 ```json
 {
-  "provinceId": "numeric string (bat buoc)",
+  "provinceId": "numeric string (1-20 digits, bat buoc)",
   "name": "string (max 255, bat buoc)",
   "type": "string (max 50, bat buoc) — VD: 'Phuong', 'Xa', 'Thi tran'",
   "code": "string (max 20, bat buoc)",
@@ -488,19 +615,26 @@ Dropdown.
 
 ### Admin GET `:id` / PATCH `:id` / DELETE `:id`
 
-CRUD tieu chuan.
+CRUD tieu chuan. DELETE tra `true`.
 
 ---
 
-## 6. Cache
+## 7. Cache
 
 ### Public GET `/api/config/cache/flush`
 
-Xoa toan bo Redis cache. **Throttle: 5 req/phut.**
+Xoa toan bo Redis cache. **Throttle: 5 req/60s.**
+
+**Response `data`:**
 
 ```json
-{ "success": true, "data": { "flushed": true } }
+{
+  "flushed": true,
+  "reason": "redis_disabled"
+}
 ```
+
+> `reason` chi co khi `flushed = false`.
 
 ---
 
@@ -527,7 +661,7 @@ Xoa toan bo Redis cache. **Throttle: 5 req/phut.**
 |--------|------|------|-------|
 | GET | `/api/config/general` | Public | Cau hinh chung |
 | GET | `/api/config/admin/general` | Admin | Cau hinh chung (admin) |
-| PUT | `/api/config/admin/general` | Admin | Cap nhat cau hinh |
+| PUT | `/api/config/admin/general` | Admin | Cap nhat cau hinh chung |
 | PUT | `/api/config/admin/email` | Admin | Cap nhat SMTP email |
 | GET | `/api/config/menus` | Public | Menu public |
 | GET | `/api/config/user/menus` | User | Menu theo quyen user |

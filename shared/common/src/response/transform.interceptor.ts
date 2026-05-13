@@ -33,7 +33,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, any> {
         data,
         meta.page || meta.currentPage || 1,
         meta.limit || meta.itemsPerPage || 10,
-        meta.totalItems || 0,
+        meta.total ?? meta.totalItems ?? 0,
       );
     }
 

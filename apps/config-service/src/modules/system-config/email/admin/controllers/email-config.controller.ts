@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Put,
   Body,
   ValidationPipe,
@@ -14,9 +15,12 @@ export class AdminEmailConfigController {
     private readonly emailConfigService: EmailConfigService,
   ) {}
 
-  /**
-   * PUT /api/config/email — admin (JWT required)
-   */
+  @Permission('config.manage')
+  @Get()
+  getConfig() {
+    return this.emailConfigService.getConfig();
+  }
+
   @Permission('config.manage')
   @Put()
   updateConfig(
