@@ -228,6 +228,10 @@ export class UserAdminRepository {
       andConditions.push({ phone: query.phone });
     }
 
+    if (query.userIds?.length) {
+      andConditions.push({ id: { in: query.userIds } });
+    }
+
     if (andConditions.length > 0) {
       where.AND = andConditions;
     }
