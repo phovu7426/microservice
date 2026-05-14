@@ -54,4 +54,14 @@ export class SessionContext {
   get isAuthenticated(): boolean {
     return this.userId !== null;
   }
+
+  get groupId(): bigint | null {
+    const raw = this.req.headers['x-group-id'] as string | undefined;
+    if (!raw) return null;
+    try { return BigInt(raw); } catch { return null; }
+  }
+
+  get isSystemContext(): boolean {
+    return this.groupId === null;
+  }
 }

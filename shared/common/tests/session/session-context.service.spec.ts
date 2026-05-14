@@ -100,6 +100,33 @@ describe('SessionContextService', () => {
     });
   });
 
+  describe('group context', () => {
+    it('groupId retorna bigint quando x-group-id é válido', () => {
+      const ctx = service.fromRequest(mockReq({ headers: { 'x-group-id': '42' } }));
+      expect(ctx.groupId).toBe(42n);
+    });
+
+    it('groupId retorna null quando header ausente', () => {
+      const ctx = service.fromRequest(mockReq());
+      expect(ctx.groupId).toBeNull();
+    });
+
+    it('groupId retorna null quando header não é número', () => {
+      const ctx = service.fromRequest(mockReq({ headers: { 'x-group-id': 'abc' } }));
+      expect(ctx.groupId).toBeNull();
+    });
+
+    it('isSystemContext = false quando groupId presente', () => {
+      const ctx = service.fromRequest(mockReq({ headers: { 'x-group-id': '5' } }));
+      expect(ctx.isSystemContext).toBe(false);
+    });
+
+    it('isSystemContext = true quando groupId ausente', () => {
+      const ctx = service.fromRequest(mockReq());
+      expect(ctx.isSystemContext).toBe(true);
+    });
+  });
+
   describe('serverInfo', () => {
     it('trả về đầy đủ các field server', () => {
       const info = service.serverInfo();
