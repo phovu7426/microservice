@@ -1,8 +1,9 @@
-import { IsBooleanString, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { BaseListQueryDto } from '@package/common';
+import { TagStatus } from '../../enums/tag-status.enum';
 
 export class ListTagsAdminQueryDto extends BaseListQueryDto {
   @IsOptional()
-  @IsBooleanString()
-  isActive?: string;
+  @IsEnum(TagStatus)
+  status?: TagStatus;
 }

@@ -1,18 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from 'src/generated/prisma';
+import { TagStatus } from '../enums/tag-status.enum';
 import { toPrimaryKey } from 'src/types';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface TagFilter {
   search?: string;
-  isActive?: boolean;
+  status?: TagStatus;
 }
 
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'name',
   'slug',
   'description',
-  'isActive',
+  'status',
   'createdUserId',
   'updatedUserId',
 ]);
@@ -36,7 +37,7 @@ export class TagRepository {
         { slug: { contains: search, mode: 'insensitive' } },
       ];
     }
-    if (filter.isActive !== undefined) where.isActive = filter.isActive;
+    if (filter.status !== undefined) where.status = filter.status;
     return where;
   }
 
@@ -71,7 +72,7 @@ export class TagRepository {
 
   findAllActive() {
     return this.prisma.tag.findMany({
-      where: { isActive: true },
+      where: { status: TagStatus.active },
       select: { id: true, name: true, slug: true, description: true },
       orderBy: { name: 'asc' },
     });

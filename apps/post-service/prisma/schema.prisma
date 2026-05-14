@@ -13,7 +13,7 @@ model Category {
   slug           String   @unique @db.VarChar(255)
   description    String?  @db.Text
   parentId       BigInt?  @map("parent_id")
-  isActive       Boolean  @default(true) @map("is_active")
+  status         String   @default("active") @map("status")
   sortOrder      Int      @default(0) @map("sort_order")
   seoTitle       String?  @map("seo_title") @db.VarChar(255)
   seoDescription String?  @map("seo_description") @db.Text
@@ -31,7 +31,7 @@ model Category {
   @@index([slug], map: "categories_idx_slug")
   @@index([name], map: "categories_idx_name")
   @@index([parentId], map: "categories_idx_parent_id")
-  @@index([isActive], map: "categories_idx_is_active")
+  @@index([status], map: "categories_idx_status")
   @@index([sortOrder], map: "categories_idx_sort_order")
   @@index([createdAt], map: "categories_idx_created_at")
   @@index([createdUserId], map: "categories_idx_created_user_id")
@@ -45,7 +45,7 @@ model Tag {
   name           String   @db.VarChar(255)
   slug           String   @unique @db.VarChar(255)
   description    String?  @db.Text
-  isActive       Boolean  @default(true) @map("is_active")
+  status         String   @default("active") @map("status")
   createdUserId  BigInt?  @map("created_user_id")
   updatedUserId  BigInt?  @map("updated_user_id")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
@@ -56,7 +56,7 @@ model Tag {
 
   @@index([slug], map: "tags_idx_slug")
   @@index([name], map: "tags_idx_name")
-  @@index([isActive], map: "tags_idx_is_active")
+  @@index([status], map: "tags_idx_status")
   @@index([createdAt], map: "tags_idx_created_at")
   @@index([createdUserId], map: "tags_idx_created_user_id")
   @@index([updatedUserId], map: "tags_idx_updated_user_id")

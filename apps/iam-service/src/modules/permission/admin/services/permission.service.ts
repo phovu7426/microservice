@@ -85,6 +85,10 @@ export class PermissionService {
     return result;
   }
 
+  async getSimple(search?: string) {
+    return this.repo.findSimple(search);
+  }
+
   async delete(id: PrimaryKey) {
     await this.getOne(id);
     await this.repo.delete(id);

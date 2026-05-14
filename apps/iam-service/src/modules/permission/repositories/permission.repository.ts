@@ -96,6 +96,23 @@ export class PermissionRepository {
     return this.prisma.permission.delete({ where: { id: toPrimaryKey(id) } });
   }
 
+  findSimple(search?: string) {
+    const where: Prisma.PermissionWhereInput = search
+      ? {
+          OR: [
+            { code: { contains: search, mode: 'insensitive' } },
+            { name: { contains: search, mode: 'insensitive' } },
+          ],
+        }
+      : {};
+    return this.prisma.permission.findMany({
+      where,
+      select: { id: true, code: true, name: true },
+      orderBy: { code: 'asc' },
+      take: 200,
+    });
+  }
+
   async getParentId(id: bigint): Promise<bigint | null> {
     const row = await this.prisma.permission.findUnique({
       where: { id },

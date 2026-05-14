@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from 'src/generated/prisma';
+import { CategoryStatus } from '../enums/category-status.enum';
 import { toPrimaryKey } from 'src/types';
 import { PrismaService } from '../../../core/database/prisma.service';
 
 export interface CategoryFilter {
   search?: string;
   parentId?: any;
-  isActive?: boolean;
+  status?: CategoryStatus;
 }
 
 const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
@@ -15,7 +16,7 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'description',
   'parentId',
   'sortOrder',
-  'isActive',
+  'status',
   'seoTitle',
   'seoDescription',
   'seoKeywords',
@@ -45,7 +46,7 @@ const PUBLIC_TREE_SELECT = {
   seoDescription: true,
   seoKeywords: true,
   children: {
-    where: { isActive: true },
+    where: { status: CategoryStatus.active },
     select: {
       id: true,
       name: true,
@@ -76,7 +77,7 @@ export class CategoryRepository {
     if (filter.parentId !== undefined) {
       where.parentId = filter.parentId === null ? null : toPrimaryKey(filter.parentId);
     }
-    if (filter.isActive !== undefined) where.isActive = filter.isActive;
+    if (filter.status !== undefined) where.status = filter.status;
     return where;
   }
 
@@ -116,7 +117,7 @@ export class CategoryRepository {
 
   findRootActiveTree() {
     return this.prisma.category.findMany({
-      where: { isActive: true, parentId: null },
+      where: { status: CategoryStatus.active, parentId: null },
       select: PUBLIC_TREE_SELECT,
       orderBy: { sortOrder: 'asc' },
     });

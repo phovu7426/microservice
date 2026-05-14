@@ -27,6 +27,7 @@ export { parseDurationToSeconds } from './helpers/duration.helper';
 export { t } from './helpers/i18n.helper';
 export { LruSet } from './helpers/lru-set.helper';
 export { SlugHelper } from './helpers/slug.helper';
+export { EnumModule, type EnumItem } from './helpers/enum-module.helper';
 export { SanitizeHtmlPipe } from './pipes/sanitize-html.pipe';
 export { ParseBigIntPipe } from './pipes/parse-bigint.pipe';
 export { ImageValidator } from './validators/image-validator';

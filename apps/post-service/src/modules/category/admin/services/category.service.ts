@@ -40,9 +40,7 @@ export class AdminCategoryService {
     if (query.parentId !== undefined) {
       filter.parentId = query.parentId === 'null' ? null : query.parentId;
     }
-    if (query.isActive !== undefined) {
-      filter.isActive = query.isActive === 'true' || query.isActive === true;
-    }
+    if (query.status) filter.status = query.status;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([

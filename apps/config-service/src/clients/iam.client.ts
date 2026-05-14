@@ -27,6 +27,19 @@ export class IamClient implements OnModuleInit {
     });
   }
 
+  async getPermissionsSimple(search?: string): Promise<Array<{ id: string; code: string; name: string }>> {
+    const url = new URL(`${this.baseUrl}/internal/permissions/simple`);
+    if (search) url.searchParams.set('search', search);
+
+    try {
+      const data = await this.breaker.execute(() => this.doGet(url.toString()));
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      this.logger.warn(`IamClient getPermissionsSimple failed: ${(err as Error).message}`);
+      return [];
+    }
+  }
+
   async getUserPermissions(userId: string, groupId?: string): Promise<Set<string>> {
     const url = new URL(`${this.baseUrl}/internal/rbac/permissions`);
     url.searchParams.set('userId', userId);

@@ -11,6 +11,12 @@ export class PermissionController {
   constructor(private readonly service: PermissionService) {}
 
   @Permission('permission.manage')
+  @Get('simple')
+  getSimple(@Query('search') search?: string) {
+    return this.service.getSimple(search);
+  }
+
+  @Permission('permission.manage')
   @Get()
   getList(@Query() query: ListPermissionsAdminQueryDto) {
     return this.service.getList(query);

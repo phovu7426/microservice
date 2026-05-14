@@ -20,9 +20,7 @@ export class AdminTagService {
 
     const filter: TagFilter = {};
     if (query.search) filter.search = query.search;
-    if (query.isActive !== undefined) {
-      filter.isActive = query.isActive === 'true' || query.isActive === true;
-    }
+    if (query.status) filter.status = query.status;
 
     const skipCount = query.skipCount === true || query.skipCount === 'true';
     const [data, total] = await Promise.all([

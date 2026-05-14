@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsNumber, IsBoolean, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsEnum, MaxLength } from 'class-validator';
+import { CategoryStatus } from '../../enums/category-status.enum';
 
 export class CreateCategoryDto {
   @IsString()
@@ -14,8 +15,8 @@ export class CreateCategoryDto {
   parentId?: number;
 
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  @IsEnum(CategoryStatus)
+  status?: CategoryStatus;
 
   @IsOptional()
   @IsNumber()

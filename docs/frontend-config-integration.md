@@ -197,6 +197,32 @@ Cap nhat cau hinh chung (quyen `config.manage`). Tat ca field optional — chi g
 
 ## 2. Email Config
 
+### Admin GET `/api/config/admin/email`
+
+Lay cau hinh SMTP hien tai (quyen `config.manage`).
+
+**Response `data`:**
+
+```json
+{
+  "id": "1",
+  "smtpHost": "smtp.example.com",
+  "smtpPort": 587,
+  "smtpSecure": true,
+  "smtpUsername": "user@example.com",
+  "smtpPassword": "••••••",
+  "fromEmail": "noreply@example.com",
+  "fromName": "Comic Platform",
+  "replyToEmail": null,
+  "createdUserId": null,
+  "updatedUserId": null,
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "updatedAt": "2026-05-13T10:00:00.000Z"
+}
+```
+
+---
+
 ### Admin PUT `/api/config/admin/email`
 
 Cap nhat cau hinh SMTP email (quyen `config.manage`). Tat ca field optional.
@@ -375,6 +401,60 @@ Cap nhat menu. Giong POST, tat ca optional. `parentId` truyen `null` hoac `""` d
 ### Admin DELETE `/api/config/admin/menus/:id`
 
 Xoa menu. **Response `data`:** `true`
+
+---
+
+### Admin GET `/api/config/admin/permissions`
+
+Lay danh sach quyen de chon khi tao/sua menu (quyen `menu.manage`). Goi noi bo toi IAM service — FE chi can quyen `menu.manage`, KHONG can `permission.manage`.
+
+**Query params:**
+
+| Param | Kieu | Mo ta |
+|-------|------|-------|
+| `search` | string | Tim kiem theo code hoac name |
+
+**Response `data`:**
+
+```json
+[
+  { "id": "1", "code": "dashboard.view", "name": "Xem dashboard" },
+  { "id": "2", "code": "menu.manage", "name": "Quan ly menu" },
+  { "id": "3", "code": "user.manage", "name": "Quan ly nguoi dung" }
+]
+```
+
+> Max 200 quyen. Dung cho truong `requiredPermissionCode` khi tao/sua menu.
+
+---
+
+### Public GET `/api/config/menus/enums/:key`
+
+Lay danh sach gia tri enum cho menu. **Khong can dang nhap.**
+
+| Key | Mo ta | Gia tri |
+|-----|-------|---------|
+| `types` | Loai menu | `route`, `group`, `link` |
+| `statuses` | Trang thai | `active`, `inactive` |
+| `groups` | Nhom menu | `admin`, `client` |
+
+**Vi du request:**
+
+```
+GET /api/config/menus/enums/types
+GET /api/config/menus/enums/statuses
+GET /api/config/menus/enums/groups
+```
+
+**Response `data`:**
+
+```json
+[
+  { "value": "route", "label": "Route (Noi bo)" },
+  { "value": "group", "label": "Group (Nhom)" },
+  { "value": "link", "label": "Link (Ben ngoai)" }
+]
+```
 
 ---
 
@@ -662,15 +742,20 @@ Xoa toan bo Redis cache. **Throttle: 5 req/60s.**
 | GET | `/api/config/general` | Public | Cau hinh chung |
 | GET | `/api/config/admin/general` | Admin | Cau hinh chung (admin) |
 | PUT | `/api/config/admin/general` | Admin | Cap nhat cau hinh chung |
+| GET | `/api/config/admin/email` | Admin | Lay cau hinh SMTP |
 | PUT | `/api/config/admin/email` | Admin | Cap nhat SMTP email |
 | GET | `/api/config/menus` | Public | Menu public |
 | GET | `/api/config/user/menus` | User | Menu theo quyen user |
 | GET | `/api/config/admin/menus` | Admin | Danh sach menu |
 | GET | `/api/config/admin/menus/tree` | Admin | Cay menu |
+| GET | `/api/config/admin/permissions` | Admin | DS quyen cho menu |
 | GET | `/api/config/admin/menus/:id` | Admin | Chi tiet menu |
 | POST | `/api/config/admin/menus` | Admin | Tao menu |
 | PUT | `/api/config/admin/menus/:id` | Admin | Cap nhat menu |
 | DELETE | `/api/config/admin/menus/:id` | Admin | Xoa menu |
+| GET | `/api/config/menus/enums/types` | Public | Enum loai menu |
+| GET | `/api/config/menus/enums/statuses` | Public | Enum trang thai menu |
+| GET | `/api/config/menus/enums/groups` | Public | Enum nhom menu |
 | GET | `/api/config/countries` | Public | DS quoc gia |
 | GET | `/api/config/countries/:id/provinces` | Public | Tinh theo quoc gia |
 | GET | `/api/config/admin/countries` | Admin | DS quoc gia (admin) |

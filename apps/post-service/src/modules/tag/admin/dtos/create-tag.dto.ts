@@ -1,4 +1,5 @@
-import { IsString, IsOptional, IsBoolean, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsEnum, MaxLength } from 'class-validator';
+import { TagStatus } from '../../enums/tag-status.enum';
 
 export class CreateTagDto {
   @IsString()
@@ -10,6 +11,6 @@ export class CreateTagDto {
   description?: string;
 
   @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
+  @IsEnum(TagStatus)
+  status?: TagStatus;
 }

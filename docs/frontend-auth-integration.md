@@ -647,6 +647,38 @@ Doi trang thai user.
 
 ---
 
+## 7. Enum (Danh sach gia tri)
+
+### Public GET `/api/auth/users/enums/:key`
+
+Lay danh sach gia tri enum de hien thi dropdown / label. **Khong can dang nhap.**
+
+| Key | Mo ta | Gia tri |
+|-----|-------|---------|
+| `genders` | Gioi tinh | `male`, `female`, `other` |
+| `statuses` | Trang thai user | `active`, `inactive`, `locked` |
+
+**Vi du request:**
+
+```
+GET /api/auth/users/enums/genders
+GET /api/auth/users/enums/statuses
+```
+
+**Response `data`:**
+
+```json
+[
+  { "value": "male", "label": "Nam" },
+  { "value": "female", "label": "Nu" },
+  { "value": "other", "label": "Khac" }
+]
+```
+
+> Dung de hien thi label tieng Viet trong dropdown thay vi hien thi raw enum value.
+
+---
+
 ## Tong hop endpoint
 
 | Method | Path | Auth | Mo ta |
@@ -673,3 +705,5 @@ Doi trang thai user.
 | DELETE | `/api/auth/admin/users/:id` | Admin | Xoa user |
 | PATCH | `/api/auth/admin/users/:id/password` | Admin | Doi MK user |
 | PATCH | `/api/auth/admin/users/:id/status` | Admin | Doi trang thai |
+| GET | `/api/auth/users/enums/genders` | Public | Enum gioi tinh |
+| GET | `/api/auth/users/enums/statuses` | Public | Enum trang thai user |

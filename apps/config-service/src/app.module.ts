@@ -17,6 +17,7 @@ import { SystemConfigModule } from './modules/system-config/system-config.module
 import { MenuModule } from './modules/menu/menu.module';
 import { LocationModule } from './modules/location/location.module';
 import { CachePurgeModule } from './modules/cache-purge/cache-purge.module';
+import { PermissionModule } from './modules/permission/permission.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { CachePurgeModule } from './modules/cache-purge/cache-purge.module';
     MenuModule,
     LocationModule,
     CachePurgeModule,
+    PermissionModule,
   ],
   providers: [
     {
