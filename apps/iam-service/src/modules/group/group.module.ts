@@ -11,5 +11,6 @@ import * as GroupEnums from './enums';
   imports: [EnumModule.register({ path: 'groups/enums', enums: GroupEnums })],
   controllers: [GroupController, UserGroupController],
   providers: [GroupService, GroupRepository, UserGroupService],
+  exports: [GroupRepository],
 })
 export class GroupModule {}

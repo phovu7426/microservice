@@ -107,6 +107,18 @@ export class GroupRepository {
     return this.prisma.userGroup.count({ where: { groupId: toPrimaryKey(groupId) } });
   }
 
+  /**
+   * Returns list of userIds belonging to the group.
+   * Used by internal API for auth-service group scope filtering.
+   */
+  async findMemberIds(groupId: bigint): Promise<bigint[]> {
+    const records = await this.prisma.userGroup.findMany({
+      where: { groupId: toPrimaryKey(groupId) },
+      select: { userId: true },
+    });
+    return records.map(r => r.userId);
+  }
+
   addMember(groupId: string | bigint, userId: string | bigint) {
     const gid = toPrimaryKey(groupId);
     const uid = toPrimaryKey(userId);
