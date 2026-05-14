@@ -62,3 +62,4 @@ export { SessionContextService } from './session/session-context.service';
 export { SessionContextMiddleware } from './session/session-context.middleware';
 export { SessionModule } from './session/session.module';
 export { session } from './session/session-context.storage';
+export { getSessionGroupId } from './session/group-filter.helper';
