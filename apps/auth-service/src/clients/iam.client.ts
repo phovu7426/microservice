@@ -72,6 +72,57 @@ export class IamClient implements OnModuleInit {
     return allowed;
   }
 
+  private static readonly GROUP_MEMBERS_CACHE_TTL = 120; // 2 minutes
+
+  async getGroupMemberIds(groupId: string): Promise<bigint[]> {
+    const cacheKey = `group:members:${groupId}`;
+
+    try {
+      const cached = await this.redis.get(cacheKey);
+      if (cached) return (JSON.parse(cached) as string[]).map(BigInt);
+    } catch { /* Redis unavailable — fall through */ }
+
+    const data = await this.doGet(
+      `${this.baseUrl}/internal/groups/${groupId}/member-ids`,
+    );
+    const userIds: string[] = data?.userIds ?? [];
+
+    try {
+      await this.redis.set(
+        cacheKey,
+        JSON.stringify(userIds),
+        IamClient.GROUP_MEMBERS_CACHE_TTL,
+      );
+    } catch { /* not critical */ }
+
+    return userIds.map(BigInt);
+  }
+
+  private async doGet(url: string): Promise<any> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), IAM_TIMEOUT_MS);
+
+    try {
+      return await this.breaker.execute(async () => {
+        const headers: Record<string, string> = {};
+        if (this.internalSecret) headers['x-internal-secret'] = this.internalSecret;
+
+        const res = await fetch(url, {
+          method: 'GET',
+          headers,
+          signal: controller.signal,
+        });
+
+        if (!res.ok) throw new Error(`IAM returned ${res.status}`);
+
+        const json = await res.json();
+        return json?.data ?? json;
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   private async doPost(url: string, body: Record<string, unknown>): Promise<any> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), IAM_TIMEOUT_MS);
