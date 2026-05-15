@@ -30,7 +30,8 @@ model User {
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
 
-  profile Profile?
+  profile     Profile?
+  userGroups  UserGroup[]
 
   @@index([status], map: "users_idx_status")
   @@index([createdAt], map: "users_idx_created_at")
@@ -59,6 +60,18 @@ model Profile {
   @@index([countryId], map: "profiles_idx_country_id")
   @@index([userId], map: "profiles_idx_user_id")
   @@map("profiles")
+}
+
+model UserGroup {
+  userId    BigInt   @map("user_id")
+  groupId   BigInt   @map("group_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, groupId])
+  @@index([groupId])
+  @@map("user_groups")
 }
 
 // ============================================
