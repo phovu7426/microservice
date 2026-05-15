@@ -11,6 +11,9 @@ const TOPIC_MAP: Record<string, string> = {
   'user.role.assigned': 'user.role.assigned',
   'user.role.revoked': 'user.role.revoked',
   'rbac.cache.invalidate': 'rbac.cache.invalidate',
+  'group.member.added': 'group.member.added',
+  'group.member.removed': 'group.member.removed',
+  'group.deleted': 'group.deleted',
 };
 
 @Injectable()
