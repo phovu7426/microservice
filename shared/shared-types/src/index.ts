@@ -5,3 +5,4 @@ export * from './events/user-registered.event';
 export * from './events/post-comment-created.event';
 export * from './events/contact-submitted.event';
 export * from './events/mail-send.event';
+export * from './events/group-membership.event';
