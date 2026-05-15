@@ -47,6 +47,10 @@ jest.mock('../../../../../src/rbac/repositories/rbac.repository', () => ({
   RbacRepository: jest.fn(),
 }));
 
+jest.mock('../../../../../src/kafka/services/rbac-event-publisher.service', () => ({
+  RbacEventPublisher: jest.fn(),
+}));
+
 // ---------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------
@@ -56,6 +60,8 @@ import { GroupService } from '../../../../../src/modules/group/admin/services/gr
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+const MOCK_TX = {} as any;
+
 function makeMockRepo() {
   return {
     findMany: jest.fn(),
@@ -69,6 +75,7 @@ function makeMockRepo() {
     countMembers: jest.fn(),
     addMember: jest.fn(),
     removeMember: jest.fn(),
+    withTransaction: jest.fn().mockImplementation(async (fn: (tx: any) => Promise<any>) => fn(MOCK_TX)),
   };
 }
 
@@ -83,13 +90,22 @@ function makeMockI18n() {
   return {} as any;
 }
 
+function makeMockEventPublisher() {
+  return {
+    publishGroupMemberAdded: jest.fn().mockResolvedValue(undefined),
+    publishGroupMemberRemoved: jest.fn().mockResolvedValue(undefined),
+    publishGroupDeleted: jest.fn().mockResolvedValue(undefined),
+  };
+}
+
 function createService(overrides: Record<string, any> = {}) {
   const repo = overrides.repo ?? makeMockRepo();
   const rbacCache = overrides.rbacCache ?? makeMockRbacCache();
   const i18n = overrides.i18n ?? makeMockI18n();
+  const eventPublisher = overrides.eventPublisher ?? makeMockEventPublisher();
 
-  const service = new (GroupService as any)(repo, rbacCache, i18n);
-  return { service, repo, rbacCache, i18n };
+  const service = new (GroupService as any)(repo, rbacCache, i18n, eventPublisher);
+  return { service, repo, rbacCache, i18n, eventPublisher };
 }
 
 // ---------------------------------------------------------------------------
@@ -145,11 +161,11 @@ describe('GroupService', () => {
       repo.create.mockResolvedValue({ id: BigInt(1) });
 
       await service.create(
-        { type: 'team', code: 'x', name: 'X', context_id: BigInt(1), owner_id: BigInt(50) } as any,
+        { type: 'team', code: 'x', name: 'X', contextId: '1', ownerId: '50' } as any,
         BigInt(100),
       );
       expect(repo.create).toHaveBeenCalledWith(
-        expect.objectContaining({ ownerId: BigInt(50) }),
+        expect.objectContaining({ ownerId: '50' }),
       );
     });
   });
@@ -188,7 +204,7 @@ describe('GroupService', () => {
       repo.findById.mockResolvedValue({ id: BigInt(1) });
       repo.update.mockResolvedValue({ id: BigInt(1) });
 
-      await service.update(BigInt(1), { owner_id: null } as any, BigInt(100));
+      await service.update(BigInt(1), { ownerId: null } as any, BigInt(100));
       expect(repo.update).toHaveBeenCalledWith(
         BigInt(1),
         expect.objectContaining({ ownerId: null }),
@@ -198,13 +214,19 @@ describe('GroupService', () => {
 
   // --- delete ---
   describe('delete', () => {
-    it('should delete and bump cache', async () => {
-      const { service, repo, rbacCache } = createService();
+    it('should delete, publish event, and bump cache', async () => {
+      const { service, repo, rbacCache, eventPublisher } = createService();
       repo.findById.mockResolvedValue({ id: BigInt(1) });
-      repo.delete.mockResolvedValue(undefined);
 
       const result = await service.delete(BigInt(1));
+
       expect(result.message).toBe('group.DELETED');
+      expect(repo.withTransaction).toHaveBeenCalled();
+      expect(repo.delete).toHaveBeenCalledWith(BigInt(1), MOCK_TX);
+      expect(eventPublisher.publishGroupDeleted).toHaveBeenCalledWith(
+        { groupId: BigInt(1) },
+        MOCK_TX,
+      );
       expect(rbacCache.bumpVersion).toHaveBeenCalled();
     });
 
@@ -232,28 +254,39 @@ describe('GroupService', () => {
 
   // --- addMember ---
   describe('addMember', () => {
-    it('should add member and clear their cache', async () => {
-      const { service, repo, rbacCache } = createService();
+    it('should call withTransaction, pass tx to addMember and publishGroupMemberAdded, then clear cache', async () => {
+      const { service, repo, rbacCache, eventPublisher } = createService();
       repo.findById.mockResolvedValue({ id: BigInt(1) });
-      repo.addMember.mockResolvedValue(undefined);
 
-      const result = await service.addMember(BigInt(1), { userId: 'u1' } as any);
+      const result = await service.addMember(BigInt(1), { userId: BigInt(42) } as any);
+
       expect(result.message).toBe('group.MEMBER_ADDED');
-      expect(repo.addMember).toHaveBeenCalledWith(BigInt(1), 'u1');
-      expect(rbacCache.clearAllUserCaches).toHaveBeenCalledWith('u1');
+      expect(repo.withTransaction).toHaveBeenCalled();
+      expect(repo.addMember).toHaveBeenCalledWith(BigInt(1), BigInt(42), MOCK_TX);
+      expect(eventPublisher.publishGroupMemberAdded).toHaveBeenCalledWith(
+        { groupId: BigInt(1), userId: BigInt(42) },
+        MOCK_TX,
+      );
+      expect(rbacCache.clearAllUserCaches).toHaveBeenCalledWith(BigInt(42));
     });
   });
 
   // --- removeMember ---
   describe('removeMember', () => {
-    it('should remove member and clear their cache', async () => {
-      const { service, repo, rbacCache } = createService();
+    it('should call withTransaction, pass tx to removeMember and publishGroupMemberRemoved, then clear cache', async () => {
+      const { service, repo, rbacCache, eventPublisher } = createService();
       repo.findById.mockResolvedValue({ id: BigInt(1) });
-      repo.removeMember.mockResolvedValue(undefined);
 
-      const result = await service.removeMember(BigInt(1), 'u1' as any);
+      const result = await service.removeMember(BigInt(1), BigInt(42));
+
       expect(result.message).toBe('group.MEMBER_REMOVED');
-      expect(rbacCache.clearAllUserCaches).toHaveBeenCalledWith('u1');
+      expect(repo.withTransaction).toHaveBeenCalled();
+      expect(repo.removeMember).toHaveBeenCalledWith(BigInt(1), BigInt(42), MOCK_TX);
+      expect(eventPublisher.publishGroupMemberRemoved).toHaveBeenCalledWith(
+        { groupId: BigInt(1), userId: BigInt(42) },
+        MOCK_TX,
+      );
+      expect(rbacCache.clearAllUserCaches).toHaveBeenCalledWith(BigInt(42));
     });
   });
 });
