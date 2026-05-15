@@ -14,8 +14,8 @@ import { getSessionGroupId } from '../session/group-filter.helper';
 export abstract class GroupAwareService<R extends IRepository<any>, T = R extends IRepository<infer U> ? U : never> extends CrudService<R, T> {
   /**
    * Merge groupId vào filter object.
-   * Default: thêm field `groupId` dạng string.
-   * Override để dùng Prisma relation filter hoặc logic custom.
+   * Default: thêm field `groupId` dạng string — dùng cho bảng có cột groupId trực tiếp.
+   * Override khi cần logic khác (relation filter, multi-tenant, v.v.).
    */
   protected applyGroupFilter(
     query: Record<string, any>,
