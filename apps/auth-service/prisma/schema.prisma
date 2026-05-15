@@ -25,17 +25,18 @@ model User {
   phoneVerifiedAt DateTime? @map("phone_verified_at") @db.Timestamp(0)
   lastLoginAt     DateTime? @map("last_login_at") @db.Timestamp(0)
   rememberToken   String?   @map("remember_token") @db.VarChar(100)
+  searchText      String?   @map("search_text") @db.Text
   createdUserId   BigInt?   @map("created_user_id")
   updatedUserId   BigInt?   @map("updated_user_id")
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
 
   profile     Profile?
-  userGroups  UserGroup[]
 
   @@index([status], map: "users_idx_status")
   @@index([createdAt], map: "users_idx_created_at")
   @@index([status, createdAt], map: "users_idx_status_created")
+  @@index([searchText], map: "users_idx_search_text")
   @@map("users")
 }
 
@@ -60,18 +61,6 @@ model Profile {
   @@index([countryId], map: "profiles_idx_country_id")
   @@index([userId], map: "profiles_idx_user_id")
   @@map("profiles")
-}
-
-model UserGroup {
-  userId    BigInt   @map("user_id")
-  groupId   BigInt   @map("group_id")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(0)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([userId, groupId])
-  @@index([groupId])
-  @@map("user_groups")
 }
 
 // ============================================

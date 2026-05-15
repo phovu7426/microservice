@@ -4,7 +4,6 @@ import { parseQueryOptions, createPaginationMeta, t } from '@package/common';
 import { PrimaryKey } from 'src/types';
 import { GroupFilter, GroupRepository } from '../../repositories/group.repository';
 import { RbacCacheService } from '../../../../rbac/services/rbac-cache.service';
-import { RbacEventPublisher } from '../../../../kafka/services/rbac-event-publisher.service';
 import { ListGroupsAdminQueryDto } from '../dtos/list-group.query.dto';
 import { CreateGroupDto } from '../dtos/create-group.dto';
 import { UpdateGroupDto } from '../dtos/update-group.dto';
@@ -16,7 +15,6 @@ export class GroupService {
     private readonly repo: GroupRepository,
     private readonly rbacCache: RbacCacheService,
     private readonly i18n: I18nService,
-    private readonly eventPublisher: RbacEventPublisher,
   ) {}
 
   async getList(query: ListGroupsAdminQueryDto) {
@@ -78,13 +76,7 @@ export class GroupService {
 
   async delete(id: PrimaryKey) {
     await this.getOne(id);
-    await this.repo.withTransaction(async (tx) => {
-      await this.repo.delete(id, tx);
-      await this.eventPublisher.publishGroupDeleted(
-        { groupId: BigInt(String(id)) },
-        tx,
-      );
-    });
+    await this.repo.delete(id);
     await this.rbacCache.bumpVersion();
     return { message: t(this.i18n, 'group.DELETED') };
   }
@@ -101,26 +93,14 @@ export class GroupService {
 
   async addMember(id: PrimaryKey, dto: AddMemberDto) {
     await this.getOne(id);
-    await this.repo.withTransaction(async (tx) => {
-      await this.repo.addMember(id, dto.userId, tx);
-      await this.eventPublisher.publishGroupMemberAdded(
-        { groupId: BigInt(String(id)), userId: BigInt(String(dto.userId)) },
-        tx,
-      );
-    });
+    await this.repo.addMember(id, dto.userId);
     await this.rbacCache.clearAllUserCaches(dto.userId);
     return { message: t(this.i18n, 'group.MEMBER_ADDED') };
   }
 
   async removeMember(id: PrimaryKey, userId: PrimaryKey) {
     await this.getOne(id);
-    await this.repo.withTransaction(async (tx) => {
-      await this.repo.removeMember(id, userId, tx);
-      await this.eventPublisher.publishGroupMemberRemoved(
-        { groupId: BigInt(String(id)), userId: BigInt(String(userId)) },
-        tx,
-      );
-    });
+    await this.repo.removeMember(id, userId);
     await this.rbacCache.clearAllUserCaches(userId);
     return { message: t(this.i18n, 'group.MEMBER_REMOVED') };
   }

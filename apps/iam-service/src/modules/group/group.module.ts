@@ -5,13 +5,12 @@ import { GroupService } from './admin/services/group.service';
 import { GroupRepository } from './repositories/group.repository';
 import { UserGroupController } from './user/controllers/user-group.controller';
 import { UserGroupService } from './user/services/user-group.service';
-import { RbacEventPublisher } from '../../kafka/services/rbac-event-publisher.service';
 import * as GroupEnums from './enums';
 
 @Module({
   imports: [EnumModule.register({ path: 'groups/enums', enums: GroupEnums })],
   controllers: [GroupController, UserGroupController],
-  providers: [GroupService, GroupRepository, UserGroupService, RbacEventPublisher],
+  providers: [GroupService, GroupRepository, UserGroupService],
   exports: [GroupRepository],
 })
 export class GroupModule {}

@@ -25,35 +25,6 @@ function makeRepo() {
   return { repo, prisma };
 }
 
-describe('UserAdminRepository.buildWhere — groupId filter', () => {
-  afterEach(() => jest.clearAllMocks());
-
-  it('adiciona filtro userGroups.some quando groupId fornecido', async () => {
-    const { repo, prisma } = makeRepo();
-
-    await repo.findAll({ groupId: '123' });
-
-    const whereArg = prisma.user.findMany.mock.calls[0][0].where;
-    expect(whereArg.AND).toEqual(
-      expect.arrayContaining([
-        { userGroups: { some: { groupId: 123n } } },
-      ]),
-    );
-  });
-
-  it('não adiciona filtro groupId quando undefined', async () => {
-    const { repo, prisma } = makeRepo();
-
-    await repo.findAll({});
-
-    const whereArg = prisma.user.findMany.mock.calls[0][0].where;
-    const hasGroupFilter = (whereArg.AND ?? []).some(
-      (c: any) => c.userGroups !== undefined,
-    );
-    expect(hasGroupFilter).toBe(false);
-  });
-});
-
 describe('UserAdminRepository.buildWhere — userIds filter', () => {
   afterEach(() => jest.clearAllMocks());
 

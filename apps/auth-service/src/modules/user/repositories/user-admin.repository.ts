@@ -214,15 +214,8 @@ export class UserAdminRepository {
     const andConditions: Prisma.UserWhereInput[] = [];
 
     if (query.search) {
-      const search = query.search;
-      andConditions.push({
-        OR: [
-          { email: { startsWith: search, mode: 'insensitive' } },
-          { username: { startsWith: search, mode: 'insensitive' } },
-          { name: { startsWith: search, mode: 'insensitive' } },
-          { phone: { startsWith: search } },
-        ],
-      });
+      const search = query.search.toLowerCase().trim().slice(0, 100);
+      andConditions.push({ searchText: { startsWith: search } });
     }
 
     if (query.status) {
@@ -235,12 +228,6 @@ export class UserAdminRepository {
 
     if (query.phone) {
       andConditions.push({ phone: query.phone });
-    }
-
-    if (query.groupId) {
-      andConditions.push({
-        userGroups: { some: { groupId: BigInt(query.groupId) } },
-      });
     }
 
     if (query.userIds?.length) {

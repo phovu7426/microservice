@@ -134,50 +134,6 @@ export class RbacEventPublisher {
     );
   }
 
-  async publishGroupMemberAdded(
-    payload: { groupId: bigint; userId: bigint },
-    tx?: Tx,
-  ): Promise<void> {
-    await this.insertOutboxEvent(
-      'group.member.added',
-      {
-        group_id: String(payload.groupId),
-        user_id: String(payload.userId),
-        timestamp: new Date().toISOString(),
-      },
-      tx,
-    );
-  }
-
-  async publishGroupMemberRemoved(
-    payload: { groupId: bigint; userId: bigint },
-    tx?: Tx,
-  ): Promise<void> {
-    await this.insertOutboxEvent(
-      'group.member.removed',
-      {
-        group_id: String(payload.groupId),
-        user_id: String(payload.userId),
-        timestamp: new Date().toISOString(),
-      },
-      tx,
-    );
-  }
-
-  async publishGroupDeleted(
-    payload: { groupId: bigint },
-    tx?: Tx,
-  ): Promise<void> {
-    await this.insertOutboxEvent(
-      'group.deleted',
-      {
-        group_id: String(payload.groupId),
-        timestamp: new Date().toISOString(),
-      },
-      tx,
-    );
-  }
-
   private async insertOutboxEvent(
     eventType: string,
     payload: Record<string, any>,

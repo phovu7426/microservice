@@ -1,10 +1,12 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
-import { GroupAwareService, getSessionUserId } from '@package/common';
+import { I18nService } from 'nestjs-i18n';
+import { CrudService, getSessionUserId, t, buildSearchText } from '@package/common';
 import { PrimaryKey } from 'src/types';
 import { UserAdminRepository } from '../../repositories/user-admin.repository';
 import { CreateUserDto } from '../dtos/create-user.dto';
@@ -13,12 +15,19 @@ import { AdminChangePasswordDto } from '../dtos/admin-change-password.dto';
 import { ChangeStatusDto } from '../dtos/change-status.dto';
 
 @Injectable()
-export class AdminUserService extends GroupAwareService<UserAdminRepository> {
+export class AdminUserService extends CrudService<UserAdminRepository> {
   constructor(
     private readonly userRepo: UserAdminRepository,
     private readonly configService: ConfigService,
+    private readonly i18n: I18nService,
   ) {
     super(userRepo);
+  }
+
+  async getOne(id: any): Promise<any> {
+    const entity = await this.userRepo.findById(id);
+    if (!entity) throw new NotFoundException(t(this.i18n, 'auth.USER_NOT_FOUND'));
+    return this.transform(entity);
   }
 
   protected transform(entity: any) {
@@ -44,7 +53,13 @@ export class AdminUserService extends GroupAwareService<UserAdminRepository> {
       : undefined;
 
     const user = await this.userRepo.createWithProfile(
-      { ...rest, password: hashedPassword, createdUserId: actorId, updatedUserId: actorId },
+      {
+        ...rest,
+        password: hashedPassword,
+        createdUserId: actorId,
+        updatedUserId: actorId,
+        searchText: buildSearchText(rest.name, rest.email, rest.username, rest.phone),
+      },
       profileData,
     );
 
@@ -52,25 +67,26 @@ export class AdminUserService extends GroupAwareService<UserAdminRepository> {
   }
 
   async update(id: bigint, dto: UpdateUserDto) {
-    await this.getOne(id);
+    const current = await this.getOne(id);
 
     await this.assertUnique(
       { email: dto.email, username: dto.username, phone: dto.phone },
       id,
     );
 
-    const actorId = getSessionUserId();
     const { profile: profileDto, password, ...rest } = dto;
-    const updateData: Record<string, any> = { ...rest, updatedUserId: actorId };
+    const updateData: Record<string, any> = { ...rest, updatedUserId: getSessionUserId() };
 
     if (password) {
       const rounds = this.configService.get<number>('BCRYPT_ROUNDS', 12);
       updateData.password = await bcrypt.hash(password, rounds);
     }
 
-    const profileData = profileDto
-      ? this.buildProfileData(profileDto)
-      : undefined;
+    // Recompute searchText từ giá trị merged (current + fields mới)
+    const merged = { ...current, ...rest };
+    updateData.searchText = buildSearchText(merged.name, merged.email, merged.username, merged.phone);
+
+    const profileData = profileDto ? this.buildProfileData(profileDto) : undefined;
 
     await this.userRepo.updateWithProfile(id, updateData, profileData);
     return this.getOne(id);
@@ -79,7 +95,7 @@ export class AdminUserService extends GroupAwareService<UserAdminRepository> {
   async delete(id: PrimaryKey) {
     await this.getOne(id);
     await this.userRepo.delete(id);
-    return { success: true };
+    return { success: true, message: t(this.i18n, 'auth.USER_DELETED') };
   }
 
   async changePassword(id: PrimaryKey, dto: AdminChangePasswordDto) {
@@ -87,13 +103,13 @@ export class AdminUserService extends GroupAwareService<UserAdminRepository> {
     const rounds = this.configService.get<number>('BCRYPT_ROUNDS', 12);
     const hashedPassword = await bcrypt.hash(dto.password, rounds);
     await this.userRepo.update(id, { password: hashedPassword });
-    return { success: true };
+    return { success: true, message: t(this.i18n, 'auth.PASSWORD_CHANGED') };
   }
 
   async changeStatus(id: PrimaryKey, dto: ChangeStatusDto) {
     await this.getOne(id);
     await this.userRepo.update(id, { status: dto.status });
-    return { success: true };
+    return { success: true, message: t(this.i18n, 'auth.STATUS_CHANGED') };
   }
 
   private async assertUnique(
@@ -102,9 +118,12 @@ export class AdminUserService extends GroupAwareService<UserAdminRepository> {
   ) {
     const conflict = await this.userRepo.checkUnique(fields, excludeId);
     if (conflict) {
-      throw new BadRequestException(
-        `${conflict.field} "${conflict.value}" is already taken`,
-      );
+      const keyMap: Record<string, string> = {
+        email: 'auth.EMAIL_IN_USE',
+        username: 'auth.USERNAME_IN_USE',
+        phone: 'auth.PHONE_IN_USE',
+      };
+      throw new BadRequestException(t(this.i18n, keyMap[conflict.field] ?? 'auth.EMAIL_IN_USE'));
     }
   }
 
