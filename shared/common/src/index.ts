@@ -39,7 +39,9 @@ export { ImageValidator } from './validators/image-validator';
 export { PrismaRepository, PrismaDelegate, IPaginatedResult, IPaginationOptions, prepareQuery } from './repository/prisma.repository';
 
 // Base service
-export { BaseService, IRepository } from './services/base.service';
+export { IRepository, ListService } from './services/list.service';
+export { CrudService } from './services/crud.service';
+export { GroupAwareService } from './services/group-aware.service';
 
 // Health
 export { HealthModule } from './health/health.module';
@@ -62,4 +64,4 @@ export { SessionContextService } from './session/session-context.service';
 export { SessionContextMiddleware } from './session/session-context.middleware';
 export { SessionModule } from './session/session.module';
 export { session } from './session/session-context.storage';
-export { getSessionGroupId } from './session/group-filter.helper';
+export { getSessionGroupId, getSessionUserId } from './session/group-filter.helper';

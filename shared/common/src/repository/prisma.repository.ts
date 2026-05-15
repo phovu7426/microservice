@@ -103,11 +103,11 @@ export abstract class PrismaRepository<
 
   protected abstract buildWhere(filter: Record<string, any>): WhereInput;
 
-  async findAll(options: IPaginationOptions = {}): Promise<IPaginatedResult<Model>> {
+  async findAll(query: Record<string, any> = {}): Promise<IPaginatedResult<Model>> {
+    const { filter, options } = prepareQuery(query);
     const page = Math.max(Number(options.page) || 1, 1);
     const limit = Math.max(Number(options.limit) || 10, 1);
     const sort = options.sort || this.defaultSort;
-    const filter = options.filter || {};
 
     const where: any = this.buildWhere(filter);
     const orderBy = parseSort(sort) as unknown as OrderByInput[];
@@ -117,7 +117,7 @@ export abstract class PrismaRepository<
       include: this.defaultInclude,
     });
 
-    const skipCount = (options as any).skipCount ?? this.skipCountByDefault;
+    const skipCount = (query.skipCount === 'true' || query.skipCount === true) ?? this.skipCountByDefault;
 
     const [data, total] = await Promise.all([
       this.delegate.findMany({
@@ -129,8 +129,8 @@ export abstract class PrismaRepository<
     return { data, meta: createPaginationMeta({ page, skip: (page - 1) * limit, take: limit }, total) };
   }
 
-  async findById(id: any, options: IPaginationOptions = {}): Promise<Model | null> {
-    const selection = resolveQuerySelection(options, {
+  async findById(id: any): Promise<Model | null> {
+    const selection = resolveQuerySelection({}, {
       select: this.defaultDetailSelect ?? this.defaultSelect,
       include: this.defaultDetailInclude ?? this.defaultInclude,
     });
@@ -160,15 +160,15 @@ export abstract class PrismaRepository<
     return result;
   }
 
-  async findMany(filter: Record<string, any> = {}, options: IPaginationOptions = {}): Promise<Model[]> {
+  async findMany(filter: Record<string, any> = {}, options: Record<string, any> = {}): Promise<Model[]> {
     const selectionFlat = resolveQuerySelection(options, {
       select: this.defaultSelect, include: this.defaultInclude,
     });
     const result = await this.delegate.findMany({
       where: this.buildWhere(filter),
       orderBy: options.sort ? parseSort(options.sort) : undefined,
-      take: options.limit,
-      skip: options.page && options.limit ? (options.page - 1) * options.limit : undefined,
+      take: options.limit ? Number(options.limit) : undefined,
+      skip: options.page && options.limit ? (Number(options.page) - 1) * Number(options.limit) : undefined,
       ...selectionFlat,
     });
     return result;
