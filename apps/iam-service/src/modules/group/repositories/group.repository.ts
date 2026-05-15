@@ -3,6 +3,8 @@ import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from '../../../core/database/prisma.service';
 import { toPrimaryKey } from 'src/types';
 
+type Tx = Prisma.TransactionClient | PrismaService;
+
 export interface GroupFilter {
   search?: string;
   type?: string;
@@ -24,6 +26,10 @@ const LIST_SELECT = {
 @Injectable()
 export class GroupRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  async withTransaction<T>(fn: (tx: Tx) => Promise<T>): Promise<T> {
+    return this.prisma.$transaction(fn);
+  }
 
   private buildWhere(filter: GroupFilter): Prisma.GroupWhereInput {
     const where: Prisma.GroupWhereInput = {};
@@ -90,8 +96,8 @@ export class GroupRepository {
     return this.prisma.group.update({ where: { id: toPrimaryKey(id) }, data });
   }
 
-  delete(id: string | bigint) {
-    return this.prisma.group.delete({ where: { id: toPrimaryKey(id) } });
+  delete(id: string | bigint, tx: Tx = this.prisma) {
+    return tx.group.delete({ where: { id: toPrimaryKey(id) } });
   }
 
   getMembers(groupId: string | bigint, skip: number, take: number) {
@@ -119,10 +125,10 @@ export class GroupRepository {
     return records.map(r => r.userId);
   }
 
-  addMember(groupId: string | bigint, userId: string | bigint) {
+  addMember(groupId: string | bigint, userId: string | bigint, tx: Tx = this.prisma) {
     const gid = toPrimaryKey(groupId);
     const uid = toPrimaryKey(userId);
-    return this.prisma.userGroup.upsert({
+    return tx.userGroup.upsert({
       where: { userId_groupId: { userId: uid, groupId: gid } },
       create: { userId: uid, groupId: gid },
       update: {},
@@ -152,10 +158,10 @@ export class GroupRepository {
     });
   }
 
-  removeMember(groupId: string | bigint, userId: string | bigint) {
+  removeMember(groupId: string | bigint, userId: string | bigint, tx: Tx = this.prisma) {
     const gid = toPrimaryKey(groupId);
     const uid = toPrimaryKey(userId);
-    return this.prisma.userGroup.delete({
+    return tx.userGroup.delete({
       where: { userId_groupId: { userId: uid, groupId: gid } },
     });
   }
