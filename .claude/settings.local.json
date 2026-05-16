@@ -153,7 +153,11 @@
       "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\" http://localhost:3001/api/auth/login)",
       "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type\" http://localhost/api/auth/login)",
       "Bash(curl -sS -o /dev/null -D - -X OPTIONS -H \"Origin: http://localhost:3000\" -H \"Access-Control-Request-Method: POST\" -H \"Access-Control-Request-Headers: content-type,x-group-id\" http://localhost/api/auth/login)",
-      "Bash(curl -sS -o /dev/null -D - -X POST -H \"Origin: http://localhost:3000\" -H \"Content-Type: application/json\" -H \"X-Group-Id: 1\" -H \"Accept: application/json\" -d '{\"email\":\"x@y.z\",\"password\":\"x\"}' http://localhost/api/auth/login)"
+      "Bash(curl -sS -o /dev/null -D - -X POST -H \"Origin: http://localhost:3000\" -H \"Content-Type: application/json\" -H \"X-Group-Id: 1\" -H \"Accept: application/json\" -d '{\"email\":\"x@y.z\",\"password\":\"x\"}' http://localhost/api/auth/login)",
+      "Bash(psql \"postgresql://root:123456@160.191.50.85:5432/iam_db\" -c \"SELECT id, code, name, status FROM permissions WHERE code = 'group.owner';\")",
+      "Bash(npx ts-node -P tsconfig.seed.json -e ' *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(DATABASE_URL=\"postgresql://root:123456@160.191.50.85:5432/iam_db\" npx prisma db execute --stdin --schema=prisma/schema.prisma)"
     ]
   }
 }
