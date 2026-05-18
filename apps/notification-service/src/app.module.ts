@@ -19,6 +19,9 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { ContentTemplateModule } from './modules/content-template/content-template.module';
 import { QueueModule } from './queue/queue.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+
+const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 
 @Module({
   imports: [
@@ -45,7 +48,7 @@ import { KafkaModule } from './kafka/kafka.module';
     ClientsModule,
     MailModule,
     CommonKafkaModule,
-    KafkaModule,
+    messagingModule,
     HealthModule.register({
       serviceName: 'notification-service',
       probes: [

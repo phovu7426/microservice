@@ -19,9 +19,12 @@ import { AuthJwtGuard } from './core/guards/auth-jwt.guard';
 import { I18nThrottlerGuard } from './core/guards/throttler.guard';
 import { JwksModule } from './jwks/jwks.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { InternalModule } from './internal/internal.module';
+
+const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 
 @Module({
   imports: [
@@ -56,7 +59,7 @@ import { InternalModule } from './internal/internal.module';
     JwksModule,
     AuthModule,
     CommonKafkaModule,
-    KafkaModule,
+    messagingModule,
     HealthModule.register({
       serviceName: 'auth-service',
       probes: [
@@ -70,11 +73,9 @@ import { InternalModule } from './internal/internal.module';
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        {
-          provide: 'HEALTH_KAFKA_PROBE',
-          inject: [KafkaProducerService],
-          useFactory: (kafka: KafkaProducerService) => () => kafka.ping(),
-        },
+        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+          ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
+          : []),
       ],
     }),
     MetricsModule,

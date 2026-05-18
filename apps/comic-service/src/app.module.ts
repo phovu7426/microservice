@@ -16,6 +16,7 @@ import { JwtGuard, RbacGuard, GlobalExceptionFilter, HealthModule, CommonKafkaMo
 import { PrismaService } from './core/database/prisma.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { KafkaModule } from './kafka/kafka.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 
 import { ComicModule } from './modules/comic/comic.module';
 import { ChapterModule } from './modules/chapter/chapter.module';
@@ -28,6 +29,8 @@ import { ReadingHistoryModule } from './modules/reading-history/reading-history.
 import { StatsModule } from './modules/stats/stats.module';
 import { HomepageModule } from './modules/homepage/homepage.module';
 import { ViewTrackingModule } from './modules/view-tracking/view-tracking.module';
+
+const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 
 @Module({
   imports: [
@@ -53,7 +56,7 @@ import { ViewTrackingModule } from './modules/view-tracking/view-tracking.module
     CoreModule,
     RedisModule,
     CommonKafkaModule,
-    KafkaModule,
+    messagingModule,
     HealthModule.register({
       serviceName: 'comic-service',
       probes: [
@@ -67,11 +70,9 @@ import { ViewTrackingModule } from './modules/view-tracking/view-tracking.module
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        {
-          provide: 'HEALTH_KAFKA_PROBE',
-          inject: [KafkaProducerService],
-          useFactory: (kafka: KafkaProducerService) => () => kafka.ping(),
-        },
+        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+          ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
+          : []),
       ],
     }),
     MetricsModule,

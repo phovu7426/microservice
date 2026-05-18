@@ -29,6 +29,9 @@ import { RoleModule } from './modules/role/role.module';
 import { GroupModule } from './modules/group/group.module';
 import { UserRoleModule } from './modules/user-role/user-role.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+
+const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 
 @Module({
   imports: [
@@ -60,7 +63,7 @@ import { KafkaModule } from './kafka/kafka.module';
     RedisModule,
     RbacModule,
     CommonKafkaModule,
-    KafkaModule,
+    messagingModule,
     HealthModule.register({
       serviceName: 'iam-service',
       probes: [
@@ -74,11 +77,9 @@ import { KafkaModule } from './kafka/kafka.module';
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        {
-          provide: 'HEALTH_KAFKA_PROBE',
-          inject: [KafkaProducerService],
-          useFactory: (kafka: KafkaProducerService) => () => kafka.ping(),
-        },
+        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+          ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
+          : []),
       ],
     }),
     MetricsModule,

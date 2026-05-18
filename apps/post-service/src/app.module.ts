@@ -16,12 +16,15 @@ import { JwtGuard, RbacGuard, GlobalExceptionFilter, HealthModule, CommonKafkaMo
 import { PrismaService } from './core/database/prisma.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { KafkaModule } from './kafka/kafka.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 
 import { PostModule } from './modules/post/post.module';
 import { CategoryModule } from './modules/category/category.module';
 import { TagModule } from './modules/tag/tag.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { StatsModule } from './modules/stats/stats.module';
+
+const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 
 @Module({
   imports: [
@@ -47,7 +50,7 @@ import { StatsModule } from './modules/stats/stats.module';
     CoreModule,
     RedisModule,
     CommonKafkaModule,
-    KafkaModule,
+    messagingModule,
     HealthModule.register({
       serviceName: 'post-service',
       probes: [
@@ -61,11 +64,9 @@ import { StatsModule } from './modules/stats/stats.module';
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        {
-          provide: 'HEALTH_KAFKA_PROBE',
-          inject: [KafkaProducerService],
-          useFactory: (kafka: KafkaProducerService) => () => kafka.ping(),
-        },
+        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+          ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
+          : []),
       ],
     }),
     MetricsModule,
