@@ -1,3 +1,6 @@
+jest.mock('src/generated/prisma', () => ({ PrismaClient: class {}, Prisma: {} }), { virtual: true });
+jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: jest.fn() }));
+
 import { ForbiddenException } from '@nestjs/common';
 
 jest.mock('@package/common', () => ({
@@ -20,14 +23,14 @@ function makeRedis(overrides: Record<string, jest.Mock> = {}) {
     get: jest.fn().mockResolvedValue(null),
     set: jest.fn().mockResolvedValue('OK'),
     del: jest.fn().mockResolvedValue(1),
-        ttl: jest.fn().mockResolvedValue(-2),
+    ttl: jest.fn().mockResolvedValue(-2),
     ...overrides,
   } as any;
 }
 
-function makeMailPublisher(overrides: Record<string, jest.Mock> = {}) {
+function makeUserRepository(overrides: Record<string, jest.Mock> = {}) {
   return {
-    publish: jest.fn(),
+    enqueueOutboxEvent: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   } as any;
 }
@@ -63,7 +66,7 @@ function makeFileLogger() {
 
 function buildService(deps: {
   redis?: any;
-  mailPublisher?: any;
+  userRepository?: any;
   config?: any;
   attemptLimiter?: any;
   i18n?: any;
@@ -71,7 +74,7 @@ function buildService(deps: {
 } = {}) {
   return new AuthOtpService(
     deps.redis ?? makeRedis(),
-    deps.mailPublisher ?? makeMailPublisher(),
+    deps.userRepository ?? makeUserRepository(),
     deps.config ?? makeConfig({ OTP_TTL_SECONDS: '300' }),
     deps.attemptLimiter ?? makeAttemptLimiter(),
     deps.i18n ?? makeI18n(),
@@ -143,14 +146,14 @@ describe('AuthOtpService', () => {
   });
 
   describe('sendRegisterOtp()', () => {
-    it('publishes mail and stores OTP in Redis', async () => {
+    it('enqueues mail outbox event and stores OTP in Redis', async () => {
       const redis = makeRedis();
-      const mailPublisher = makeMailPublisher();
-      const svc = buildService({ redis, mailPublisher });
+      const userRepository = makeUserRepository();
+      const svc = buildService({ redis, userRepository });
 
       await svc.sendRegisterOtp('user@test.com');
 
-      expect(mailPublisher.publish).toHaveBeenCalledWith({
+      expect(userRepository.enqueueOutboxEvent).toHaveBeenCalledWith('mail.send', {
         to: 'user@test.com',
         templateCode: 'send_otp_register',
         variables: { otp: '123456' },
@@ -158,14 +161,14 @@ describe('AuthOtpService', () => {
       expect(redis.set).toHaveBeenCalledWith('otp:register:user@test.com', '123456', 300);
     });
 
-    it('cleans up Redis key if mail publish fails', async () => {
+    it('calls redis.del and rethrows if enqueueOutboxEvent fails', async () => {
       const redis = makeRedis();
-      const mailPublisher = makeMailPublisher({
-        publish: jest.fn().mockRejectedValue(new Error('Kafka down')),
+      const userRepository = makeUserRepository({
+        enqueueOutboxEvent: jest.fn().mockRejectedValue(new Error('DB error')),
       });
-      const svc = buildService({ redis, mailPublisher });
+      const svc = buildService({ redis, userRepository });
 
-      await expect(svc.sendRegisterOtp('user@test.com')).rejects.toThrow('Kafka down');
+      await expect(svc.sendRegisterOtp('user@test.com')).rejects.toThrow('DB error');
 
       expect(redis.del).toHaveBeenCalledWith('otp:register:user@test.com');
       expect(redis.set).not.toHaveBeenCalled();
