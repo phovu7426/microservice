@@ -34,16 +34,16 @@ export async function seedMenus(prisma: PrismaClient) {
       code: menu.code,
       name: menu.name,
       path: menu.path ?? null,
-      api_path: menu.api_path ?? null,
+      apiPath: menu.api_path ?? null,
       icon: menu.icon ?? null,
       type: menu.type,
       status: menu.status,
-      sort_order: menu.sort_order,
-      is_public: menu.is_public,
-      show_in_menu: menu.show_in_menu,
+      sortOrder: menu.sort_order,
+      isPublic: menu.is_public,
+      showInMenu: menu.show_in_menu,
       group: menu.group ?? 'admin',
-      required_permission_code: menu.required_permission_code ?? null,
-      parent_id: null as bigint | null,
+      requiredPermissionCode: menu.required_permission_code ?? null,
+      parentId: null as bigint | null,
     };
 
     const existing = await prisma.menu.findUnique({ where: { code: menu.code } });
@@ -65,7 +65,7 @@ export async function seedMenus(prisma: PrismaClient) {
       if (parentId) {
         await prisma.menu.update({
           where: { code: menu.code },
-          data: { parent_id: parentId },
+          data: { parentId },
         });
       }
     }

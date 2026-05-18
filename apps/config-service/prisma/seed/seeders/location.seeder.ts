@@ -58,12 +58,12 @@ export async function seedCountries(prisma: PrismaClient): Promise<Map<string, b
     const created = await prisma.country.create({
       data: {
         code: c.code,
-        code_alpha3: c.code_alpha3 ?? null,
+        codeAlpha3: c.code_alpha3 ?? null,
         name: c.name,
-        official_name: c.official_name ?? null,
-        phone_code: c.phone_code ?? null,
-        currency_code: c.currency_code ?? null,
-        flag_emoji: c.flag_emoji ?? null,
+        officialName: c.official_name ?? null,
+        phoneCode: c.phone_code ?? null,
+        currencyCode: c.currency_code ?? null,
+        flagEmoji: c.flag_emoji ?? null,
         status: c.status ?? 'active',
       },
     });
@@ -92,12 +92,12 @@ export async function seedProvinces(prisma: PrismaClient, countryMap: Map<string
         code: p.code,
         name: p.name,
         type: p.type,
-        phone_code: p.phone_code ?? null,
-        country_id: vnId,
+        phoneCode: p.phone_code ?? null,
+        countryId: vnId,
         status: p.status ?? 'active',
         note: p.note ?? null,
-        code_bnv: p.code_bnv?.toString() ?? null,
-        code_tms: p.code_tms?.toString() ?? null,
+        codeBnv: p.code_bnv?.toString() ?? null,
+        codeTms: p.code_tms?.toString() ?? null,
       },
     });
     idMap.set(p.id, created.id);
@@ -116,7 +116,7 @@ export async function seedWards(prisma: PrismaClient, provinceMap: Map<number, b
     if (!provinceId) continue;
 
     const existing = await prisma.ward.findFirst({
-      where: { code: w.code, province_id: provinceId },
+      where: { code: w.code, provinceId: provinceId },
     });
     if (existing) continue;
 
@@ -125,7 +125,7 @@ export async function seedWards(prisma: PrismaClient, provinceMap: Map<number, b
         code: w.code,
         name: w.name,
         type: w.type,
-        province_id: provinceId,
+        provinceId: provinceId,
         status: 'active',
       },
     });
