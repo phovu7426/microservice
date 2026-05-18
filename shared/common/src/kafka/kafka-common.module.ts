@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { RedisModule } from '@package/redis';
 import { IdempotencyService } from './idempotency.service';
-import { OutboxRelayService, KAFKA_PRODUCER } from './outbox-relay.service';
+import { OutboxRelayService, EVENT_PRODUCER } from './outbox-relay.service';
 
 /**
  * Bundle of shared Kafka helpers that need NestJS DI to work:
@@ -14,7 +14,7 @@ import { OutboxRelayService, KAFKA_PRODUCER } from './outbox-relay.service';
  * resolve them at runtime even though the type imports compile fine.
  *
  * Services that use Kafka should also import their KafkaModule which
- * provides the KAFKA_PRODUCER token (backed by KafkaProducerService).
+ * provides the EVENT_PRODUCER token (backed by KafkaProducerService).
  *
  * Usage:
  *   imports: [..., CommonKafkaModule]
@@ -27,8 +27,8 @@ import { OutboxRelayService, KAFKA_PRODUCER } from './outbox-relay.service';
     OutboxRelayService,
     // Default null provider — overridden by service-level KafkaModule
     // that provides the real KafkaProducerService via this token.
-    { provide: KAFKA_PRODUCER, useValue: null },
+    { provide: EVENT_PRODUCER, useValue: null },
   ],
-  exports: [IdempotencyService, OutboxRelayService, KAFKA_PRODUCER],
+  exports: [IdempotencyService, OutboxRelayService, EVENT_PRODUCER],
 })
 export class CommonKafkaModule {}

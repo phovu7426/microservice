@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { KAFKA_PRODUCER } from '@package/common';
+import { EVENT_PRODUCER } from '@package/common';
 import { KafkaClientModule, KafkaProducerService } from '@package/kafka-client';
 import { IamOutboxCronService } from './services/outbox-relay.service';
 import { RbacEventPublisher } from './services/rbac-event-publisher.service';
@@ -23,8 +23,8 @@ import { RbacEventPublisher } from './services/rbac-event-publisher.service';
   providers: [
     IamOutboxCronService,
     RbacEventPublisher,
-    { provide: KAFKA_PRODUCER, useExisting: KafkaProducerService },
+    { provide: EVENT_PRODUCER, useExisting: KafkaProducerService },
   ],
-  exports: [RbacEventPublisher, KAFKA_PRODUCER],
+  exports: [RbacEventPublisher, EVENT_PRODUCER],
 })
 export class KafkaModule {}

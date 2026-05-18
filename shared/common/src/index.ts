@@ -51,7 +51,7 @@ export { HealthModule } from './health/health.module';
 export { HealthController } from './health/health.controller';
 
 // Kafka outbox
-export { OutboxRelayService, OutboxRelayOptions, KAFKA_PRODUCER } from './kafka/outbox-relay.service';
+export { OutboxRelayService, OutboxRelayOptions, EVENT_PRODUCER } from './kafka/outbox-relay.service';
 export type { IKafkaProducer } from './kafka/outbox-relay.service';
 export { IdempotencyService } from './kafka/idempotency.service';
 export { CommonKafkaModule } from './kafka/kafka-common.module';

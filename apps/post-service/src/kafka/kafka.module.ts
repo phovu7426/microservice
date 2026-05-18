@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { KAFKA_PRODUCER } from '@package/common';
+import { EVENT_PRODUCER } from '@package/common';
 import { KafkaClientModule, KafkaProducerService } from '@package/kafka-client';
 import { PostOutboxCronService } from './services/outbox-relay.service';
 
@@ -19,8 +19,8 @@ import { PostOutboxCronService } from './services/outbox-relay.service';
   ],
   providers: [
     PostOutboxCronService,
-    { provide: KAFKA_PRODUCER, useExisting: KafkaProducerService },
+    { provide: EVENT_PRODUCER, useExisting: KafkaProducerService },
   ],
-  exports: [KAFKA_PRODUCER],
+  exports: [EVENT_PRODUCER],
 })
 export class KafkaModule {}

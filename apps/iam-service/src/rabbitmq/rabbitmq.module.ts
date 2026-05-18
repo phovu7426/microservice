@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { KAFKA_PRODUCER } from '@package/common';
+import { EVENT_PRODUCER } from '@package/common';
 import { RabbitmqClientModule, RabbitmqProducerService } from '@package/rabbitmq-client';
 import { IamOutboxCronService } from '../kafka/services/outbox-relay.service';
 import { RbacEventPublisher } from '../kafka/services/rbac-event-publisher.service';
 
 // OutboxCronService lives in kafka/services/ and is intentionally shared (not duplicated).
-// KAFKA_PRODUCER token is reused so existing consumers work unchanged with RabbitMQ.
+// EVENT_PRODUCER token is reused so existing consumers work unchanged with RabbitMQ.
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -22,8 +22,8 @@ import { RbacEventPublisher } from '../kafka/services/rbac-event-publisher.servi
   providers: [
     IamOutboxCronService,
     RbacEventPublisher,
-    { provide: KAFKA_PRODUCER, useExisting: RabbitmqProducerService },
+    { provide: EVENT_PRODUCER, useExisting: RabbitmqProducerService },
   ],
-  exports: [RbacEventPublisher, KAFKA_PRODUCER],
+  exports: [RbacEventPublisher, EVENT_PRODUCER],
 })
 export class RabbitmqModule {}

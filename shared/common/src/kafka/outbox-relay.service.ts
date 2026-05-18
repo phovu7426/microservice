@@ -15,7 +15,7 @@ export interface IKafkaProducer {
   send(record: { topic: string; messages: Array<{ key?: string; value: string; headers?: Record<string, string> }> }): Promise<void>;
 }
 
-export const KAFKA_PRODUCER = 'KAFKA_PRODUCER';
+export const EVENT_PRODUCER = 'EVENT_PRODUCER';
 
 // Allowlist of outbox table names. Add new entries here when a new service
 // wires up outbox publishing. We use $queryRawUnsafe with the table name
@@ -37,7 +37,7 @@ export class OutboxRelayService {
   constructor(
     private readonly config: ConfigService,
     private readonly idempotency: IdempotencyService,
-    @Optional() @Inject(KAFKA_PRODUCER) kafkaProducer?: IKafkaProducer,
+    @Optional() @Inject(EVENT_PRODUCER) kafkaProducer?: IKafkaProducer,
   ) {
     this.kafkaProducer = kafkaProducer ?? null;
   }

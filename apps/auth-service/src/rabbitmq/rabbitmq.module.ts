@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { KAFKA_PRODUCER } from '@package/common';
+import { EVENT_PRODUCER } from '@package/common';
 import { RabbitmqClientModule, RabbitmqProducerService } from '@package/rabbitmq-client';
 import { AuthOutboxCronService } from '../kafka/services/outbox-relay.service';
 
 // OutboxCronService lives in kafka/services/ and is intentionally shared (not duplicated).
-// KAFKA_PRODUCER token is reused so existing consumers work unchanged with RabbitMQ.
+// EVENT_PRODUCER token is reused so existing consumers work unchanged with RabbitMQ.
 @Module({
   imports: [
     RabbitmqClientModule.registerAsync({
@@ -18,8 +18,8 @@ import { AuthOutboxCronService } from '../kafka/services/outbox-relay.service';
   ],
   providers: [
     AuthOutboxCronService,
-    { provide: KAFKA_PRODUCER, useExisting: RabbitmqProducerService },
+    { provide: EVENT_PRODUCER, useExisting: RabbitmqProducerService },
   ],
-  exports: [KAFKA_PRODUCER],
+  exports: [EVENT_PRODUCER],
 })
 export class RabbitmqModule {}
