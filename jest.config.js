@@ -52,6 +52,7 @@ module.exports = {
     '^@package/config$': '<rootDir>/shared/config/src/index.ts',
     '^@package/redis$': '<rootDir>/shared/redis/src/index.ts',
     '^@package/kafka-client$': '<rootDir>/shared/kafka-client/src/index.ts',
+    '^@package/rabbitmq-client$': '<rootDir>/shared/rabbitmq-client/src/index.ts',
     '^@package/tracing$': '<rootDir>/shared/tracing/src/index.ts',
     '^@package/circuit-breaker$': '<rootDir>/shared/circuit-breaker/src/index.ts',
     '^@package/shared-types$': '<rootDir>/shared/shared-types/src/index.ts',
