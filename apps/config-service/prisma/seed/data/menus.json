@@ -1,19 +1,5 @@
 [
   {
-    "code": "dashboard",
-    "name": "Dashboard",
-    "path": "/admin/dashboard",
-    "api_path": "api/comics/admin/stats/dashboard",
-    "icon": "📊",
-    "type": "route",
-    "status": "active",
-    "parent_id": null,
-    "sort_order": 1,
-    "is_public": false,
-    "show_in_menu": true,
-    "required_permission_code": "dashboard.manage"
-  },
-  {
     "code": "account-management",
     "name": "Quản lý tài khoản",
     "path": "/admin/users",
@@ -239,14 +225,14 @@
   },
   {
     "code": "post-management",
-    "name": "Bài viết",
+    "name": "Quản lý Bài viết",
     "path": "/admin/posts",
     "api_path": null,
     "icon": "📝",
     "type": "group",
     "status": "active",
     "parent_id": null,
-    "sort_order": 50,
+    "sort_order": 45,
     "is_public": false,
     "show_in_menu": true,
     "required_permission_code": "post.manage"
@@ -330,7 +316,7 @@
     "type": "group",
     "status": "active",
     "parent_id": null,
-    "sort_order": 60,
+    "sort_order": 50,
     "is_public": false,
     "show_in_menu": true,
     "required_permission_code": "comic.manage"
@@ -428,7 +414,7 @@
     "type": "group",
     "status": "active",
     "parent_id": null,
-    "sort_order": 70,
+    "sort_order": 60,
     "is_public": false,
     "show_in_menu": true,
     "required_permission_code": "banner.manage"
@@ -586,75 +572,5 @@
     "is_public": false,
     "show_in_menu": true,
     "required_permission_code": "faq.manage"
-  },
-  {
-    "code": "public-home",
-    "name": "Trang chủ",
-    "path": "/",
-    "api_path": null,
-    "icon": "🏠",
-    "type": "route",
-    "status": "active",
-    "parent_id": null,
-    "sort_order": 190,
-    "is_public": true,
-    "show_in_menu": true,
-    "group": "client"
-  },
-  {
-    "code": "public-comics-new-updated",
-    "name": "Mới cập nhật",
-    "path": "/comics?sort=last_chapter_updated_at:desc",
-    "api_path": null,
-    "icon": "🆕",
-    "type": "route",
-    "status": "active",
-    "parent_id": null,
-    "sort_order": 210,
-    "is_public": true,
-    "show_in_menu": true,
-    "group": "client"
-  },
-  {
-    "code": "public-comics-hot",
-    "name": "Truyện HOT",
-    "path": "/comics?sort=view_count:desc",
-    "api_path": null,
-    "icon": "🔥",
-    "type": "route",
-    "status": "active",
-    "parent_id": null,
-    "sort_order": 220,
-    "is_public": true,
-    "show_in_menu": true,
-    "group": "client"
-  },
-  {
-    "code": "public-comics-completed",
-    "name": "Hoàn thành",
-    "path": "/comics?status=completed",
-    "api_path": null,
-    "icon": "✅",
-    "type": "route",
-    "status": "active",
-    "parent_id": null,
-    "sort_order": 230,
-    "is_public": true,
-    "show_in_menu": true,
-    "group": "client"
-  },
-  {
-    "code": "public-posts",
-    "name": "Tin tức",
-    "path": "/posts",
-    "api_path": null,
-    "icon": "📰",
-    "type": "route",
-    "status": "active",
-    "parent_id": null,
-    "sort_order": 240,
-    "is_public": true,
-    "show_in_menu": true,
-    "group": "client"
   }
 ]
