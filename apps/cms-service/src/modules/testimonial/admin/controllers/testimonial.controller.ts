@@ -10,31 +10,31 @@ import { ListTestimonialAdminQueryDto } from '../dtos/list-testimonial.query.dto
 export class AdminTestimonialController {
   constructor(private readonly testimonialService: AdminTestimonialService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.testimonial.manage')
   @Get()
   async getList(@Query() query: ListTestimonialAdminQueryDto) {
     return this.testimonialService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.testimonial.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.testimonialService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.testimonial.manage')
   @Post()
   async create(@Body() dto: CreateTestimonialDto) {
     return this.testimonialService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.testimonial.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateTestimonialDto) {
     return this.testimonialService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.testimonial.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.testimonialService.delete(toPrimaryKey(id));

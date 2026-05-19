@@ -15,8 +15,8 @@ import { KafkaProducerService } from '@package/kafka-client';
 import { JwtGuard, RbacGuard, GlobalExceptionFilter, HealthModule, CommonEventModule, AuditModule, BigIntSerializationInterceptor, SessionModule, SessionContextMiddleware } from '@package/common';
 import { PrismaService } from './core/database/prisma.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { KafkaModule } from './kafka/kafka.module';
-import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+import { KafkaModule } from './event/kafka/kafka.module';
+import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
 
 import { ComicModule } from './modules/comic/comic.module';
 import { ChapterModule } from './modules/chapter/chapter.module';

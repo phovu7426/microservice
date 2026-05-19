@@ -28,8 +28,8 @@ import { PermissionModule } from './modules/permission/permission.module';
 import { RoleModule } from './modules/role/role.module';
 import { GroupModule } from './modules/group/group.module';
 import { UserRoleModule } from './modules/user-role/user-role.module';
-import { KafkaModule } from './kafka/kafka.module';
-import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+import { KafkaModule } from './event/kafka/kafka.module';
+import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
 
 const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 

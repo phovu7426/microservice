@@ -18,8 +18,8 @@ import { MailModule } from './modules/mail/mail.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ContentTemplateModule } from './modules/content-template/content-template.module';
 import { QueueModule } from './queue/queue.module';
-import { KafkaModule } from './kafka/kafka.module';
-import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+import { KafkaModule } from './event/kafka/kafka.module';
+import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
 
 const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
 

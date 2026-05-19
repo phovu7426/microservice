@@ -10,31 +10,31 @@ import { ListStaffAdminQueryDto } from '../dtos/list-staff.query.dto';
 export class AdminStaffController {
   constructor(private readonly staffService: AdminStaffService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.staff.manage')
   @Get()
   async getList(@Query() query: ListStaffAdminQueryDto) {
     return this.staffService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.staff.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.staffService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.staff.manage')
   @Post()
   async create(@Body() dto: CreateStaffDto) {
     return this.staffService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.staff.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateStaffDto) {
     return this.staffService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.staff.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.staffService.delete(toPrimaryKey(id));

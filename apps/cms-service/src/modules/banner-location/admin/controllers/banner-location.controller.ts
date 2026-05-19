@@ -11,37 +11,37 @@ import { ListBannerLocationsAdminQueryDto } from '../dtos/list-banner-locations.
 export class AdminBannerLocationController {
   constructor(private readonly bannerLocationService: AdminBannerLocationService) {}
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner_location.manage')
   @Get()
   async getList(@Query() query: ListBannerLocationsAdminQueryDto) {
     return this.bannerLocationService.getList(query);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner_location.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.bannerLocationService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner_location.manage')
   @Post()
   async create(@Body() dto: CreateBannerLocationDto) {
     return this.bannerLocationService.create(dto);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner_location.manage')
   @Put(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateBannerLocationDto) {
     return this.bannerLocationService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner_location.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.bannerLocationService.delete(toPrimaryKey(id));
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner_location.manage')
   @Patch(':id/status')
   async changeStatus(@Param('id') id: string, @Body() body: ChangeStatusDto) {
     return this.bannerLocationService.changeStatus(toPrimaryKey(id), body);

@@ -10,31 +10,31 @@ import { ListPartnerAdminQueryDto } from '../dtos/list-partner.query.dto';
 export class AdminPartnerController {
   constructor(private readonly partnerService: AdminPartnerService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.partner.manage')
   @Get()
   async getList(@Query() query: ListPartnerAdminQueryDto) {
     return this.partnerService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.partner.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.partnerService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.partner.manage')
   @Post()
   async create(@Body() dto: CreatePartnerDto) {
     return this.partnerService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.partner.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdatePartnerDto) {
     return this.partnerService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.partner.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.partnerService.delete(toPrimaryKey(id));

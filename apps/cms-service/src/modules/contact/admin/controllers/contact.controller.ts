@@ -11,19 +11,19 @@ export class AdminContactController {
     private readonly contactService: AdminContactService,
   ) {}
 
-  @Permission('marketing.manage')
+  @Permission('cms.contact.manage')
   @Get()
   async getList(@Query() query: ListContactsAdminQueryDto) {
     return this.contactService.getList(query);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.contact.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.contactService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.contact.manage')
   @Patch(':id/reply')
   async reply(
     @Param('id') id: string,
@@ -34,13 +34,13 @@ export class AdminContactController {
     return this.contactService.reply(toPrimaryKey(id), body.reply, actorId);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.contact.manage')
   @Patch(':id/read')
   async markAsRead(@Param('id') id: string) {
     return this.contactService.markAsRead(toPrimaryKey(id));
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.contact.manage')
   @Patch(':id/close')
   async closeContact(@Param('id') id: string) {
     return this.contactService.closeContact(toPrimaryKey(id));

@@ -23,8 +23,8 @@ import {
 } from '@package/common';
 import { PrismaService } from './core/database/prisma.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { KafkaModule } from './kafka/kafka.module';
-import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
+import { KafkaModule } from './event/kafka/kafka.module';
+import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
 
 // Introduction modules
 import { AboutModule } from './modules/about/about.module';

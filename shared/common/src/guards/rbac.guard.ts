@@ -120,8 +120,9 @@ export class RbacGuard implements CanActivate {
           // 4xx → no permissions resolved (treated as deny).
           return [] as string[];
         }
-        const body = (await res.json()) as { permissions?: string[] };
-        return Array.isArray(body?.permissions) ? body.permissions : [];
+        const body = (await res.json()) as { permissions?: string[]; data?: { permissions?: string[] } };
+        const perms = body?.data?.permissions ?? body?.permissions;
+        return Array.isArray(perms) ? perms : [];
       });
 
       if (this.redis?.isEnabled()) {

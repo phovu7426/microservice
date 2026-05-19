@@ -10,31 +10,31 @@ import { ListCertificateAdminQueryDto } from '../dtos/list-certificate.query.dto
 export class AdminCertificateController {
   constructor(private readonly certificateService: AdminCertificateService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.certificate.manage')
   @Get()
   async getList(@Query() query: ListCertificateAdminQueryDto) {
     return this.certificateService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.certificate.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.certificateService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.certificate.manage')
   @Post()
   async create(@Body() dto: CreateCertificateDto) {
     return this.certificateService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.certificate.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateCertificateDto) {
     return this.certificateService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.certificate.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.certificateService.delete(toPrimaryKey(id));

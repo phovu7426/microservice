@@ -10,31 +10,31 @@ import { ListGalleryAdminQueryDto } from '../dtos/list-gallery.query.dto';
 export class AdminGalleryController {
   constructor(private readonly galleryService: AdminGalleryService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.gallery.manage')
   @Get()
   async getList(@Query() query: ListGalleryAdminQueryDto) {
     return this.galleryService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.gallery.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.galleryService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.gallery.manage')
   @Post()
   async create(@Body() dto: CreateGalleryDto) {
     return this.galleryService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.gallery.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateGalleryDto) {
     return this.galleryService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.gallery.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.galleryService.delete(toPrimaryKey(id));

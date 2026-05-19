@@ -13,9 +13,27 @@ interface PermEntry {
   parent_code: string | null;
 }
 
+// Permissions renamed — delete from DB before re-seeding to keep data clean.
+const DEPRECATED_CODES = [
+  'banner.manage', 'banner_location.manage',
+  'contact.manage', 'project.manage', 'about.manage',
+  'staff.manage', 'testimonial.manage', 'partner.manage',
+  'gallery.manage', 'certificate.manage', 'faq.manage',
+];
+
 export async function seedPermissions(prisma: PrismaClient): Promise<Map<string, bigint>> {
   const codeToId = new Map<string, bigint>();
   const permissions = permissionsData as PermEntry[];
+
+  // Cleanup deprecated codes (remove role assignments first to avoid FK violation)
+  for (const code of DEPRECATED_CODES) {
+    const perm = await prisma.permission.findUnique({ where: { code } });
+    if (perm) {
+      await prisma.roleHasPermission.deleteMany({ where: { permissionId: perm.id } });
+      await prisma.permission.delete({ where: { code } });
+      console.log(`  ✘ Deprecated: ${code}`);
+    }
+  }
 
   // First pass: upsert all permissions without parent
   for (const perm of permissions) {

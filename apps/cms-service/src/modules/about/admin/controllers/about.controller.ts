@@ -10,31 +10,31 @@ import { ListAboutAdminQueryDto } from '../dtos/list-about.query.dto';
 export class AdminAboutController {
   constructor(private readonly aboutService: AdminAboutService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.about.manage')
   @Get()
   async getList(@Query() query: ListAboutAdminQueryDto) {
     return this.aboutService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.about.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.aboutService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.about.manage')
   @Post()
   async create(@Body() dto: CreateAboutDto) {
     return this.aboutService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.about.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateAboutDto) {
     return this.aboutService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.about.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.aboutService.delete(toPrimaryKey(id));

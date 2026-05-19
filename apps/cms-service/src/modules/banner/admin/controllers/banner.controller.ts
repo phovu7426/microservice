@@ -10,31 +10,31 @@ import { ListBannersAdminQueryDto } from '../dtos/list-banners.query.dto';
 export class AdminBannerController {
   constructor(private readonly bannerService: AdminBannerService) {}
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner.manage')
   @Get()
   async getList(@Query() query: ListBannersAdminQueryDto) {
     return this.bannerService.getList(query);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.bannerService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner.manage')
   @Post()
   async create(@Body() dto: CreateBannerDto) {
     return this.bannerService.create(dto);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner.manage')
   @Put(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateBannerDto) {
     return this.bannerService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('marketing.manage')
+  @Permission('cms.banner.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.bannerService.delete(toPrimaryKey(id));

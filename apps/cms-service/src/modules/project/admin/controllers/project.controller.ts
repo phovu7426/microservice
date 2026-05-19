@@ -10,31 +10,31 @@ import { ListProjectAdminQueryDto } from '../dtos/list-project.query.dto';
 export class AdminProjectController {
   constructor(private readonly projectService: AdminProjectService) {}
 
-  @Permission('introduction.manage')
+  @Permission('cms.project.manage')
   @Get()
   async getList(@Query() query: ListProjectAdminQueryDto) {
     return this.projectService.getList(query);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.project.manage')
   @Get(':id')
   async getOne(@Param('id') id: string) {
     return this.projectService.getOne(toPrimaryKey(id));
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.project.manage')
   @Post()
   async create(@Body() dto: CreateProjectDto) {
     return this.projectService.create(dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.project.manage')
   @Patch(':id')
   async update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
     return this.projectService.update(toPrimaryKey(id), dto);
   }
 
-  @Permission('introduction.manage')
+  @Permission('cms.project.manage')
   @Delete(':id')
   async delete(@Param('id') id: string) {
     return this.projectService.delete(toPrimaryKey(id));

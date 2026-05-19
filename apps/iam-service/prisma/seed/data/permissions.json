@@ -6,9 +6,6 @@
   { "code": "system.config.view", "name": "Xem cấu hình website", "status": "active", "parent_code": "config.manage" },
   { "code": "system.config.update", "name": "Lưu cấu hình website", "status": "active", "parent_code": "config.manage" },
 
-  { "code": "banner.manage", "name": "Quản lý banner quảng cáo", "status": "active", "parent_code": null },
-  { "code": "banner_location.manage", "name": "Quản lý vị trí banner", "status": "active", "parent_code": "banner.manage" },
-
   { "code": "role.manage", "name": "Quản lý vai trò (IAM)", "status": "active", "parent_code": null },
   { "code": "role.view", "name": "Xem danh sách vai trò", "status": "active", "parent_code": "role.manage" },
   { "code": "role.create", "name": "Tạo vai trò mới", "status": "active", "parent_code": "role.manage" },
@@ -70,14 +67,16 @@
   { "code": "post_category.manage", "name": "Quản lý danh mục bài viết", "status": "active", "parent_code": "post.manage" },
   { "code": "post_tag.manage", "name": "Quản lý thẻ bài viết", "status": "active", "parent_code": "post.manage" },
 
-  { "code": "contact.manage", "name": "Quản lý liên hệ", "status": "active", "parent_code": null },
-
-  { "code": "project.manage", "name": "Quản lý dự án (giới thiệu)", "status": "active", "parent_code": null },
-  { "code": "about.manage", "name": "Quản lý nội dung About", "status": "active", "parent_code": null },
-  { "code": "staff.manage", "name": "Quản lý nhân sự", "status": "active", "parent_code": null },
-  { "code": "testimonial.manage", "name": "Quản lý đánh giá khách hàng", "status": "active", "parent_code": null },
-  { "code": "partner.manage", "name": "Quản lý đối tác", "status": "active", "parent_code": null },
-  { "code": "gallery.manage", "name": "Quản lý thư viện ảnh", "status": "active", "parent_code": null },
-  { "code": "certificate.manage", "name": "Quản lý chứng chỉ", "status": "active", "parent_code": null },
-  { "code": "faq.manage", "name": "Quản lý FAQ", "status": "active", "parent_code": null }
+  { "code": "cms.manage", "name": "Quản lý CMS", "status": "active", "parent_code": null },
+  { "code": "cms.about.manage", "name": "Quản lý nội dung About", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.staff.manage", "name": "Quản lý nhân sự", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.project.manage", "name": "Quản lý dự án", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.testimonial.manage", "name": "Quản lý đánh giá khách hàng", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.partner.manage", "name": "Quản lý đối tác", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.gallery.manage", "name": "Quản lý thư viện ảnh", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.certificate.manage", "name": "Quản lý chứng chỉ", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.faq.manage", "name": "Quản lý FAQ", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.banner.manage", "name": "Quản lý banner quảng cáo", "status": "active", "parent_code": "cms.manage" },
+  { "code": "cms.banner_location.manage", "name": "Quản lý vị trí banner", "status": "active", "parent_code": "cms.banner.manage" },
+  { "code": "cms.contact.manage", "name": "Quản lý liên hệ", "status": "active", "parent_code": "cms.manage" }
 ]
