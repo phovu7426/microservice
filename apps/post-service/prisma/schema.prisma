@@ -22,7 +22,6 @@ model Category {
   updatedUserId  BigInt?  @map("updated_user_id")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
-  groupId        BigInt?  @map("group_id")
 
   parent   Category?      @relation("CategoryToChildren", fields: [parentId], references: [id], onDelete: SetNull)
   children Category[]     @relation("CategoryToChildren")
@@ -36,7 +35,6 @@ model Category {
   @@index([createdAt], map: "categories_idx_created_at")
   @@index([createdUserId], map: "categories_idx_created_user_id")
   @@index([updatedUserId], map: "categories_idx_updated_user_id")
-  @@index([groupId], map: "categories_idx_group_id")
   @@map("categories")
 }
 
@@ -50,7 +48,6 @@ model Tag {
   updatedUserId  BigInt?  @map("updated_user_id")
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamp(0)
-  groupId        BigInt?  @map("group_id")
 
   posts PostTag[]
 
@@ -60,7 +57,6 @@ model Tag {
   @@index([createdAt], map: "tags_idx_created_at")
   @@index([createdUserId], map: "tags_idx_created_user_id")
   @@index([updatedUserId], map: "tags_idx_updated_user_id")
-  @@index([groupId], map: "tags_idx_group_id")
   @@map("tags")
 }
 
@@ -86,7 +82,6 @@ model Post {
   updatedUserId  BigInt?   @map("updated_user_id")
   createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(0)
   updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamp(0)
-  groupId        BigInt?   @map("group_id")
 
   stats         Stats?
   daily_stats   DailyStats[]
@@ -109,7 +104,6 @@ model Post {
   @@index([createdAt], map: "posts_idx_created_at")
   @@index([createdUserId], map: "posts_idx_created_user_id")
   @@index([updatedUserId], map: "posts_idx_updated_user_id")
-  @@index([groupId], map: "posts_idx_group_id")
   @@map("posts")
 }
 

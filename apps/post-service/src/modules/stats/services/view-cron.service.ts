@@ -12,7 +12,7 @@ export class ViewCronService {
     private readonly redis: RedisService,
   ) {}
 
-  @Cron('0 */5 * * * *')
+  @Cron('0 */2 * * * *')
   async flushViewBuffer() {
     if (!this.redis.isEnabled()) return;
 

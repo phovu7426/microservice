@@ -3,6 +3,7 @@ import { Authenticated, session } from '@package/common';
 import { toPrimaryKey } from 'src/types';
 import { UserCommentService } from '../services/comment.service';
 import { CreateCommentDto } from '../dtos/create-comment.dto';
+import { UpdateCommentDto } from '../dtos/update-comment.dto';
 
 @Controller('user/post-comments')
 export class UserCommentController {
@@ -17,9 +18,9 @@ export class UserCommentController {
 
   @Authenticated()
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: { content: string }) {
+  async update(@Param('id') id: string, @Body() dto: UpdateCommentDto) {
     const userId = toPrimaryKey(session()!.userId!);
-    return this.commentService.update(userId, toPrimaryKey(id), body.content);
+    return this.commentService.update(userId, toPrimaryKey(id), dto.content);
   }
 
   @Authenticated()

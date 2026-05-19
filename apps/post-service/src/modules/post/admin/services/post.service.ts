@@ -119,8 +119,14 @@ export class AdminPostService {
       throw err;
     }
 
-    await this.clearPostCaches(data.slug || (current as any).slug);
-    return updated;
+    const currentSlug = (current as any).slug;
+    // If slug changed, invalidate the old detail cache too; otherwise stale
+    // data is served for up to 120 s after the rename.
+    if (data.slug && data.slug !== currentSlug) {
+      await this.clearPostCaches(currentSlug);
+    }
+    await this.clearPostCaches(data.slug || currentSlug);
+    return this.transform(updated);
   }
 
   async delete(id: PrimaryKey) {

@@ -62,9 +62,12 @@ function makeMockCommentRepo() {
   };
 }
 
-function makeMockConfig() {
+function makeMockConfig(eventDriver = 'local') {
   return {
-    get: jest.fn().mockReturnValue(false),
+    // Default 'local' → eventEnabled = false, no outbox created.
+    get: jest.fn().mockImplementation((_key: string, def?: any) =>
+      _key === 'EVENT_DRIVER' ? eventDriver : def,
+    ),
   };
 }
 
@@ -161,8 +164,13 @@ describe('UserCommentService', () => {
       await expect(service.create(userId, dto)).rejects.toThrow(BadRequestException);
     });
 
-    it('should create outbox when kafka enabled and replying to another user', async () => {
-      config.get.mockReturnValue(true);
+    it('should create outbox when event driver is kafka and replying to another user', async () => {
+      service = new UserCommentService(
+        commentRepo as any,
+        makeMockConfig('kafka') as any,
+        makeMockI18n(),
+        redis as any,
+      );
       const parent = { id: 50n, postId: 1n, userId: 20n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
@@ -178,8 +186,33 @@ describe('UserCommentService', () => {
       );
     });
 
+    it('should create outbox when event driver is rabbitmq and replying to another user', async () => {
+      service = new UserCommentService(
+        commentRepo as any,
+        makeMockConfig('rabbitmq') as any,
+        makeMockI18n(),
+        redis as any,
+      );
+      const parent = { id: 50n, postId: 1n, userId: 20n, parentId: null };
+      commentRepo.findById.mockResolvedValue(parent);
+
+      const dto = { ...baseDto, parentId: '50' };
+      await service.create(userId, dto);
+
+      expect(commentRepo.createOutbox).toHaveBeenCalledWith(
+        'post.comment.created',
+        expect.objectContaining({ parent_comment_user_id: '20' }),
+        expect.anything(),
+      );
+    });
+
     it('should NOT create outbox when replying to own comment', async () => {
-      config.get.mockReturnValue(true);
+      service = new UserCommentService(
+        commentRepo as any,
+        makeMockConfig('kafka') as any,
+        makeMockI18n(),
+        redis as any,
+      );
       const parent = { id: 50n, postId: 1n, userId: userId, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 
@@ -189,8 +222,8 @@ describe('UserCommentService', () => {
       expect(commentRepo.createOutbox).not.toHaveBeenCalled();
     });
 
-    it('should NOT create outbox when kafka is disabled', async () => {
-      config.get.mockReturnValue(false);
+    it('should NOT create outbox when EVENT_DRIVER is local', async () => {
+      // default service already uses makeMockConfig('local')
       const parent = { id: 50n, postId: 1n, userId: 20n, parentId: null };
       commentRepo.findById.mockResolvedValue(parent);
 

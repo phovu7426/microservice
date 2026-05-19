@@ -77,12 +77,13 @@ export class AdminCategoryService {
   }
 
   async update(id: PrimaryKey, dto: UpdateCategoryDto, actorId?: PrimaryKey) {
-    await this.getOne(id);
+    const current = await this.getOne(id);
 
     const data: Record<string, any> = { ...dto };
-    if (dto.name) {
+    const nameChanged = dto.name !== undefined && dto.name !== (current as any).name;
+    if (dto.slug || nameChanged) {
       data.slug = await SlugHelper.uniqueSlug(
-        dto.name,
+        dto.slug || dto.name || '',
         { findOne: (filter: any) => this.categoryRepo.findBySlug(filter.slug) },
         id,
       );

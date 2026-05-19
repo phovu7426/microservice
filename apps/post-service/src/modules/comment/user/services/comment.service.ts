@@ -8,8 +8,6 @@ import { PUBLIC_POST_STATUSES } from '../../../post/enums/post-status.enum';
 import { CreateCommentDto } from '../dtos/create-comment.dto';
 import { CommentRepository } from '../../repositories/comment.repository';
 
-const MAX_REPLY_DEPTH = 1;
-
 @Injectable()
 export class UserCommentService {
   constructor(
@@ -20,7 +18,8 @@ export class UserCommentService {
   ) {}
 
   async create(userId: PrimaryKey, dto: CreateCommentDto) {
-    const kafkaEnabled = !!this.config.get<boolean>('kafka.enabled');
+    // 'local' driver = no external broker; kafka & rabbitmq both relay outbox entries.
+    const eventEnabled = this.config.get<string>('EVENT_DRIVER', 'local') !== 'local';
 
     // Verify the target post exists AND is in a publicly-visible state.
     // Without this, anyone can comment on draft/archived posts.
@@ -51,7 +50,7 @@ export class UserCommentService {
       createdUserId: userId,
     };
 
-    const needsOutbox = kafkaEnabled && parent && String(parent.userId) !== String(userId);
+    const needsOutbox = eventEnabled && parent && String(parent.userId) !== String(userId);
 
     const result = await this.commentRepo.withTransaction(async (tx) => {
       const comment = await this.commentRepo.create(commentData, tx);

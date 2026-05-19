@@ -176,6 +176,16 @@ describe('AdminCategoryService', () => {
       await expect(service.update(999n, { name: 'x' } as any)).rejects.toThrow(NotFoundException);
     });
 
+    it('should NOT regenerate slug when name is the same as current', async () => {
+      const { SlugHelper } = require('@package/common');
+      categoryRepo.findById.mockResolvedValue({ id: 1n, name: 'Same Name', slug: 'same-name' });
+      (SlugHelper.uniqueSlug as jest.Mock).mockClear();
+
+      await service.update(1n, { name: 'Same Name', description: 'updated desc' } as any);
+
+      expect(SlugHelper.uniqueSlug).not.toHaveBeenCalled();
+    });
+
     it('should detect cycle when setting parentId to self', async () => {
       categoryRepo.findById.mockResolvedValue({ id: 1n, name: 'Cat' });
       await expect(

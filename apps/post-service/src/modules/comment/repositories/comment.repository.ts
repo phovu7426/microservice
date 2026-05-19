@@ -19,11 +19,6 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'createdUserId', 'updatedUserId',
 ]);
 
-const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
-  'createdAt',
-  'updatedAt',
-]);
-
 @Injectable()
 export class CommentRepository {
   constructor(private readonly prisma: PrismaService) {}

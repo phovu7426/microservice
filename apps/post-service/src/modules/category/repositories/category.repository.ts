@@ -24,13 +24,6 @@ const ALLOWED_FIELDS: ReadonlySet<string> = new Set([
   'updatedUserId',
 ]);
 
-const SORTABLE_FIELDS: ReadonlySet<string> = new Set([
-  'name',
-  'sortOrder',
-  'createdAt',
-  'updatedAt',
-]);
-
 const WITH_CHILDREN = {
   children: { orderBy: { sortOrder: 'asc' as const } },
 } as const;
@@ -138,14 +131,6 @@ export class CategoryRepository {
 
   delete(id: any) {
     return this.prisma.category.delete({ where: { id: toPrimaryKey(id) } });
-  }
-
-  private buildOrderBy(sort?: string): Prisma.CategoryOrderByWithRelationInput {
-    if (!sort) return { sortOrder: 'asc' };
-    const [field, dirRaw] = sort.split(':');
-    if (!field || !SORTABLE_FIELDS.has(field)) return { sortOrder: 'asc' };
-    const dir: 'asc' | 'desc' = dirRaw?.toLowerCase() === 'asc' ? 'asc' : 'desc';
-    return { [field]: dir } as Prisma.CategoryOrderByWithRelationInput;
   }
 
   private normalizePayload(data: Record<string, any>): Record<string, any> {

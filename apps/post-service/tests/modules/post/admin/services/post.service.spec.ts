@@ -253,6 +253,36 @@ describe('AdminPostService', () => {
       expect(SlugHelper.uniqueSlug).not.toHaveBeenCalled();
     });
 
+    it('should clear both old and new slug caches when slug changes', async () => {
+      const existing = makePost({ name: 'Old Name', slug: 'old-slug' });
+      postRepo.findById.mockResolvedValue(existing);
+      // uniqueSlug returns 'generated-slug' (different from 'old-slug')
+      postRepo.updateWithRelations.mockResolvedValue(makePost({ slug: 'generated-slug' }));
+
+      await service.update(1n, { name: 'New Name' } as any, 1n);
+
+      // Should clear old slug detail cache
+      expect(redis.del).toHaveBeenCalledWith('post:public:detail:old-slug');
+      // Should clear new slug detail cache
+      expect(redis.del).toHaveBeenCalledWith('post:public:detail:generated-slug');
+      // Should invalidate list cache
+      expect(redis.incr).toHaveBeenCalledWith('post:public:list:v');
+    });
+
+    it('should only clear new slug cache when slug does not change', async () => {
+      const existing = makePost({ name: 'My Post', slug: 'my-post' });
+      postRepo.findById.mockResolvedValue(existing);
+      // updateWithRelations returns undefined → transform returns null (slug unchanged)
+      postRepo.updateWithRelations.mockResolvedValue(makePost({ slug: 'my-post' }));
+
+      redis.del.mockClear();
+      await service.update(1n, { content: 'new content' } as any);
+
+      // Only new (same) slug cleared — no double-clear of same key needed
+      expect(redis.del).toHaveBeenCalledTimes(1);
+      expect(redis.del).toHaveBeenCalledWith('post:public:detail:my-post');
+    });
+
     it('should throw BadRequestException on P2002 during update', async () => {
       postRepo.findById.mockResolvedValue(makePost());
 
