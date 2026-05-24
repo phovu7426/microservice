@@ -81,9 +81,9 @@ export class AdminCategoryService {
 
     const data: Record<string, any> = { ...dto };
     const nameChanged = dto.name !== undefined && dto.name !== (current as any).name;
-    if (dto.slug || nameChanged) {
+    if (nameChanged) {
       data.slug = await SlugHelper.uniqueSlug(
-        dto.slug || dto.name || '',
+        dto.name || '',
         { findOne: (filter: any) => this.categoryRepo.findBySlug(filter.slug) },
         id,
       );

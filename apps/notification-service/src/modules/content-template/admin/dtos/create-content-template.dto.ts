@@ -9,6 +9,7 @@ import {
 } from 'class-validator';
 import { TemplateType } from '../../enums/template-type.enum';
 import { TemplateCategory } from '../../enums/template-category.enum';
+import { TemplateStatus } from '../../enums/template-status.enum';
 
 export class CreateContentTemplateDto {
   // `code` is referenced by `mail.send` events — keep it strict so an
@@ -52,6 +53,9 @@ export class CreateContentTemplateDto {
   metadata?: Record<string, unknown>;
 
   @IsOptional()
-  @IsObject()
-  variables?: Record<string, unknown>;
+  variables?: Record<string, unknown> | unknown[];
+
+  @IsOptional()
+  @IsEnum(TemplateStatus)
+  status?: TemplateStatus;
 }

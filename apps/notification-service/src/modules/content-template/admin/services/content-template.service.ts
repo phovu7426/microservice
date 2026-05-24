@@ -5,13 +5,18 @@ import { PrimaryKey } from 'src/types';
 import { ContentTemplateRepository, ContentTemplateFilter } from '../../repositories/content-template.repository';
 import { CreateContentTemplateDto } from '../dtos/create-content-template.dto';
 import { UpdateContentTemplateDto } from '../dtos/update-content-template.dto';
+import { TestContentTemplateDto } from '../dtos/test-content-template.dto';
 import { ListContentTemplatesAdminQueryDto } from '../dtos/list-content-templates.query.dto';
+import { MailService } from '../../../mail/services/mail.service';
+
+const VAR_PATTERN = /\{\{\s*([\w.]{1,80})\s*\}\}/g;
 
 @Injectable()
 export class AdminContentTemplateService {
   constructor(
     private readonly templateRepo: ContentTemplateRepository,
     private readonly i18n: I18nService,
+    private readonly mailService: MailService,
   ) {}
 
   async getList(query: ListContentTemplatesAdminQueryDto) {
@@ -50,6 +55,7 @@ export class AdminContentTemplateService {
       filePath: dto.filePath,
       metadata: dto.metadata,
       variables: dto.variables,
+      status: dto.status,
     } as any);
   }
 
@@ -68,6 +74,7 @@ export class AdminContentTemplateService {
       filePath: dto.filePath,
       metadata: dto.metadata,
       variables: dto.variables,
+      status: dto.status,
     } as any);
   }
 
@@ -75,5 +82,31 @@ export class AdminContentTemplateService {
     await this.getOne(id);
     await this.templateRepo.delete(id);
     return true;
+  }
+
+  async test(id: PrimaryKey, dto: TestContentTemplateDto) {
+    const template = await this.getOne(id);
+    if (!template.content) throw new BadRequestException(t(this.i18n, 'content-template.NO_CONTENT'));
+    const metadata = template.metadata as any;
+    const subject = `[TEST] ${metadata?.subject ?? template.name}`;
+    await this.mailService.send({
+      to: dto.to,
+      subject,
+      html: this.renderContent(template.content, dto.variables ?? {}),
+    });
+    return true;
+  }
+
+  private renderContent(content: string, variables: Record<string, any>): string {
+    return content.replace(VAR_PATTERN, (match, key: string) => {
+      const parts = key.split('.');
+      let value: any = variables;
+      for (const part of parts) {
+        if (value == null) return match;
+        value = value[part];
+      }
+      if (value == null) return match;
+      return String(value).slice(0, 5000);
+    });
   }
 }

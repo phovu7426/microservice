@@ -1,5 +1,6 @@
 {
   "NOT_FOUND": "Không tìm thấy template nội dung",
   "CODE_EXISTS": "Mã template đã tồn tại",
-  "DELETED": "Xóa template nội dung thành công"
+  "DELETED": "Xóa template nội dung thành công",
+  "NO_CONTENT": "Template không có nội dung để gửi"
 }

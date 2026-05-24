@@ -1,5 +1,6 @@
 {
   "NOT_FOUND": "Content template not found",
   "CODE_EXISTS": "Template code already exists",
-  "DELETED": "Content template deleted successfully"
+  "DELETED": "Content template deleted successfully",
+  "NO_CONTENT": "Template has no content to send"
 }

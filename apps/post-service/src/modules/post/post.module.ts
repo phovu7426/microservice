@@ -9,7 +9,7 @@ import { PostRepository } from './repositories/post.repository';
 
 @Module({
   imports: [
-    EnumModule.register({ path: 'posts/enums', enums: PostEnums }),
+    EnumModule.register({ path: 'enums', enums: PostEnums }),
   ],
   controllers: [AdminPostController, PublicPostController],
   providers: [PostRepository, AdminPostService, PublicPostService],

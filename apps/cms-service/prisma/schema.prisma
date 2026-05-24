@@ -7,20 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// ── Enums ─────────────────────────────────────────────────────────────────────
-
-enum ContactStatus {
-  Pending
-  Read
-  Replied
-  Closed
-}
-
-enum BannerLinkTarget {
-  SELF  @map("_self")
-  BLANK @map("_blank")
-}
-
 // ── Marketing models ──────────────────────────────────────────────────────────
 
 model BannerLocation {
@@ -46,7 +32,7 @@ model Banner {
   image       String?          @db.VarChar(500)
   mobileImage String?          @map("mobile_image") @db.VarChar(500)
   link        String?          @db.VarChar(500)
-  linkTarget  BannerLinkTarget @default(SELF) @map("link_target")
+  linkTarget  String           @default("_self") @map("link_target") @db.VarChar(10)
   description String?          @db.Text
   buttonText  String?          @map("button_text") @db.VarChar(100)
   buttonColor String?          @map("button_color") @db.VarChar(50)
@@ -75,7 +61,7 @@ model Contact {
   email     String        @db.VarChar(255)
   phone     String?       @db.VarChar(50)
   message   String        @db.Text
-  status    ContactStatus @default(Pending)
+  status    String        @default("Pending") @db.VarChar(30)
   reply     String?       @db.Text
   repliedAt DateTime?     @map("replied_at") @db.Timestamp(0)
   repliedBy BigInt?       @map("replied_by")

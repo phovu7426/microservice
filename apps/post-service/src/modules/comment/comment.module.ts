@@ -11,7 +11,7 @@ import { CommentRepository } from './repositories/comment.repository';
 
 @Module({
   imports: [
-    EnumModule.register({ path: 'posts/comments/enums', enums: CommentEnums }),
+    EnumModule.register({ path: 'comments/enums', enums: CommentEnums }),
   ],
   controllers: [AdminCommentController, PublicCommentController, UserCommentController],
   providers: [CommentRepository, AdminCommentService, PublicCommentService, UserCommentService],

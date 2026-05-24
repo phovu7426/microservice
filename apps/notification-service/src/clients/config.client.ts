@@ -50,13 +50,13 @@ export class ConfigClient {
         const ac = new AbortController();
         const timer = setTimeout(() => ac.abort(), 5_000);
         try {
-          const res = await fetch(`${configUrl}/config/email`, {
+          const res = await fetch(`${configUrl}/email`, {
             headers: secret ? { 'x-internal-secret': secret } : {},
             signal: ac.signal,
           });
           if (!res.ok) {
             const log = this.fileLogger.create('config-client/get-email-config', {
-              url: `${configUrl}/config/email`,
+              url: `${configUrl}/email`,
               status: res.status,
             });
             log.addDebug('config_service_error', { status: res.status });
@@ -71,7 +71,7 @@ export class ConfigClient {
       });
     } catch (err: any) {
       const log = this.fileLogger.create('config-client/get-email-config', {
-        url: `${configUrl}/config/email`,
+        url: `${configUrl}/email`,
       });
       log.addException(err);
       log.addDebug('fetch_failed');
