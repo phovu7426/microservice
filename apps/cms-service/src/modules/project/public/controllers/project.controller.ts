@@ -14,6 +14,12 @@ export class PublicProjectController {
   }
 
   @Public()
+  @Get('options')
+  getOptions() {
+    return this.projectService.getOptions();
+  }
+
+  @Public()
   @Get(':slug')
   async getBySlug(@Param('slug') slug: string) {
     return this.projectService.getBySlug(slug);

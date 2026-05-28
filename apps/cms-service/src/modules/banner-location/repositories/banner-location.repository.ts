@@ -79,6 +79,14 @@ export class BannerLocationRepository {
     });
   }
 
+  findOptions() {
+    return this.prisma.bannerLocation.findMany({
+      where: { status: 'active' },
+      select: { id: true, name: true, code: true },
+      orderBy: { name: 'asc' },
+    });
+  }
+
   countBanners(locationId: any) {
     return this.prisma.banner.count({ where: { locationId: toPrimaryKey(locationId) } });
   }

@@ -70,6 +70,13 @@ export class ProjectRepository {
     });
   }
 
+  findOptions() {
+    return this.prisma.project.findMany({
+      select: { id: true, name: true, slug: true },
+      orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
+    });
+  }
+
   findBySlug(slug: string) {
     return this.prisma.project.findUnique({ where: { slug } });
   }

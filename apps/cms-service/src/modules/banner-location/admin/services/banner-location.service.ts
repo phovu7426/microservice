@@ -104,4 +104,8 @@ export class AdminBannerLocationService {
     await this.clearCache();
     return updated;
   }
+
+  async getOptions() {
+    return this.locationRepo.findOptions();
+  }
 }

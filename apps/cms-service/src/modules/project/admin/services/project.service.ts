@@ -138,4 +138,8 @@ export class AdminProjectService {
     await this.clearCache((item as any).slug);
     return { success: true };
   }
+
+  async getOptions() {
+    return this.projectRepo.findOptions();
+  }
 }

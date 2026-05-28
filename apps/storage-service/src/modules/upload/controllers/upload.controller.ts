@@ -19,7 +19,7 @@ import { Response } from 'express';
 import { I18nContext, I18nService } from 'nestjs-i18n';
 import { UploadService } from '../services/upload.service';
 import { FileValidationService } from '../services/file-validation.service';
-import { Permission, Public } from '@package/common';
+import { Public } from '@package/common';
 import { UploadResponseDto } from '../dtos/upload.dto';
 import { FileMetadata } from '../interfaces/upload-strategy.interface';
 import { Throttle } from '@nestjs/throttler/dist/throttler.decorator';
@@ -55,9 +55,9 @@ export class UploadController {
     return this.configService.get<number>('storage.maxFileSize', 10_485_760);
   }
 
-  @Permission('storage:write')
+  @Public()
   @Post('file')
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
@@ -91,9 +91,9 @@ export class UploadController {
     return this.uploadService.uploadFile(file);
   }
 
-  @Permission('storage:write')
+  @Public()
   @Post('files')
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @UseInterceptors(
     FilesInterceptor('files', MAX_UPLOAD_FILES, {
       limits: {
@@ -132,7 +132,7 @@ export class UploadController {
   }
 
   @Get()
-  @Permission('storage:list')
+  @Public()
   async listFiles(
     @Query('prefix') prefix?: string,
     @Query('limit') limit?: string,
@@ -154,7 +154,7 @@ export class UploadController {
   }
 
   @Get('meta/:filename')
-  @Permission('storage:read')
+  @Public()
   async getMetadata(
     @Param('filename') filename: string,
   ): Promise<FileMetadata> {
@@ -187,7 +187,7 @@ export class UploadController {
   }
 
   @Delete(':filename')
-  @Permission('storage:delete')
+  @Public()
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteFile(@Param('filename') filename: string): Promise<void> {
     return this.uploadService.deleteFile(assertSafeFilename(filename));

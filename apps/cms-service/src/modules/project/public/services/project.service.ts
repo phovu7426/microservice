@@ -50,6 +50,10 @@ export class PublicProjectService {
     });
   }
 
+  getOptions() {
+    return this.projectRepo.findOptions();
+  }
+
   async getBySlug(slug: string) {
     return this.getOrSet(`introduction:public:project:detail:${slug}`, 600, async () => {
       const item = await this.projectRepo.findPublicBySlug(slug, PUBLIC_PROJECT_STATUSES);

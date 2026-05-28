@@ -8,6 +8,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   Min,
 } from 'class-validator';
@@ -70,7 +71,10 @@ export class CreateProjectDto {
   @IsOptional()
   @IsArray()
   @ArrayMaxSize(200)
-  images?: any[];
+  @IsString({ each: true })
+  @MaxLength(1000, { each: true })
+  @Matches(/^(?!blob:)/, { each: true, message: 'images phải là URL thật, không được là blob: URL' })
+  images?: string[];
 
   @IsOptional()
   @IsBoolean()
