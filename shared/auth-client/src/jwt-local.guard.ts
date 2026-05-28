@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
+import { authMsg } from './i18n/auth-messages';
 
 export const PERMS_KEY = 'perms_required';
 export const PUBLIC = 'public';
@@ -43,9 +44,11 @@ export class JwtLocalGuard implements CanActivate {
       return true;
     }
 
+    const lang = this.getLang(context);
+
     // User/protected route → verify JWT
     const token = this.extractToken(context);
-    if (!token) throw new UnauthorizedException('Token required');
+    if (!token) throw new UnauthorizedException(authMsg(lang, 'TOKEN_REQUIRED'));
 
     const jwksUrl = this.config.get<string>('AUTH_JWKS_URL');
 
@@ -53,7 +56,7 @@ export class JwtLocalGuard implements CanActivate {
     // Previously this handed out a hardcoded { sub: 'dev' } identity which
     // allowed any caller to bypass auth if the env var was accidentally unset.
     if (!jwksUrl) {
-      throw new UnauthorizedException('AUTH_JWKS_URL not configured — cannot verify tokens');
+      throw new UnauthorizedException(authMsg(lang, 'AUTH_NOT_CONFIGURED'));
     }
 
     const payload = await this.verifyToken(token, jwksUrl);
@@ -61,12 +64,22 @@ export class JwtLocalGuard implements CanActivate {
     // Refresh tokens are signed with the same keypair as access tokens but
     // carry { type: 'refresh' }. They must never authorize a regular request.
     if ((payload as any)?.type === 'refresh') {
-      throw new UnauthorizedException('Invalid token type');
+      throw new UnauthorizedException(authMsg(lang, 'INVALID_TOKEN_TYPE'));
     }
 
     const request = context.switchToHttp().getRequest();
     request.user = payload;
     return true;
+  }
+
+  private getLang(context: ExecutionContext): string {
+    try {
+      const req = context.switchToHttp().getRequest();
+      const accept = ((req?.headers?.['accept-language'] ?? '') as string).toLowerCase();
+      return accept.startsWith('en') ? 'en' : 'vi';
+    } catch {
+      return 'vi';
+    }
   }
 
   private async trySetUser(context: ExecutionContext): Promise<void> {

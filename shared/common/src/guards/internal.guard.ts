@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { timingSafeEqual } from 'crypto';
+import { I18nContext } from 'nestjs-i18n';
+import { commonMsg } from '../i18n/common-messages';
 
 @Injectable()
 export class InternalGuard implements CanActivate {
@@ -15,6 +17,7 @@ export class InternalGuard implements CanActivate {
   constructor(private readonly config: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
+    const lang = I18nContext.current()?.lang ?? 'vi';
     const request = context.switchToHttp().getRequest();
     const secret = request.headers['x-internal-secret'];
     const expected =
@@ -26,12 +29,12 @@ export class InternalGuard implements CanActivate {
     // is missing.
     if (!expected) {
       this.logger.error('INTERNAL_API_SECRET not configured — rejecting internal request');
-      throw new UnauthorizedException('Internal API secret not configured');
+      throw new UnauthorizedException(commonMsg(lang, 'INTERNAL_SECRET_NOT_CONFIGURED'));
     }
 
     if (!secret || typeof secret !== 'string' || secret.length !== expected.length ||
         !timingSafeEqual(Buffer.from(secret), Buffer.from(expected))) {
-      throw new UnauthorizedException('Invalid or missing internal API secret');
+      throw new UnauthorizedException(commonMsg(lang, 'INVALID_INTERNAL_SECRET'));
     }
     return true;
   }

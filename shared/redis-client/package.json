@@ -1,0 +1,19 @@
+{
+  "name": "@package/redis-client",
+  "version": "1.0.0",
+  "description": "Redis Streams producer/consumer for NestJS microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.19",
+    "ioredis": "^5.8.2"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

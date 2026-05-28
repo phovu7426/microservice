@@ -1,0 +1,23 @@
+{
+  "INTERNAL_SERVER_ERROR": "Internal server error",
+  "FILE_REQUIRED": "File is required",
+  "INVALID_FILE_TYPE": "Invalid file type: {mimetype}. Allowed: {allowed}",
+  "FILE_TOO_LARGE": "File too large: {size}MB. Max: {max}MB",
+  "MIN_FILES_REQUIRED": "At least one file is required",
+  "TOO_MANY_FILES": "Too many files. Max: {max}",
+  "TOKEN_REQUIRED": "Token required",
+  "INVALID_OR_EXPIRED_TOKEN": "Invalid or expired token",
+  "INVALID_TOKEN_TYPE": "Invalid token type",
+  "AUTH_NOT_CONFIGURED": "Auth service not configured",
+  "INTERNAL_SECRET_NOT_CONFIGURED": "Internal API secret not configured",
+  "INVALID_INTERNAL_SECRET": "Invalid or missing internal API secret",
+  "AUTHENTICATION_REQUIRED": "Authentication required",
+  "PERMISSION_SERVICE_NOT_CONFIGURED": "Permission service not configured",
+  "PERMISSION_CHECK_UNAVAILABLE": "Permission check unavailable",
+  "PERMISSION_DENIED": "Permission denied",
+  "RESOURCE_NOT_FOUND_ID": "Resource with ID {id} not found",
+  "PARAM_MUST_BE_POSITIVE_INT": "{field} must be a positive integer",
+  "PARAM_MUST_BE_GT_ZERO": "{field} must be greater than 0",
+  "ENUM_NOT_FOUND": "Enum '{key}' not found",
+  "SORT_FORMAT_INVALID": "sort must look like \"field:asc\" or \"field:desc\""
+}

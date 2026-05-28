@@ -20,11 +20,20 @@ import { I18nThrottlerGuard } from './core/guards/throttler.guard';
 import { JwksModule } from './jwks/jwks.module';
 import { KafkaModule } from './event/kafka/kafka.module';
 import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
+import { RedisEventModule } from './event/redis/redis.module';
+import { RedisProducerService } from '@package/redis-client';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { InternalModule } from './internal/internal.module';
 
-const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
+function selectMessagingModule() {
+  switch (process.env.EVENT_DRIVER) {
+    case 'rabbitmq': return RabbitmqModule;
+    case 'redis':    return RedisEventModule;
+    default:         return KafkaModule;
+  }
+}
+const messagingModule = selectMessagingModule();
 
 @Module({
   imports: [
@@ -73,8 +82,11 @@ const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+        ...(!process.env.EVENT_DRIVER || process.env.EVENT_DRIVER === 'kafka'
           ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
+          : []),
+        ...(process.env.EVENT_DRIVER === 'redis'
+          ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [RedisProducerService], useFactory: (redis: RedisProducerService) => () => redis.ping() }]
           : []),
       ],
     }),

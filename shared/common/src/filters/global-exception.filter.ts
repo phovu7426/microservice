@@ -7,7 +7,9 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { I18nContext } from 'nestjs-i18n';
 import { ResponseUtil } from '../response/response.util';
+import { commonMsg } from '../i18n/common-messages';
 
 const IGNORED_404_PATHS = [
   '/favicon.ico',
@@ -50,9 +52,10 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       exception instanceof Error ? exception.stack : String(exception),
     );
 
+    const lang = (I18nContext.current(host) as any)?.lang ?? 'vi';
     response
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .json(ResponseUtil.error('Internal server error', 'INTERNAL_SERVER_ERROR', HttpStatus.INTERNAL_SERVER_ERROR));
+      .json(ResponseUtil.error(commonMsg(lang, 'INTERNAL_SERVER_ERROR'), 'INTERNAL_SERVER_ERROR', HttpStatus.INTERNAL_SERVER_ERROR));
   }
 
   private shouldLog(status: number, url: string): boolean {

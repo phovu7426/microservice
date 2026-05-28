@@ -1,6 +1,8 @@
 import { NotFoundException } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
 import { IPaginatedResult } from '../repository/prisma.repository';
 import { createPaginationMeta } from '../helpers/pagination.helper';
+import { commonMsg } from '../i18n/common-messages';
 
 /**
  * Interface tối thiểu mà base service cần.
@@ -99,11 +101,12 @@ export abstract class ListService<R extends IRepository<any>, T = R extends IRep
   }
 
   async getOne(id: any): Promise<T> {
+    const lang = I18nContext.current()?.lang ?? 'vi';
     const entity = await this.repository.findById(id);
-    if (!entity) throw new NotFoundException(`Resource with ID ${id} not found`);
+    if (!entity) throw new NotFoundException(commonMsg(lang, 'RESOURCE_NOT_FOUND_ID', { id: String(id) }));
     const transformed = this.transform(entity) as T;
     const final = await this.afterGetOne(transformed);
-    if (!final) throw new NotFoundException(`Resource with ID ${id} not found after processing`);
+    if (!final) throw new NotFoundException(commonMsg(lang, 'RESOURCE_NOT_FOUND_ID', { id: String(id) }));
     return final;
   }
 }

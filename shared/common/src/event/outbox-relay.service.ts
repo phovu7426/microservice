@@ -68,7 +68,7 @@ export class OutboxRelayService {
   }
 
   isEnabled(): boolean {
-    return this.kafkaProducer !== null && this.config.get<boolean>('kafka.enabled', false);
+    return this.kafkaProducer !== null;
   }
 
   /**

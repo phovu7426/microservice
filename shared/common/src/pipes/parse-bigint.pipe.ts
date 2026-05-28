@@ -4,6 +4,8 @@ import {
   Injectable,
   PipeTransform,
 } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
+import { commonMsg } from '../i18n/common-messages';
 
 const NUMERIC_RE = /^\d{1,20}$/;
 
@@ -15,23 +17,19 @@ const NUMERIC_RE = /^\d{1,20}$/;
 @Injectable()
 export class ParseBigIntPipe implements PipeTransform<string, bigint> {
   transform(value: string, metadata: ArgumentMetadata): bigint {
+    const lang = I18nContext.current()?.lang ?? 'vi';
+    const field = metadata.data ?? 'param';
     if (typeof value !== 'string' || !NUMERIC_RE.test(value)) {
-      throw new BadRequestException(
-        `Validation failed: ${metadata.data ?? 'param'} must be a positive integer`,
-      );
+      throw new BadRequestException(commonMsg(lang, 'PARAM_MUST_BE_POSITIVE_INT', { field }));
     }
     try {
       const result = BigInt(value);
       if (result <= BigInt(0)) {
-        throw new BadRequestException(
-          `Validation failed: ${metadata.data ?? 'param'} must be > 0`,
-        );
+        throw new BadRequestException(commonMsg(lang, 'PARAM_MUST_BE_GT_ZERO', { field }));
       }
       return result;
     } catch {
-      throw new BadRequestException(
-        `Validation failed: ${metadata.data ?? 'param'} must be a positive integer`,
-      );
+      throw new BadRequestException(commonMsg(lang, 'PARAM_MUST_BE_POSITIVE_INT', { field }));
     }
   }
 }

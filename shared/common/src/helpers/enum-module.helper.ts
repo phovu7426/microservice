@@ -1,5 +1,7 @@
 import { Controller, DynamicModule, Get, Module, NotFoundException, Param } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
 import { Public } from '../decorators/permission.decorator';
+import { commonMsg } from '../i18n/common-messages';
 
 export interface EnumItem {
   id: string;
@@ -31,7 +33,10 @@ export class EnumModule {
       @Get(':key')
       get(@Param('key') key: string) {
         const data = map[key];
-        if (!data) throw new NotFoundException(`Enum '${key}' không tồn tại`);
+        if (!data) {
+          const lang = I18nContext.current()?.lang ?? 'vi';
+          throw new NotFoundException(commonMsg(lang, 'ENUM_NOT_FOUND', { key }));
+        }
         return data;
       }
     }

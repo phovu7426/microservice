@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "noImplicitAny": true,

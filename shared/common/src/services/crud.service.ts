@@ -1,5 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
+import { I18nContext } from 'nestjs-i18n';
 import { IRepository, ListService } from './list.service';
+import { commonMsg } from '../i18n/common-messages';
 
 /**
  * Extends ListService với đầy đủ CRUD: create, update, delete.
@@ -32,9 +34,10 @@ export abstract class CrudService<R extends IRepository<any>, T = R extends IRep
   }
 
   async update(id: any, data: any): Promise<T> {
+    const lang = I18nContext.current()?.lang ?? 'vi';
     const payload = await this.beforeUpdate(id, data);
     const entity = await this.repository.update(id, payload);
-    if (!entity) throw new NotFoundException(`Resource with ID ${id} not found to update`);
+    if (!entity) throw new NotFoundException(commonMsg(lang, 'RESOURCE_NOT_FOUND_ID', { id: String(id) }));
     await this.afterUpdate(entity, data);
     return this.transform(entity) as T;
   }

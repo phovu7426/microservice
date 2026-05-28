@@ -11,10 +11,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { CircuitBreakerPolicy } from 'cockatiel';
+import { I18nContext } from 'nestjs-i18n';
 import { createCircuitBreaker } from '@package/circuit-breaker';
 import { RedisService } from '@package/redis';
 import { PERMS_KEY } from '../decorators/permission.decorator';
 import { RbacVersionTracker } from '../rbac/rbac-version-tracker';
+import { commonMsg } from '../i18n/common-messages';
 
 const RBAC_TIMEOUT_MS = 5_000;
 const RBAC_GUARD_CACHE_TTL_S = 60;
@@ -67,9 +69,10 @@ export class RbacGuard implements CanActivate {
     if (!permissions.length) return true;
     if (permissions.includes('public') || permissions.includes('internal')) return true;
 
+    const lang = I18nContext.current()?.lang ?? 'vi';
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    if (!user?.sub) throw new UnauthorizedException('Authentication required');
+    if (!user?.sub) throw new UnauthorizedException(commonMsg(lang, 'AUTHENTICATION_REQUIRED'));
 
     // @Authenticated() — JWT da verify boi JwtGuard, khong can goi IAM.
     if (permissions.includes('authenticated')) return true;
@@ -79,7 +82,7 @@ export class RbacGuard implements CanActivate {
       const env = this.config.get<string>('NODE_ENV') ?? process.env.NODE_ENV;
       // Bypass only in explicit local development. Staging/test/unset must fail closed.
       if (env !== 'development') {
-        throw new ForbiddenException('Permission service not configured');
+        throw new ForbiddenException(commonMsg(lang, 'PERMISSION_SERVICE_NOT_CONFIGURED'));
       }
       return true;
     }
@@ -136,7 +139,7 @@ export class RbacGuard implements CanActivate {
       }
     } catch (err) {
       this.logger.error(`RBAC check failed: ${(err as Error).message}`);
-      throw new ForbiddenException('Permission check unavailable');
+      throw new ForbiddenException(commonMsg(lang, 'PERMISSION_CHECK_UNAVAILABLE'));
     }
 
     // Allow if ANY required permission is present in the effective set.
@@ -144,7 +147,7 @@ export class RbacGuard implements CanActivate {
     // is correct here.
     const set = new Set(effective);
     const allowed = permissions.some((p) => set.has(p));
-    if (!allowed) throw new ForbiddenException('Permission denied');
+    if (!allowed) throw new ForbiddenException(commonMsg(lang, 'PERMISSION_DENIED'));
     return true;
   }
 }

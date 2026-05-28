@@ -8,6 +8,8 @@ import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import * as jose from 'jose';
 import { timingSafeEqual } from 'crypto';
+import { I18nContext } from 'nestjs-i18n';
+import { commonMsg } from '../i18n/common-messages';
 
 const PERMS_KEY = 'perms_required';
 
@@ -34,6 +36,8 @@ export class JwtGuard implements CanActivate {
 
     if (!permissions.length) return false;
 
+    const lang = I18nContext.current()?.lang ?? 'vi';
+
     if (permissions.includes('public')) {
       await this.trySetUser(context);
       return true;
@@ -41,11 +45,11 @@ export class JwtGuard implements CanActivate {
 
     // Internal routes bypass JWT
     if (permissions.includes('internal')) {
-      return this.checkInternal(context);
+      return this.checkInternal(context, lang);
     }
 
     const token = this.extractToken(context);
-    if (!token) throw new UnauthorizedException('Token required');
+    if (!token) throw new UnauthorizedException(commonMsg(lang, 'TOKEN_REQUIRED'));
 
     const jwksUrl = this.config.get<string>('AUTH_JWKS_URL');
 
@@ -55,20 +59,20 @@ export class JwtGuard implements CanActivate {
     // identity, which gives any caller (including unauthenticated ones) the
     // ability to bypass admin checks downstream.
     if (!jwksUrl) {
-      throw new UnauthorizedException('Auth JWKS endpoint not configured');
+      throw new UnauthorizedException(commonMsg(lang, 'AUTH_NOT_CONFIGURED'));
     }
 
     let payload: jose.JWTPayload;
     try {
       payload = await this.verifyToken(token, jwksUrl);
     } catch {
-      throw new UnauthorizedException('Invalid or expired token');
+      throw new UnauthorizedException(commonMsg(lang, 'INVALID_OR_EXPIRED_TOKEN'));
     }
 
     // Refresh tokens are signed with the same keypair as access tokens but
     // carry { type: 'refresh' }. They must never authorize a regular request.
     if ((payload as any)?.type === 'refresh') {
-      throw new UnauthorizedException('Invalid token type');
+      throw new UnauthorizedException(commonMsg(lang, 'INVALID_TOKEN_TYPE'));
     }
 
     const request = context.switchToHttp().getRequest();
@@ -90,16 +94,16 @@ export class JwtGuard implements CanActivate {
     }
   }
 
-  private checkInternal(context: ExecutionContext): boolean {
+  private checkInternal(context: ExecutionContext, lang: string): boolean {
     const request = context.switchToHttp().getRequest();
     const secret = request.headers['x-internal-secret'] as string | undefined;
     const expected = this.config.get<string>('INTERNAL_API_SECRET') || this.config.get<string>('app.internalApiSecret');
     if (!expected) {
-      throw new UnauthorizedException('Internal API secret not configured');
+      throw new UnauthorizedException(commonMsg(lang, 'INTERNAL_SECRET_NOT_CONFIGURED'));
     }
     if (!secret || secret.length !== expected.length ||
         !timingSafeEqual(Buffer.from(secret), Buffer.from(expected))) {
-      throw new UnauthorizedException('Invalid internal secret');
+      throw new UnauthorizedException(commonMsg(lang, 'INVALID_INTERNAL_SECRET'));
     }
     return true;
   }

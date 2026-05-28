@@ -48,7 +48,7 @@ export class BaseListQueryDto {
   @IsOptional()
   @IsString()
   @Matches(/^[a-z_][a-z0-9_]{0,40}:(asc|desc|ASC|DESC)$/, {
-    message: 'sort must look like "field:asc" or "field:desc".',
+    message: 'sort phải có dạng "field:asc" hoặc "field:desc"',
   })
   sort?: string;
 

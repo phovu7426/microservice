@@ -1,0 +1,23 @@
+{
+  "INTERNAL_SERVER_ERROR": "Lỗi hệ thống",
+  "FILE_REQUIRED": "File là bắt buộc",
+  "INVALID_FILE_TYPE": "Loại file không hợp lệ: {mimetype}. Cho phép: {allowed}",
+  "FILE_TOO_LARGE": "File quá lớn: {size}MB. Tối đa: {max}MB",
+  "MIN_FILES_REQUIRED": "Cần ít nhất một file",
+  "TOO_MANY_FILES": "Quá nhiều file. Tối đa: {max}",
+  "TOKEN_REQUIRED": "Token là bắt buộc",
+  "INVALID_OR_EXPIRED_TOKEN": "Token không hợp lệ hoặc đã hết hạn",
+  "INVALID_TOKEN_TYPE": "Loại token không hợp lệ",
+  "AUTH_NOT_CONFIGURED": "Dịch vụ xác thực chưa được cấu hình",
+  "INTERNAL_SECRET_NOT_CONFIGURED": "Internal API secret chưa được cấu hình",
+  "INVALID_INTERNAL_SECRET": "Internal API secret không hợp lệ",
+  "AUTHENTICATION_REQUIRED": "Yêu cầu đăng nhập",
+  "PERMISSION_SERVICE_NOT_CONFIGURED": "Dịch vụ phân quyền chưa được cấu hình",
+  "PERMISSION_CHECK_UNAVAILABLE": "Không thể kiểm tra quyền",
+  "PERMISSION_DENIED": "Không có quyền truy cập",
+  "RESOURCE_NOT_FOUND_ID": "Không tìm thấy dữ liệu với ID {id}",
+  "PARAM_MUST_BE_POSITIVE_INT": "{field} phải là số nguyên dương",
+  "PARAM_MUST_BE_GT_ZERO": "{field} phải lớn hơn 0",
+  "ENUM_NOT_FOUND": "Không tìm thấy enum '{key}'",
+  "SORT_FORMAT_INVALID": "sort phải có dạng \"field:asc\" hoặc \"field:desc\""
+}

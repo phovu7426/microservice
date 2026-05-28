@@ -68,3 +68,6 @@ export { SessionContextMiddleware } from './session/session-context.middleware';
 export { SessionModule } from './session/session.module';
 export { session } from './session/session-context.storage';
 export { getSessionUserId } from './session/group-filter.helper';
+
+// i18n — common translations
+export { COMMON_MESSAGES, COMMON_I18N_PATH, commonMsg } from './i18n/common-messages';

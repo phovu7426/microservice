@@ -11,7 +11,7 @@
   "scripts": {
     "postinstall": "npm run build:shared --if-present",
     "prestart": "npm run build:shared",
-    "build:shared": "npm -w shared/shared-types run build && npm -w shared/circuit-breaker run build && npm -w shared/config run build && npm -w shared/redis run build && npm -w shared/kafka-client run build && npm -w shared/rabbitmq-client run build && npm -w shared/tracing run build && npm -w shared/common run build && npm -w shared/bootstrap run build",
+    "build:shared": "npm -w shared/shared-types run build && npm -w shared/circuit-breaker run build && npm -w shared/config run build && npm -w shared/redis run build && npm -w shared/redis-client run build && npm -w shared/kafka-client run build && npm -w shared/rabbitmq-client run build && npm -w shared/tracing run build && npm -w shared/common run build && npm -w shared/bootstrap run build",
     "build:auth": "npm -w apps/auth-service run build",
     "build:comic": "npm -w apps/comic-service run build",
     "build:config": "npm -w apps/config-service run build",
