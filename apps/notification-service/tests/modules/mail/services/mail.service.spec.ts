@@ -38,14 +38,14 @@ describe('MailService', () => {
   let mockSendMail: jest.Mock;
 
   const emailConfig = {
-    smtp_host: 'smtp.test.com',
-    smtp_port: 587,
-    smtp_secure: false,
-    smtp_username: 'user@test.com',
-    smtp_password: 'secret',
-    from_email: 'noreply@test.com',
-    from_name: 'TestApp',
-    reply_to_email: 'admin@test.com',
+    smtpHost: 'smtp.test.com',
+    smtpPort: 587,
+    smtpSecure: false,
+    smtpUsername: 'user@test.com',
+    smtpPassword: 'secret',
+    fromEmail: 'noreply@test.com',
+    fromName: 'TestApp',
+    replyToEmail: 'admin@test.com',
   };
 
   beforeEach(async () => {
@@ -116,30 +116,30 @@ describe('MailService', () => {
       expect(nodemailer.createTransport).not.toHaveBeenCalled();
     });
 
-    it('should not create transporter when smtp_host is missing', async () => {
+    it('should not create transporter when smtpHost is missing', async () => {
       (nodemailer.createTransport as jest.Mock).mockClear();
-      configClient.getEmailConfig!.mockResolvedValue({ ...emailConfig, smtp_host: '' });
+      configClient.getEmailConfig!.mockResolvedValue({ ...emailConfig, smtpHost: '' });
 
       await service.reloadConfig();
 
       expect(nodemailer.createTransport).not.toHaveBeenCalled();
     });
 
-    it('should not create transporter when smtp_username is missing', async () => {
+    it('should not create transporter when smtpUsername is missing', async () => {
       (nodemailer.createTransport as jest.Mock).mockClear();
-      configClient.getEmailConfig!.mockResolvedValue({ ...emailConfig, smtp_username: '' });
+      configClient.getEmailConfig!.mockResolvedValue({ ...emailConfig, smtpUsername: '' });
 
       await service.reloadConfig();
 
       expect(nodemailer.createTransport).not.toHaveBeenCalled();
     });
 
-    it('should set adminEmail from reply_to_email', () => {
+    it('should set adminEmail from replyToEmail', () => {
       expect(service.getAdminEmail()).toBe('admin@test.com');
     });
 
-    it('should fall back to from_email when reply_to_email is empty', async () => {
-      configClient.getEmailConfig!.mockResolvedValue({ ...emailConfig, reply_to_email: '' });
+    it('should fall back to fromEmail when replyToEmail is empty', async () => {
+      configClient.getEmailConfig!.mockResolvedValue({ ...emailConfig, replyToEmail: '' });
 
       await service.reloadConfig();
 

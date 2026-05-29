@@ -2,22 +2,24 @@
 
 ## Tong quan
 
-Backend nen tang truyen tranh: NestJS + Prisma, microservices monorepo.
-10 service (`apps/`), 8 shared packages (`shared/`), PostgreSQL + Redis + Kafka + Nginx.
+Backend nen tang truyen tranh: NestJS + Prisma, microservices monorepo (pnpm workspaces).
+9 service (`apps/`), 10 shared packages (`packages/`), PostgreSQL + Redis + Kafka + RabbitMQ + Nginx.
 
 ## Lenh thuong dung
 
 ```bash
-npm install                              # Cai dat (tu dong build shared)
-npm run dev                              # Chay tat ca 10 service (hot-reload)
-npm run dev:<ten>                        # auth|comic|config|web-api|iam|introduction|marketing|notification|post|storage
-npm run build:shared                     # Build shared (BAT BUOC truoc khi build service)
-npm run build                            # Build tat ca
-npm run prisma:migrate                   # Migrate dev
-npm run prisma:deploy                    # Migrate production
-npm run docker:infra                     # Chay infra Docker
-npm test                                 # Test
+pnpm install                             # Cai dat (postinstall tu dong build shared)
+pnpm dev                                 # Chay tat ca service (hot-reload)
+pnpm dev:<ten>                           # auth|comic|config|web-api|iam|cms|notification|post|storage
+pnpm build:shared                        # Build shared (BAT BUOC truoc khi build service)
+pnpm build                               # Build tat ca
+pnpm prisma:migrate                      # Migrate dev (chay cho tat ca service co prisma)
+pnpm prisma:deploy                       # Migrate production
+pnpm docker:infra                        # Chay infra Docker
+pnpm test                                # Test
 ```
+
+Yeu cau: Node ≥20, pnpm 11.4.0 (auto-activate qua `corepack enable`).
 
 ## Bang Service
 
@@ -28,8 +30,7 @@ npm test                                 # Test
 | config-service | 3003 | /api/config |
 | storage-service | 3004 | /api/storage |
 | notification-service | 3005 | /api/notifications |
-| marketing-service | 3006 | /api/marketing |
-| introduction-service | 3007 | /api/introduction |
+| cms-service | 3006 | /api/cms |
 | post-service | 3008 | /api/posts |
 | comic-service | 3009 | /api/comics |
 | web-api-service | 3010 | /api/web |
@@ -38,7 +39,7 @@ npm test                                 # Test
 
 ### Controller
 - `@Permission()` cho admin, `@Authenticated()` cho route can login (khong check perm cu the), `@Public()` cho public, `@Internal()` + `@UseGuards(InternalGuard)` cho noi bo
-- `@AuditLog({ action })` cho create/update/delete (shared/common)
+- `@AuditLog({ action })` cho create/update/delete (packages/common)
 - `ParseBigIntPipe` cho route param: `@Param('id', ParseBigIntPipe) id: bigint`
 - Lay user tu `req.user.sub`, truyen actorId xuong service
 
@@ -79,10 +80,11 @@ npm test                                 # Test
 
 ## Quy tac
 
-- Code xong PHAI viet unit test. Test dat trong `apps/<service>/tests/`, mirror theo cau truc `src/modules/`. File test dat ten `*.spec.ts`. Mock dependencies (Prisma, Redis, external services) — KHONG goi DB/Redis that. Chay `npm test -w apps/<service>` xac nhan PASS truoc khi coi la hoan thanh.
+- Code xong PHAI viet unit test. Test dat trong `apps/<service>/tests/`, mirror theo cau truc `src/modules/`. File test dat ten `*.spec.ts`. Mock dependencies (Prisma, Redis, external services) — KHONG goi DB/Redis that. Chay `pnpm --filter <service> test` xac nhan PASS truoc khi coi la hoan thanh.
 - File .env trong `apps/<service>/.env` — KHONG o root
 - INTERNAL_API_SECRET giong nhau tren moi service
-- Build shared truoc: `npm run build:shared`
+- Build shared truoc: `pnpm build:shared` (hoac `pnpm install` tu dong chay qua postinstall)
 - Production dung `prisma migrate deploy`, KHONG `migrate dev`
 - Moi service 1 DB rieng
 - Naming: file kebab-case, class PascalCase, bien camelCase, constant UPPER_SNAKE_CASE
+- Strict pnpm: moi package phai khai bao day du dependencies trong package.json — khong dua vao hoisting. Workspace dep dung protocol `workspace:*`.

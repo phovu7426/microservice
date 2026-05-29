@@ -8,90 +8,87 @@
 #   SERVICE_PORT — port the service listens on (e.g. "3002")
 
 ARG NODE_VERSION=20-alpine
+ARG PNPM_VERSION=11.4.0
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 1: deps — install ALL workspace dependencies (dev + prod) ONCE.
-# Subsequent stages branch off this so we never run `npm ci` twice in
-# parallel (npm registry rate-limits / network resets when we did).
+# Stage 1: base — install pnpm via corepack.
 # ─────────────────────────────────────────────────────────────────────────────
-FROM node:${NODE_VERSION} AS deps
+FROM node:${NODE_VERSION} AS base
+ARG PNPM_VERSION
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 WORKDIR /workspace
 
-# npm config — survive flaky network during `npm ci`
-RUN npm config set fetch-retries 5 \
- && npm config set fetch-retry-mintimeout 20000 \
- && npm config set fetch-retry-maxtimeout 120000 \
- && npm config set fetch-timeout 600000
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: deps — install ALL workspace dependencies (dev + prod) ONCE.
+# The pnpm content-addressable store is mounted as a buildkit cache so
+# repeated builds across services reuse downloaded tarballs.
+# ─────────────────────────────────────────────────────────────────────────────
+FROM base AS deps
 
-COPY package.json package-lock.json ./
-COPY shared shared
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
+COPY packages packages
 COPY apps apps
 
 # `--ignore-scripts` skips Prisma postinstall; we run `prisma generate` per
 # service explicitly inside the build stage with the right schema.
-RUN --mount=type=cache,target=/root/.npm npm ci --include=dev --ignore-scripts --no-audit --no-fund
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm install --frozen-lockfile --ignore-scripts
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 2: build — compile shared/ then the target service, then assemble
-# a clean /artifact directory containing only what the runtime needs.
-# Includes pruned node_modules so we don't have to npm-ci again.
+# Stage 3: build — compile packages/ then the target service, then assemble
+# a self-contained production directory via `pnpm deploy`. Output at /deploy
+# contains the service's package.json, dist/, node_modules/ with @package/*
+# workspace deps already resolved to their built dist/.
 # ─────────────────────────────────────────────────────────────────────────────
 FROM deps AS build
 ARG SERVICE_NAME
 
-RUN npm run build:shared
-RUN npm -w apps/${SERVICE_NAME} run build
+# Build shared packages first (topological order is automatic with `-r`).
+RUN pnpm --filter "./packages/*" -r build
+RUN pnpm --filter ${SERVICE_NAME} build
 
-# Assemble runtime artifact (source + built dist)
+# `pnpm deploy --prod` resolves workspace deps and copies them flattened into
+# the target's node_modules/. Replaces the old `cp -r node_modules` hack
+# which broke under pnpm's symlink layout.
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm config set store-dir /pnpm/store && \
+    pnpm --filter ${SERVICE_NAME} deploy --prod --legacy /deploy
+
+# Replicate runtime-asset wiring that tsc doesn't handle:
+#  - src/ mirror of dist/: the codebase imports `from 'src/types'` (baseUrl-
+#    relative). tsc emits `require("src/types")` literally; tsconfig-paths
+#    resolves against <baseUrl>/src at runtime. Since we ship only dist/,
+#    mirror dist→src so resolution succeeds without shipping .ts sources.
+#  - i18n/templates: non-TS asset folders that tsc ignores; copy next to dist/
+#    so __dirname-relative loaders (nestjs-i18n, mailer) find them.
+#  - prisma/: schema + migrations for `prisma migrate deploy` on container start.
+#  - tsconfig.json: tsconfig-paths/register reads paths/baseUrl from it.
 RUN set -eux; \
-    mkdir -p /artifact/apps/${SERVICE_NAME} /artifact/shared; \
-    cp package.json package-lock.json /artifact/; \
-    cp -r apps/${SERVICE_NAME}/dist /artifact/apps/${SERVICE_NAME}/dist; \
-    cp apps/${SERVICE_NAME}/package.json /artifact/apps/${SERVICE_NAME}/package.json; \
-    cp apps/${SERVICE_NAME}/tsconfig.json /artifact/apps/${SERVICE_NAME}/tsconfig.json; \
-    # The codebase uses `import { x } from 'src/types'` style — baseUrl-relative
-    # path-alias imports. tsc emits these literally (require("src/types")) and
-    # tsconfig-paths/register at runtime resolves them against
-    # `<baseUrl>/src/...`. Since the runtime artifact contains only `dist/` and
-    # not `src/`, we mirror dist→src so path resolution succeeds without
-    # shipping the .ts sources. (Symlink would also work but Alpine's `cp -r`
-    # behaves differently on symlinked dirs across stages.)
-    cp -r /artifact/apps/${SERVICE_NAME}/dist /artifact/apps/${SERVICE_NAME}/src; \
+    rm -rf /deploy/src; \
+    cp -r /deploy/dist /deploy/src; \
     if [ -d apps/${SERVICE_NAME}/src/generated ]; then \
-      cp -r apps/${SERVICE_NAME}/src/generated /artifact/apps/${SERVICE_NAME}/src/generated; \
+      cp -r apps/${SERVICE_NAME}/src/generated /deploy/src/generated; \
     fi; \
-    # tsc only emits .ts → .js. Non-TS asset folders (i18n JSON catalogs, mail
-    # templates) live in src/ and must be hand-copied next to the compiled
-    # dist/ so __dirname-relative loaders (nestjs-i18n) resolve them at runtime.
     if [ -d apps/${SERVICE_NAME}/src/i18n ]; then \
-      cp -r apps/${SERVICE_NAME}/src/i18n /artifact/apps/${SERVICE_NAME}/dist/i18n; \
+      cp -r apps/${SERVICE_NAME}/src/i18n /deploy/dist/i18n; \
     fi; \
     if [ -d apps/${SERVICE_NAME}/src/templates ]; then \
-      cp -r apps/${SERVICE_NAME}/src/templates /artifact/apps/${SERVICE_NAME}/dist/templates; \
+      cp -r apps/${SERVICE_NAME}/src/templates /deploy/dist/templates; \
     fi; \
     if [ -d apps/${SERVICE_NAME}/prisma ]; then \
-      cp -r apps/${SERVICE_NAME}/prisma /artifact/apps/${SERVICE_NAME}/prisma; \
+      rm -rf /deploy/prisma; \
+      cp -r apps/${SERVICE_NAME}/prisma /deploy/prisma; \
     fi; \
     if [ -f apps/${SERVICE_NAME}/prisma.config.ts ]; then \
-      cp apps/${SERVICE_NAME}/prisma.config.ts /artifact/apps/${SERVICE_NAME}/prisma.config.ts; \
+      cp apps/${SERVICE_NAME}/prisma.config.ts /deploy/prisma.config.ts; \
     fi; \
-    for pkg in shared/*/; do \
-      name=$(basename "$pkg"); \
-      mkdir -p /artifact/${pkg}; \
-      cp ${pkg}package.json /artifact/${pkg}package.json 2>/dev/null || true; \
-      if [ -d ${pkg}dist ]; then cp -r ${pkg}dist /artifact/${pkg}dist; fi; \
-    done
-
-# Prune devDeps from the existing install — fast (no network) and keeps
-# the workspace symlinks layout intact.
-RUN npm prune --omit=dev --ignore-scripts
-
-# Move the pruned node_modules into the artifact so the runtime stage
-# pulls everything from one source.
-RUN cp -r node_modules /artifact/node_modules
+    cp apps/${SERVICE_NAME}/tsconfig.json /deploy/tsconfig.json
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Stage 3: runtime — minimal image with built artifact + production deps
+# Stage 4: runtime — minimal image with deployed artifact only.
+# Mounted under /app/apps/${SERVICE_NAME} to match entrypoint.sh expectations
+# (it cd's into ${SVC_DIR} before running prisma migrate deploy + the app).
 # ─────────────────────────────────────────────────────────────────────────────
 FROM node:${NODE_VERSION} AS runtime
 ARG SERVICE_NAME
@@ -107,22 +104,21 @@ RUN apk add --no-cache dumb-init curl && \
     addgroup -S app && adduser -S app -G app
 
 WORKDIR /app
+RUN mkdir -p /app/apps && chown app:app /app/apps
 
-# Built artifact (services + shared + node_modules with workspace symlinks)
-COPY --from=build --chown=app:app /artifact /app
+# Deployed artifact (service + flattened prod node_modules)
+COPY --from=build --chown=app:app /deploy /app/apps/${SERVICE_NAME}
 
-# Entrypoint script (runs prisma migrate deploy then exec service)
+# Entrypoint runs prisma migrate deploy then exec service
 COPY --chown=app:app infrastructure/docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 USER app
+WORKDIR /app/apps/${SERVICE_NAME}
 EXPOSE ${SERVICE_PORT}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD curl -fsS "http://localhost:${PORT}/api/v1/health/ready" >/dev/null || exit 1
 
-# dumb-init handles SIGTERM forwarding for graceful shutdown.
-# entrypoint.sh runs `prisma migrate deploy` (if applicable) then exec's CMD.
-# tsconfig-paths/register resolves baseUrl-relative imports like 'src/generated/prisma'.
 ENTRYPOINT ["dumb-init", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["node", "-r", "tsconfig-paths/register", "dist/main.js"]

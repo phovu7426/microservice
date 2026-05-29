@@ -2,7 +2,7 @@ jest.mock('src/generated/prisma', () => ({ PrismaClient: class {}, Prisma: {} })
 jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: jest.fn() }));
 jest.mock('src/types', () => ({ PrimaryKey: BigInt }), { virtual: true });
 
-import { UserFollowedHandler } from '../../../src/kafka/handlers/user-followed.handler';
+import { UserFollowedHandler } from '../../../src/event/kafka/handlers/user-followed.handler';
 
 describe('UserFollowedHandler', () => {
   let handler: UserFollowedHandler;

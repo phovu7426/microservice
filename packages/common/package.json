@@ -1,0 +1,36 @@
+{
+  "name": "@package/common",
+  "version": "1.0.0",
+  "description": "Shared common utilities for all microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@confluentinc/kafka-javascript": "^1.8.2",
+    "@nestjs/common": "^11.1.19",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.1.19",
+    "@nestjs/schedule": "^6.1.1",
+    "@package/circuit-breaker": "workspace:*",
+    "@package/redis": "workspace:*",
+    "@prisma/client": "^7.6.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "cockatiel": "^3.2.1",
+    "express": "^4.21.2",
+    "ioredis": "^5.8.2",
+    "isomorphic-dompurify": "^3.12.0",
+    "jose": "^6.2.3",
+    "nestjs-i18n": "^10.8.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "typescript": "^6.0.3"
+  }
+}

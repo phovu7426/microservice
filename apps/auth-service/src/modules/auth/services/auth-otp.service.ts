@@ -83,7 +83,7 @@ export class AuthOtpService {
         templateCode,
         variables: { otp },
       });
-    } catch (err) {
+    } catch (err: any) {
       await this.redis.del(key).catch(() => undefined);
       log.addException(err);
       log.save();

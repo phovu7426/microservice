@@ -176,7 +176,12 @@
       "Bash(node -e \"const d=require\\('./package.json'\\); console.log\\('workspaces:', JSON.stringify\\(d.workspaces\\)\\); console.log\\('build:shared script:', d.scripts['build:shared']\\)\")",
       "Bash(npm -w shared/redis-client run build)",
       "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(p.scripts.test\\); console.log\\(p.jest ? 'has jest config' : 'no jest config'\\)\")",
-      "Bash([ -f \"/d/Sources/Project/microservice/apps/$service/.env.example\" ])"
+      "Bash([ -f \"/d/Sources/Project/microservice/apps/$service/.env.example\" ])",
+      "Bash(pnpm --filter comic-service build)",
+      "Bash(pnpm --filter config-service build)",
+      "Bash(pnpm run *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)"
     ]
   }
 }

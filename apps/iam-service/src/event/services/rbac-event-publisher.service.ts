@@ -146,7 +146,7 @@ export class RbacEventPublisher {
           payload,
         },
       });
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`Failed to insert outbox event [${eventType}]`, err);
       throw err;
     }

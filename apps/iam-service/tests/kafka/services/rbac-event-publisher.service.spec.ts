@@ -32,7 +32,7 @@ jest.mock('../../../src/core/database/prisma.service', () => ({
 // ---------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------
-import { RbacEventPublisher } from '../../../src/kafka/services/rbac-event-publisher.service';
+import { RbacEventPublisher } from '../../../src/event/services/rbac-event-publisher.service';
 
 // ---------------------------------------------------------------------------
 // Helpers

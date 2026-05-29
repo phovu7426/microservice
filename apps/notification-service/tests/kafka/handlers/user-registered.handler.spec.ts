@@ -3,7 +3,7 @@ jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: jest.fn() }));
 jest.mock('src/types', () => ({ PrimaryKey: BigInt }), { virtual: true });
 jest.mock('@nestjs/bull', () => ({ InjectQueue: () => () => {} }));
 
-import { UserRegisteredHandler } from '../../../src/kafka/handlers/user-registered.handler';
+import { UserRegisteredHandler } from '../../../src/event/kafka/handlers/user-registered.handler';
 
 describe('UserRegisteredHandler', () => {
   let handler: UserRegisteredHandler;

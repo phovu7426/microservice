@@ -190,7 +190,7 @@ export class AuthController {
       }
       this.writeAuthCookies(req, res, result.token, result.refreshToken);
       return res.redirect(`${frontendUrl}/auth/google/success`);
-    } catch (err) {
+    } catch (err: any) {
       const code =
         err instanceof BadRequestException ? 'bad_request'
           : err instanceof UnauthorizedException ? 'unauthorized'

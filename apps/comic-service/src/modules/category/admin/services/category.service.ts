@@ -76,7 +76,7 @@ export class AdminCategoryService {
   private async clearCategoryCaches(): Promise<void> {
     try {
       await this.redis?.del('comic:public:categories');
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn('Failed to clear category caches', (err as Error).message);
     }
   }

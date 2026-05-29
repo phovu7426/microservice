@@ -141,7 +141,7 @@ export class MailService implements OnModuleInit {
     try {
       await this.send({ to: options.to, subject, html: rendered });
       log.addDebug('done');
-    } catch (err) {
+    } catch (err: any) {
       log.addException(err);
       log.addDebug('failed');
       throw err;
@@ -178,7 +178,7 @@ export class MailService implements OnModuleInit {
         text: options.text,
       });
       log.addDebug('smtp_sent');
-    } catch (err) {
+    } catch (err: any) {
       log.addException(err);
       log.addDebug('smtp_failed');
       if (isPermanentSmtpError(err)) {

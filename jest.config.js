@@ -5,7 +5,7 @@
  * including ESM-only deps like `jose` v6+, without ts-jest's CJS limitations.
  *
  * Test files live under each workspace's `tests/` folder mirroring `src/`:
- *   shared/<pkg>/tests/**\/*.spec.ts
+ *   packages/<pkg>/tests/**\/*.spec.ts
  *   apps/<svc>/tests/**\/*.spec.ts
  *
  * Run all:               npm test
@@ -20,7 +20,7 @@ module.exports = {
   testEnvironment: 'node',
   rootDir: '.',
   testMatch: [
-    '<rootDir>/shared/*/tests/**/*.spec.ts',
+    '<rootDir>/packages/*/tests/**/*.spec.ts',
     '<rootDir>/apps/*/tests/**/*.spec.ts',
   ],
   testPathIgnorePatterns: [
@@ -41,28 +41,32 @@ module.exports = {
       },
     }],
   },
-  // Force jest to transform ESM-only deps instead of ignoring them.
+  // Force jest to transform ESM-only deps (jose) instead of ignoring them.
+  // The negative lookahead at line start excludes any path containing
+  // a jose package segment ("/jose/", "/jose@", "\jose\", or "\jose@"),
+  // so it handles both npm-flat and pnpm-nested (node_modules/.pnpm/jose@x.y.z/...)
+  // layouts on either separator.
   transformIgnorePatterns: [
-    '/node_modules/(?!(jose)/)',
+    '^(?!.*[/\\\\]jose([/\\\\@]|$)).*node_modules',
   ],
   moduleNameMapper: {
     // Resolve @package/* to in-repo source so tests don't need a build first.
-    '^@package/bootstrap$': '<rootDir>/shared/bootstrap/src/index.ts',
-    '^@package/common$': '<rootDir>/shared/common/src/index.ts',
-    '^@package/config$': '<rootDir>/shared/config/src/index.ts',
-    '^@package/redis$': '<rootDir>/shared/redis/src/index.ts',
-    '^@package/kafka-client$': '<rootDir>/shared/kafka-client/src/index.ts',
-    '^@package/rabbitmq-client$': '<rootDir>/shared/rabbitmq-client/src/index.ts',
-    '^@package/tracing$': '<rootDir>/shared/tracing/src/index.ts',
-    '^@package/circuit-breaker$': '<rootDir>/shared/circuit-breaker/src/index.ts',
-    '^@package/shared-types$': '<rootDir>/shared/shared-types/src/index.ts',
+    '^@package/bootstrap$': '<rootDir>/packages/bootstrap/src/index.ts',
+    '^@package/common$': '<rootDir>/packages/common/src/index.ts',
+    '^@package/config$': '<rootDir>/packages/config/src/index.ts',
+    '^@package/redis$': '<rootDir>/packages/redis/src/index.ts',
+    '^@package/kafka-client$': '<rootDir>/packages/kafka-client/src/index.ts',
+    '^@package/rabbitmq-client$': '<rootDir>/packages/rabbitmq-client/src/index.ts',
+    '^@package/tracing$': '<rootDir>/packages/tracing/src/index.ts',
+    '^@package/circuit-breaker$': '<rootDir>/packages/circuit-breaker/src/index.ts',
+    '^@package/shared-types$': '<rootDir>/packages/shared-types/src/index.ts',
     // isomorphic-dompurify pulls in jsdom + a long ESM-only dep tree
     // (@exodus/bytes, whatwg-*, etc.). For unit tests we don't exercise
     // the sanitizer — stub it with an identity passthrough.
-    '^isomorphic-dompurify$': '<rootDir>/shared/common/tests/__mocks__/isomorphic-dompurify.ts',
+    '^isomorphic-dompurify$': '<rootDir>/packages/common/tests/__mocks__/isomorphic-dompurify.ts',
   },
   collectCoverageFrom: [
-    'shared/*/src/**/*.ts',
+    'packages/*/src/**/*.ts',
     'apps/*/src/**/*.ts',
     '!**/*.spec.ts',
     '!**/main.ts',

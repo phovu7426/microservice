@@ -97,7 +97,7 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     if (newTopics.length) {
       try {
         await admin.createTopics({ topics: newTopics.map((t) => ({ topic: t, numPartitions: 1, replicationFactor })) });
-      } catch (err) {
+      } catch (err: any) {
         const log = this.fileLogger.create('kafka/create-topics', {});
         log.addException(err);
         log.addDebug('create_topics_failed');
@@ -167,7 +167,7 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
     let payload: any;
     try {
       payload = JSON.parse(message.value.toString());
-    } catch (err) {
+    } catch (err: any) {
       const log = this.fileLogger.create(`kafka/${topic}`, msgCtx);
       log.addException(err);
       log.addDebug('skipped_malformed_json');
@@ -198,7 +198,7 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
       dispatchLog.addDebug('handler_ok');
       dispatchLog.save();
       this.attempts.delete(dedupKey);
-    } catch (err) {
+    } catch (err: any) {
       const attempt = (this.attempts.get(dedupKey) ?? 0) + 1;
       this.attempts.set(dedupKey, attempt);
 

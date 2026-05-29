@@ -45,7 +45,7 @@ export class AttemptLimiterService {
     let data: string | null;
     try {
       data = await this.redis.get(key);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`AttemptLimiter check failed for ${scope}; failing closed`, err as Error);
       throw new ServiceUnavailableException('Security service unavailable');
     }
@@ -79,7 +79,7 @@ export class AttemptLimiterService {
     let data: string | null;
     try {
       data = await this.redis.get(key);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`AttemptLimiter add failed for ${scope}`, err as Error);
       throw new ServiceUnavailableException('Security service unavailable');
     }
@@ -104,7 +104,7 @@ export class AttemptLimiterService {
     const ttl = isLocked ? lockoutSeconds : windowSeconds;
     try {
       await this.redis.set(key, JSON.stringify({ attempts, lockedUntil }), ttl);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`AttemptLimiter set failed for ${scope}`, err as Error);
       throw new ServiceUnavailableException('Security service unavailable');
     }
@@ -114,7 +114,7 @@ export class AttemptLimiterService {
     if (!this.redis.isEnabled()) return;
     try {
       await this.redis.del(`${scope}:${identifier}`);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`AttemptLimiter reset failed for ${scope}: ${(err as Error).message}`);
     }
   }

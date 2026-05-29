@@ -34,21 +34,26 @@ jobs:
             AFTER_SHA=$(git rev-parse HEAD)
             echo "[deploy] after:  ${AFTER_SHA}"
 
-            # Reproducible install — fails if package-lock.json is out of sync
-            npm ci --no-audit --no-fund
+            # Activate pnpm via corepack (bundled with Node ≥16.10).
+            # Installs the version pinned in root package.json#packageManager.
+            corepack enable
+            corepack prepare pnpm@11.4.0 --activate
+
+            # Reproducible install — fails if pnpm-lock.yaml is out of sync
+            pnpm install --frozen-lockfile --ignore-scripts
 
             # Build shared first, then apps
-            npm run build:shared
-            npm run prisma:generate
-            npm run build:apps
+            pnpm run build:shared
+            pnpm run prisma:generate
+            pnpm run build:apps
 
             # Apply DB migrations BEFORE restarting (idempotent)
             for svc in auth-service comic-service config-service iam-service \
                       introduction-service marketing-service notification-service post-service; do
               if [ -f "apps/${svc}/prisma/schema.prisma" ]; then
                 echo "[deploy] migrating ${svc}"
-                npx --no prisma migrate deploy \
-                  --schema="apps/${svc}/prisma/schema.prisma"
+                pnpm --filter ${svc} exec prisma migrate deploy \
+                  --schema="./prisma/schema.prisma"
               fi
             done
 
@@ -60,8 +65,8 @@ jobs:
             if ! curl -fsS http://localhost:3002/api/iam/health >/dev/null; then
               echo "[deploy] health check FAILED — rolling back to ${BEFORE_SHA}"
               git reset --hard "${BEFORE_SHA}"
-              npm ci --no-audit --no-fund
-              npm run build:shared && npm run build:apps
+              pnpm install --frozen-lockfile --ignore-scripts
+              pnpm run build:shared && pnpm run build:apps
               pm2 reload ecosystem.config.js --update-env
               exit 1
             fi

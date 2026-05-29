@@ -69,7 +69,7 @@ export class AdminComicService {
         );
         await this.clearComicCaches(slug);
         return this.transform(created);
-      } catch (err) {
+      } catch (err: any) {
         if (
           err instanceof Prisma.PrismaClientKnownRequestError &&
           err.code === 'P2002' &&
@@ -107,7 +107,7 @@ export class AdminComicService {
     let updated: any;
     try {
       updated = await this.comicRepo.updateWithRelations(id, data, dto.categoryIds);
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new BadRequestException(t(this.i18n, 'comic.SLUG_IN_USE'));
       }
@@ -133,7 +133,7 @@ export class AdminComicService {
       // Increment the list version so all old list cache keys become stale.
       // Old keys expire naturally via their TTL (60s). No SCAN needed.
       await this.redis?.incr('comic:public:list:v');
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn('Failed to clear comic caches', (err as Error).message);
     }
   }

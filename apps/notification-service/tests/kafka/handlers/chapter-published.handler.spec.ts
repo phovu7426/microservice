@@ -9,7 +9,7 @@ jest.mock('@package/redis', () => ({ RedisService: jest.fn() }));
 jest.mock('nestjs-i18n', () => ({ I18nService: jest.fn() }));
 jest.mock('src/types', () => ({ PrimaryKey: BigInt }), { virtual: true });
 
-import { ChapterPublishedHandler } from '../../../src/kafka/handlers/chapter-published.handler';
+import { ChapterPublishedHandler } from '../../../src/event/kafka/handlers/chapter-published.handler';
 
 describe('ChapterPublishedHandler', () => {
   let handler: ChapterPublishedHandler;

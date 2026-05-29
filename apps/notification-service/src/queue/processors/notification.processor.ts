@@ -24,7 +24,7 @@ export class NotificationProcessor {
       await this.mail.sendTemplate(templateCode, options);
       log.addDebug('done');
       log.save();
-    } catch (err) {
+    } catch (err: any) {
       log.addException(err);
       if (err instanceof PermanentMailError) {
         log.addDebug('permanent_failure');

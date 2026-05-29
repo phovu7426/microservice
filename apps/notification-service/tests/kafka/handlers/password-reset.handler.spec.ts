@@ -3,7 +3,7 @@ jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: jest.fn() }));
 jest.mock('src/types', () => ({ PrimaryKey: BigInt }), { virtual: true });
 jest.mock('@nestjs/bull', () => ({ InjectQueue: () => () => {} }));
 
-import { PasswordResetHandler } from '../../../src/kafka/handlers/password-reset.handler';
+import { PasswordResetHandler } from '../../../src/event/kafka/handlers/password-reset.handler';
 
 describe('PasswordResetHandler', () => {
   let handler: PasswordResetHandler;

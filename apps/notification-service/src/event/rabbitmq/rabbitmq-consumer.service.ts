@@ -41,7 +41,7 @@ export class RabbitmqConsumerService {
     if (!claimed) return;
     try {
       await handler.handle(payload);
-    } catch (err) {
+    } catch (err: any) {
       await this.idempotency.release(routingKey, eventId);
       throw err;
     }

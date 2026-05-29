@@ -52,7 +52,7 @@ export class JwksService implements OnModuleInit {
     if (prevPriv && prevPub) {
       try {
         this.extra.push(await this.loadKeyPair(prevPriv, prevPub));
-      } catch (err) {
+      } catch (err: any) {
         // Loud failure: a malformed PREVIOUS key would silently break verify.
         throw new Error(
           `JWT_*_KEY_PEM_PREVIOUS provided but failed to parse: ${(err as Error).message}`,

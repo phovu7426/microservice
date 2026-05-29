@@ -95,7 +95,7 @@ export class AuthJwtGuard implements CanActivate {
     try {
       const allowed = await this.iamClient.checkPermissions(String(request.user.sub), permissions);
       if (!allowed) throw new ForbiddenException(t(this.i18n, 'auth.PERMISSION_DENIED'));
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof ForbiddenException) throw err;
       throw new ForbiddenException(t(this.i18n, 'auth.PERMISSION_DENIED'));
     }

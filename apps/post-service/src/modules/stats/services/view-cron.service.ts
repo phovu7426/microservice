@@ -70,7 +70,7 @@ export class ViewCronService {
             try {
               await this.statsRepo.upsertStats(postId, count);
               await this.statsRepo.upsertDailyStats(postId, today, count);
-            } catch (err) {
+            } catch (err: any) {
               // On failure, restore unflushed entries to the live buffer so we
               // retry next tick instead of losing the count permanently.
               this.logger.error(`Failed to flush views for post ${postIdStr}`, err);
@@ -83,7 +83,7 @@ export class ViewCronService {
       }
 
       await this.redis.del(snapshotKey);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error('View buffer flush error', err);
     } finally {
       await this.redis.del('post:views:buffer:lock');

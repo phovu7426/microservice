@@ -69,7 +69,7 @@ export class ViewCronService {
             try {
               await this.viewRepo.upsertStats(comicId, count);
               await this.viewRepo.upsertDailyStats(comicId, today, count);
-            } catch (err) {
+            } catch (err: any) {
               // On failure, restore the unflushed entries to the live buffer
               // so the next tick retries instead of losing the count forever.
               this.logger.error(`Failed to flush views for comic ${comicIdStr}`, err);
@@ -82,7 +82,7 @@ export class ViewCronService {
       }
 
       await this.redis.del(snapshotKey);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error('View buffer flush error', err);
     } finally {
       await this.redis.del('comic:views:buffer:lock');

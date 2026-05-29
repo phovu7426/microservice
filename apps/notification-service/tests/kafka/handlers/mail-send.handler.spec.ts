@@ -3,7 +3,7 @@ jest.mock('@prisma/adapter-pg', () => ({ PrismaPg: jest.fn() }));
 jest.mock('src/types', () => ({ PrimaryKey: BigInt }), { virtual: true });
 jest.mock('@nestjs/bull', () => ({ InjectQueue: () => () => {} }));
 
-import { MailSendHandler } from '../../../src/kafka/handlers/mail-send.handler';
+import { MailSendHandler } from '../../../src/event/kafka/handlers/mail-send.handler';
 
 describe('MailSendHandler', () => {
   let handler: MailSendHandler;

@@ -5,7 +5,7 @@ jest.mock('@package/redis', () => ({ RedisService: jest.fn() }));
 jest.mock('nestjs-i18n', () => ({ I18nService: jest.fn() }));
 jest.mock('src/types', () => ({ PrimaryKey: BigInt }), { virtual: true });
 
-import { CommentCreatedHandler } from '../../../src/kafka/handlers/comment-created.handler';
+import { CommentCreatedHandler } from '../../../src/event/kafka/handlers/comment-created.handler';
 
 describe('CommentCreatedHandler', () => {
   let handler: CommentCreatedHandler;

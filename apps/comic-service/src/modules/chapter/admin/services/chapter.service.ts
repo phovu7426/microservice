@@ -137,7 +137,7 @@ export class AdminChapterService {
       // Old keys expire naturally via their TTL (60-300s). No SCAN needed.
       await this.redis?.incr('comic:public:chapters:v');
       await this.redis?.incr('comic:public:nav:v');
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn('Failed to clear chapter caches', (err as Error).message);
     }
   }

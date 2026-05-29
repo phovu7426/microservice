@@ -7,34 +7,35 @@
 #   SERVICE_PORT — port the service listens on (e.g. "3001")
 
 ARG NODE_VERSION=20-alpine
+ARG PNPM_VERSION=11.4.0
 
 FROM node:${NODE_VERSION}
 ARG SERVICE_NAME
 ARG SERVICE_PORT=3000
+ARG PNPM_VERSION
 
 ENV NODE_ENV=development \
     PORT=${SERVICE_PORT} \
     SERVICE_NAME=${SERVICE_NAME}
 
 RUN apk add --no-cache dumb-init curl
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
 WORKDIR /workspace
 
-# Install dependencies (sẽ được cache nếu package*.json không đổi)
-COPY package.json package-lock.json ./
-COPY shared shared
+# Install dependencies (sẽ được cache nếu lockfile + manifests không đổi)
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
+COPY packages packages
 COPY apps apps
 
-RUN npm config set fetch-timeout 600000 && \
-    npm config set fetch-retries 5 && \
-    npm ci --ignore-scripts --no-audit --no-fund
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Build shared packages (cần cho import)
-RUN npm run build:shared
+RUN pnpm --filter "./packages/*" -r build
 
 # Prisma generate nếu có
 RUN if [ -f apps/${SERVICE_NAME}/prisma/schema.prisma ]; then \
-      npx --no -w apps/${SERVICE_NAME} prisma generate; \
+      pnpm --filter ${SERVICE_NAME} prisma:generate; \
     fi
 
 EXPOSE ${SERVICE_PORT}
@@ -42,4 +43,4 @@ EXPOSE ${SERVICE_PORT}
 WORKDIR /workspace/apps/${SERVICE_NAME}
 
 # Hot-reload với nodemon
-CMD ["npx", "nodemon", "--watch", "src", "--watch", "../../shared", "--ext", "ts,json", "--exec", "ts-node -r tsconfig-paths/register src/main.ts"]
+CMD ["pnpm", "exec", "nodemon", "--watch", "src", "--watch", "../../packages", "--ext", "ts,json", "--exec", "ts-node -r tsconfig-paths/register src/main.ts"]

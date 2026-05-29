@@ -72,7 +72,7 @@ export class RegistrationService {
       const result = { user: safeUser(user) };
       log.save({ userId: String(user.id), email: user.email, username: user.username });
       return result;
-    } catch (err) {
+    } catch (err: any) {
       log.addException(err);
       log.save();
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {

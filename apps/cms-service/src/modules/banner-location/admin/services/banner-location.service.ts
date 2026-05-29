@@ -20,7 +20,7 @@ export class AdminBannerLocationService {
     await this.redis?.del('cms:public:banners:list').catch(() => {});
   }
 
-  private mapP2002(err: unknown): never {
+  private mapP2002(err: any): never {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       throw new ConflictException('Banner location code already exists');
     }
@@ -62,7 +62,7 @@ export class AdminBannerLocationService {
       });
       await this.clearCache();
       return created;
-    } catch (err) {
+    } catch (err: any) {
       // Concurrent creates raced our `findByCode` check.
       this.mapP2002(err);
     }
@@ -80,7 +80,7 @@ export class AdminBannerLocationService {
       const updated = await this.locationRepo.update(id, dto);
       await this.clearCache();
       return updated;
-    } catch (err) {
+    } catch (err: any) {
       this.mapP2002(err);
     }
   }

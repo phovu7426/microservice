@@ -128,7 +128,7 @@ export class SocialAuthService {
           );
           return created;
         });
-      } catch (err) {
+      } catch (err: any) {
         if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
           continue;
         }

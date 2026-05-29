@@ -34,7 +34,7 @@ export class IamClient implements OnModuleInit {
     try {
       const data = await this.breaker.execute(() => this.doGet(url.toString()));
       return Array.isArray(data) ? data : [];
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`IamClient getPermissionsSimple failed: ${(err as Error).message}`);
       return [];
     }
@@ -47,7 +47,7 @@ export class IamClient implements OnModuleInit {
     try {
       const data = await this.breaker.execute(() => this.doGet(url.toString()));
       return new Set(data?.permissions ?? []);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`IamClient circuit open: ${(err as Error).message}`);
       return new Set();
     }
@@ -74,7 +74,7 @@ export class IamClient implements OnModuleInit {
 
       const body = await res.json();
       return body?.data ?? body;
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`IamClient GET ${url} failed: ${(err as Error).message}`);
       throw err;
     } finally {

@@ -137,7 +137,7 @@ export class ComicClient implements OnModuleInit {
   private async get<T>(url: string, fallback: T): Promise<T> {
     try {
       return await this.breaker.execute(() => this.doGet<T>(url, fallback));
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`ComicClient circuit open for ${url}: ${(err as Error).message}`);
       return fallback;
     }
@@ -166,7 +166,7 @@ export class ComicClient implements OnModuleInit {
 
       const data = (await res.json()) as { data?: T } | T;
       return (data as any)?.data ?? (data as T);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`ComicClient GET ${url} failed: ${(err as Error).message}`);
       throw err;
     } finally {

@@ -21,7 +21,7 @@ export class AdminProjectService {
     }
   }
 
-  private mapP2002(err: unknown): never {
+  private mapP2002(err: any): never {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
       throw new BadRequestException('Slug already in use');
     }
@@ -81,7 +81,7 @@ export class AdminProjectService {
       });
       await this.clearCache();
       return result;
-    } catch (err) {
+    } catch (err: any) {
       // Concurrent create raced our slug check -> friendly 400 instead of 500.
       this.mapP2002(err);
     }
@@ -127,7 +127,7 @@ export class AdminProjectService {
         await this.clearCache(data.slug);
       }
       return result;
-    } catch (err) {
+    } catch (err: any) {
       this.mapP2002(err);
     }
   }

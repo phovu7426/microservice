@@ -1,7 +1,8 @@
 version: 2
 
 updates:
-  # Root npm workspace — covers all apps/* and shared/* via the root lockfile
+  # Root pnpm workspace — covers all apps/* and packages/* via pnpm-lock.yaml
+  # (dependabot picks pnpm automatically when pnpm-lock.yaml is present)
   - package-ecosystem: npm
     directory: "/"
     schedule:
@@ -13,7 +14,7 @@ updates:
     versioning-strategy: increase
     labels:
       - dependencies
-      - npm
+      - pnpm
     groups:
       # Bundle minor + patch updates per ecosystem so we get one PR instead
       # of dozens. Major updates still get their own PR for review.

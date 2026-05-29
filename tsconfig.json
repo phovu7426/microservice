@@ -19,6 +19,6 @@
     "strictPropertyInitialization": false,
     "noEmit": true
   },
-  "include": ["shared/**/*", "apps/**/*"],
+  "include": ["packages/**/*", "apps/**/*"],
   "exclude": ["node_modules", "dist", "apps/*/prisma.config.ts"]
 }

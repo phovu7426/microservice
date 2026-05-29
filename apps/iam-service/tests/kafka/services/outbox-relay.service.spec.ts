@@ -36,7 +36,7 @@ jest.mock('@nestjs/schedule', () => ({
 // ---------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------
-import { IamOutboxCronService } from '../../../src/kafka/services/outbox-relay.service';
+import { IamOutboxCronService } from '../../../src/event/services/outbox-relay.service';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -74,6 +74,7 @@ describe('IamOutboxCronService', () => {
           'role.changed': 'role.changed',
           'permission.changed': 'permission.changed',
         }),
+        lockPrefix: 'iam',
       });
     });
   });

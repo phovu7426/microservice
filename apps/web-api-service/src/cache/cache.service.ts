@@ -44,7 +44,7 @@ export class GatewayCacheService implements OnModuleInit, OnModuleDestroy {
       });
       await this.client.connect();
       this.logger.log(`Gateway Redis connected to ${url}`);
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn(`Gateway Redis connection failed: ${(err as Error).message} — caching disabled`);
       this.client = null;
     }

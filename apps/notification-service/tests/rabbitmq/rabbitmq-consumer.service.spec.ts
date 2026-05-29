@@ -13,7 +13,7 @@ jest.mock('@golevelup/nestjs-rabbitmq', () => ({
   MessageHandlerErrorBehavior: { NACK: 'nack' },
 }));
 
-import { RabbitmqConsumerService } from '../../src/rabbitmq/rabbitmq-consumer.service';
+import { RabbitmqConsumerService } from '../../src/event/rabbitmq/rabbitmq-consumer.service';
 
 const makeHandler = () => ({ handle: jest.fn().mockResolvedValue(undefined) });
 

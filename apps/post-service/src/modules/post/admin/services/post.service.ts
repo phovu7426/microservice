@@ -74,7 +74,7 @@ export class AdminPostService {
         );
         await this.clearPostCaches(slug);
         return this.transform(post);
-      } catch (err) {
+      } catch (err: any) {
         if (
           err instanceof Prisma.PrismaClientKnownRequestError &&
           err.code === 'P2002' &&
@@ -112,7 +112,7 @@ export class AdminPostService {
     let updated: any;
     try {
       updated = await this.postRepo.updateWithRelations(id, data, dto.categoryIds, dto.tagIds);
-    } catch (err) {
+    } catch (err: any) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new BadRequestException(t(this.i18n, 'post.SLUG_ALREADY_IN_USE'));
       }
@@ -144,7 +144,7 @@ export class AdminPostService {
       // Increment the list version so all old list cache keys become stale.
       // Old keys expire naturally via their TTL (60s). No SCAN needed.
       await this.redis?.incr('post:public:list:v');
-    } catch (err) {
+    } catch (err: any) {
       this.logger.warn('Failed to clear post caches', (err as Error).message);
     }
   }
