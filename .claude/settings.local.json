@@ -181,7 +181,8 @@
       "Bash(pnpm --filter config-service build)",
       "Bash(pnpm run *)",
       "Skill(update-config)",
-      "Skill(update-config:*)"
+      "Skill(update-config:*)",
+      "Bash(grep -v \"//\")"
     ]
   }
 }
