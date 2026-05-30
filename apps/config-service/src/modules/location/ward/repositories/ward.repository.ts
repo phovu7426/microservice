@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'src/generated/prisma';
+import { Prisma } from '../../../../generated/prisma';
 import { PrismaService } from '../../../../core/database/prisma.service';
 import { toPrimaryKey } from '../../../../types';
 
