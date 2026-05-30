@@ -58,16 +58,10 @@ export class S3StorageStrategy implements IUploadStrategy {
     this.baseUrl = rawBaseUrl.replace(/\/$/, '');
   }
 
-  // TS6 tightened generic variance on SmithyClient.send(), breaking AWS SDK v3 types.
-  // Private overloads give each call site the correct return type; the implementation
-  // uses a cast that is safe because S3Client.send() exists at runtime.
-  private s3Send(command: PutObjectCommand): Promise<void>;
-  private s3Send(command: GetObjectCommand): Promise<GetObjectCommandOutput>;
-  private s3Send(command: DeleteObjectCommand): Promise<void>;
-  private s3Send(command: ListObjectsV2Command): Promise<ListObjectsV2CommandOutput>;
-  private s3Send(command: HeadObjectCommand): Promise<HeadObjectCommandOutput>;
+  // TS6 cannot resolve SmithyClient.send() due to generic variance changes.
+  // Cast is isolated here; call sites pass the expected output type explicitly.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private s3Send(command: any): Promise<any> {
+  private s3Send<T = void>(command: unknown): Promise<T> {
     return (this.s3Client as any).send(command);
   }
 
@@ -151,7 +145,7 @@ export class S3StorageStrategy implements IUploadStrategy {
 
     let result: GetObjectCommandOutput;
     try {
-      result = await this.s3Send(command);
+      result = await this.s3Send<GetObjectCommandOutput>(command);
     } catch (error: any) {
       if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
         throw this.fileNotFound(filename);
@@ -192,7 +186,7 @@ export class S3StorageStrategy implements IUploadStrategy {
       MaxKeys: limit,
     });
 
-    const result = await this.s3Send(command);
+    const result = await this.s3Send<ListObjectsV2CommandOutput>(command);
     const contents = result.Contents ?? [];
 
     return contents.map((item) => ({
@@ -228,7 +222,7 @@ export class S3StorageStrategy implements IUploadStrategy {
     });
     let result: HeadObjectCommandOutput;
     try {
-      result = await this.s3Send(command);
+      result = await this.s3Send<HeadObjectCommandOutput>(command);
     } catch (error: any) {
       if (error.name === 'NoSuchKey' || error.$metadata?.httpStatusCode === 404) {
         throw this.fileNotFound(filename);
