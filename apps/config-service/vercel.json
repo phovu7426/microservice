@@ -1,8 +1,7 @@
 {
   "version": 2,
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
-  "buildCommand": "cd ../.. && pnpm build:shared && pnpm --filter config-service exec prisma generate && pnpm --filter config-service exec tsc",
-  "outputDirectory": ".",
+  "buildCommand": "cd ../.. && pnpm build:shared && pnpm --filter config-service exec prisma generate",
   "routes": [
     { "src": "/(.*)", "dest": "/api/index.ts" }
   ],
