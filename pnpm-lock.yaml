@@ -458,6 +458,9 @@ importers:
       dotenv:
         specifier: ^16.5.0
         version: 16.6.1
+      express:
+        specifier: ^4.21.2
+        version: 4.22.2
       helmet:
         specifier: ^8.0.0
         version: 8.2.0
