@@ -10,6 +10,7 @@ import {
   HeadObjectCommand,
   HeadObjectCommandOutput,
   ListObjectsV2Command,
+  ListObjectsV2CommandOutput,
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import * as path from 'path';
@@ -20,6 +21,16 @@ import {
   UploadResult,
 } from '../interfaces/upload-strategy.interface';
 
+// TS6 tightened generic variance on SmithyClient.send() breaking AWS SDK v3 types.
+// Interface with concrete overloads restores full type safety without any generics.
+interface IS3Client {
+  send(command: PutObjectCommand): Promise<unknown>;
+  send(command: GetObjectCommand): Promise<GetObjectCommandOutput>;
+  send(command: DeleteObjectCommand): Promise<unknown>;
+  send(command: ListObjectsV2Command): Promise<ListObjectsV2CommandOutput>;
+  send(command: HeadObjectCommand): Promise<HeadObjectCommandOutput>;
+}
+
 function safeExtension(originalName: string): string {
   const ext = path.extname(originalName || '').toLowerCase();
   return /^\.[a-z0-9]{1,10}$/.test(ext) ? ext : '';
@@ -27,7 +38,7 @@ function safeExtension(originalName: string): string {
 
 @Injectable()
 export class S3StorageStrategy implements IUploadStrategy {
-  private readonly s3Client: S3Client;
+  private readonly s3Client: IS3Client;
   private readonly bucket: string;
   private readonly baseUrl: string;
   private readonly forcePathStyle: boolean;
@@ -49,7 +60,7 @@ export class S3StorageStrategy implements IUploadStrategy {
         secretAccessKey: s3Config?.secretAccessKey,
       },
       forcePathStyle: this.forcePathStyle,
-    });
+    }) as unknown as IS3Client;
 
     // Dùng nguyên giá trị baseUrl từ config/env, chỉ bỏ trailing slash nếu có.
     // Người dùng tự cấu hình đúng URL mong muốn (ví dụ: https://minio1.webtui.vn:9000/bucket-s3monmon).
