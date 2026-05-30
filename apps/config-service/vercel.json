@@ -2,14 +2,8 @@
   "version": 2,
   "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
   "buildCommand": "cd ../.. && pnpm build:shared && pnpm --filter config-service exec prisma generate && pnpm --filter config-service exec tsc",
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
-    { "src": "/(.*)", "dest": "api/index.ts" }
+    { "src": "/(.*)", "dest": "/api/index.ts" }
   ],
   "functions": {
     "api/index.ts": {
