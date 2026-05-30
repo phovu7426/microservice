@@ -449,9 +449,18 @@ importers:
       cockatiel:
         specifier: ^3.2.1
         version: 3.2.1
+      compression:
+        specifier: ^1.7.5
+        version: 1.8.1
+      cookie-parser:
+        specifier: ^1.4.7
+        version: 1.4.7
       dotenv:
         specifier: ^16.5.0
         version: 16.6.1
+      helmet:
+        specifier: ^8.0.0
+        version: 8.2.0
       joi:
         specifier: ^18.1.2
         version: 18.2.1
@@ -480,6 +489,12 @@ importers:
       '@nestjs/cli':
         specifier: ^11.0.19
         version: 11.0.21(@swc/core@1.15.40)(@types/node@20.19.41)
+      '@types/compression':
+        specifier: ^1.7.5
+        version: 1.8.1
+      '@types/cookie-parser':
+        specifier: ^1.4.9
+        version: 1.4.10(@types/express@4.17.25)
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.25
