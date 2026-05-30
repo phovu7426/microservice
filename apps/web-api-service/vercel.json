@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
+  "installCommand": "cd ../.. && NPM_CONFIG_SHAMEFULLY_HOIST=true pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm build:shared",
   "routes": [
-    { "src": "/(.*)", "dest": "api/index.ts" }
-  ]
+    { "src": "/(.*)", "dest": "/api/index.ts" }
+  ],
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 30
+    }
+  }
 }

@@ -182,7 +182,15 @@
       "Bash(pnpm run *)",
       "Skill(update-config)",
       "Skill(update-config:*)",
-      "Bash(grep -v \"//\")"
+      "Bash(grep -v \"//\")",
+      "Bash(pnpm install *)",
+      "Bash(pnpm build:shared)",
+      "Bash(pnpm why *)",
+      "Bash(sed -i 's|from '\\\\''src/generated/prisma'\\\\''|from '\\\\''../../../../generated/prisma'\\\\''|g' d:/Sources/Project/microservice/apps/config-service/src/modules/location/country/repositories/country.repository.ts d:/Sources/Project/microservice/apps/config-service/src/modules/location/province/repositories/province.repository.ts d:/Sources/Project/microservice/apps/config-service/src/modules/location/ward/repositories/ward.repository.ts d:/Sources/Project/microservice/apps/config-service/src/modules/system-config/email/repositories/email-config.repository.ts d:/Sources/Project/microservice/apps/config-service/src/modules/system-config/general/repositories/general-config.repository.ts)",
+      "Bash(sed -i 's|from '\\\\''src/generated/prisma'\\\\''|from '\\\\''../../../generated/prisma'\\\\''|g' d:/Sources/Project/microservice/apps/config-service/src/modules/menu/repositories/menu.repository.ts)",
+      "Bash(sed -i 's|from '\\\\''../../generated/prisma'\\\\''|from '\\\\''src/generated/prisma'\\\\''|g' apps/config-service/src/core/database/prisma.service.ts)",
+      "Bash(sed -i 's|from '\\\\''../../../../generated/prisma'\\\\''|from '\\\\''src/generated/prisma'\\\\''|g' apps/config-service/src/modules/location/country/repositories/country.repository.ts apps/config-service/src/modules/location/province/repositories/province.repository.ts apps/config-service/src/modules/location/ward/repositories/ward.repository.ts apps/config-service/src/modules/system-config/email/repositories/email-config.repository.ts apps/config-service/src/modules/system-config/general/repositories/general-config.repository.ts)",
+      "Bash(sed -i 's|from '\\\\''../../../generated/prisma'\\\\''|from '\\\\''src/generated/prisma'\\\\''|g' apps/config-service/src/modules/menu/repositories/menu.repository.ts)"
     ]
   }
 }

@@ -18,9 +18,9 @@ let app: NestExpressApplication;
 async function bootstrap() {
   if (app) return app;
 
-  app = await NestFactory.create<NestExpressApplication>(StorageAppModule, {
+  app = (await NestFactory.create(StorageAppModule, {
     logger: false,
-  });
+  })) as NestExpressApplication;
 
   app.setGlobalPrefix(process.env.GLOBAL_PREFIX ?? 'api');
   app.use(cookieParser());
@@ -49,5 +49,5 @@ async function bootstrap() {
 
 export default async function handler(req: IncomingMessage, res: ServerResponse) {
   const instance = await bootstrap();
-  instance.getHttpAdapter().getInstance()(req, res);
+  (instance.getHttpAdapter().getInstance() as (req: any, res: any) => void)(req, res);
 }
