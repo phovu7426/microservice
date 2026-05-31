@@ -41,7 +41,7 @@ export const envValidationSchema = Joi.object({
 
   RBAC_CACHE_TTL: Joi.number().default(86400),
   RBAC_CACHE_VERSION_TTL_MS: Joi.number().default(2000),
-  EVENT_DRIVER: Joi.string().valid('local', 'kafka', 'rabbitmq').default('local'),
+  EVENT_DRIVER: Joi.string().valid('local', 'kafka', 'rabbitmq', 'redis').default('local'),
   RABBITMQ_URL: Joi.alternatives().conditional('EVENT_DRIVER', {
     is: 'rabbitmq',
     then: Joi.string().uri().required(),

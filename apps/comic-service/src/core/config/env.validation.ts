@@ -46,7 +46,7 @@ export const envValidationSchema = Joi.object({
     otherwise: Joi.string().optional().allow(''),
   }),
 
-  EVENT_DRIVER: Joi.string().valid('kafka', 'local', 'rabbitmq').default('local'),
+  EVENT_DRIVER: Joi.string().valid('kafka', 'local', 'rabbitmq', 'redis').default('local'),
   RABBITMQ_URL: Joi.alternatives().conditional('EVENT_DRIVER', {
     is: 'rabbitmq',
     then: Joi.string().uri().required(),

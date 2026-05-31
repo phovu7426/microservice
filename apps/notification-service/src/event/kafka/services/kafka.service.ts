@@ -1,13 +1,9 @@
 import { Injectable, OnModuleInit, OnApplicationShutdown } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { KafkaJS } from '@confluentinc/kafka-javascript';
+import type { Consumer, EachMessagePayload, Producer } from '@package/kafka-client';
 import { createKafkaInstance } from '@package/kafka-client';
 import { IdempotencyService, LruSet } from '@package/common';
 import { FileLogger } from '@package/bootstrap';
-
-type Consumer = KafkaJS.Consumer;
-type EachMessagePayload = KafkaJS.EachMessagePayload;
-type Producer = KafkaJS.Producer;
 import { KafkaHandler } from '../interfaces/kafka-handler.interface';
 import { ChapterPublishedHandler } from '../handlers/chapter-published.handler';
 import { CommentCreatedHandler } from '../handlers/comment-created.handler';
@@ -75,13 +71,9 @@ export class KafkaService implements OnModuleInit, OnApplicationShutdown {
       retry: { retries: 8, initialRetryTime: 300, maxRetryTime: 30_000 },
     });
     this.consumer = kafka.consumer({
-      kafkaJS: {
-        groupId: groupId || 'notification-service',
-        sessionTimeout: 30_000,
-        heartbeatInterval: 3_000,
-        fromBeginning: false,
-        allowAutoTopicCreation: true,
-      },
+      groupId: groupId || 'notification-service',
+      sessionTimeout: 30_000,
+      heartbeatInterval: 3_000,
     });
     await this.consumer!.connect();
 

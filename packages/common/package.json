@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@confluentinc/kafka-javascript": "^1.8.2",
     "@nestjs/common": "^11.1.19",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.1.19",

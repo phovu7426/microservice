@@ -17,6 +17,7 @@ import { PrismaService } from './core/database/prisma.service';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { KafkaModule } from './event/kafka/kafka.module';
 import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
+import { RedisEventModule } from './event/redis/redis.module';
 
 import { PostModule } from './modules/post/post.module';
 import { CategoryModule } from './modules/category/category.module';
@@ -24,7 +25,14 @@ import { TagModule } from './modules/tag/tag.module';
 import { CommentModule } from './modules/comment/comment.module';
 import { StatsModule } from './modules/stats/stats.module';
 
-const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
+function selectMessagingModule() {
+  switch (process.env.EVENT_DRIVER) {
+    case 'rabbitmq': return RabbitmqModule;
+    case 'redis':    return RedisEventModule;
+    default:         return KafkaModule;
+  }
+}
+const messagingModule = selectMessagingModule();
 
 @Module({
   imports: [
@@ -64,7 +72,7 @@ const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+        ...(!process.env.EVENT_DRIVER || process.env.EVENT_DRIVER === 'kafka'
           ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
           : []),
       ],

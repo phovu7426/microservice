@@ -20,8 +20,16 @@ import { ContentTemplateModule } from './modules/content-template/content-templa
 import { QueueModule } from './queue/queue.module';
 import { KafkaModule } from './event/kafka/kafka.module';
 import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
+import { RedisEventModule } from './event/redis/redis.module';
 
-const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
+function selectMessagingModule() {
+  switch (process.env.EVENT_DRIVER) {
+    case 'rabbitmq': return RabbitmqModule;
+    case 'redis':    return RedisEventModule;
+    default:         return KafkaModule;
+  }
+}
+const messagingModule = selectMessagingModule();
 
 @Module({
   imports: [

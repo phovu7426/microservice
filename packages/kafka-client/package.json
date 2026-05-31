@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.1.19",
-    "@confluentinc/kafka-javascript": "^1.8.2"
+    "kafkajs": "^2.2.4"
   },
   "devDependencies": {
     "typescript": "^6.0.3"

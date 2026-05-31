@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MetricsModule } from '@package/bootstrap';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Reflector } from '@nestjs/core';
 import { I18nModule, AcceptLanguageResolver, QueryResolver } from 'nestjs-i18n';
@@ -30,8 +31,16 @@ import { GroupModule } from './modules/group/group.module';
 import { UserRoleModule } from './modules/user-role/user-role.module';
 import { KafkaModule } from './event/kafka/kafka.module';
 import { RabbitmqModule } from './event/rabbitmq/rabbitmq.module';
+import { RedisEventModule } from './event/redis/redis.module';
 
-const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule : KafkaModule;
+function selectMessagingModule() {
+  switch (process.env.EVENT_DRIVER) {
+    case 'rabbitmq': return RabbitmqModule;
+    case 'redis':    return RedisEventModule;
+    default:         return KafkaModule;
+  }
+}
+const messagingModule = selectMessagingModule();
 
 @Module({
   imports: [
@@ -58,6 +67,7 @@ const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule
         AcceptLanguageResolver,
       ],
     }),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 60 }]),
     CoreModule,
     RedisModule,
@@ -77,7 +87,7 @@ const messagingModule = process.env.EVENT_DRIVER === 'rabbitmq' ? RabbitmqModule
           inject: [RedisService],
           useFactory: (redis: RedisService) => () => redis.ping(),
         },
-        ...(process.env.EVENT_DRIVER !== 'rabbitmq'
+        ...(!process.env.EVENT_DRIVER || process.env.EVENT_DRIVER === 'kafka'
           ? [{ provide: 'HEALTH_KAFKA_PROBE', inject: [KafkaProducerService], useFactory: (kafka: KafkaProducerService) => () => kafka.ping() }]
           : []),
       ],

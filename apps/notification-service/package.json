@@ -15,7 +15,6 @@
     "seed": "npm run prisma:seed"
   },
   "dependencies": {
-    "@confluentinc/kafka-javascript": "^1.8.2",
     "@golevelup/nestjs-rabbitmq": "^9.0.0",
     "@nestjs/bull": "^11.0.4",
     "@nestjs/common": "^11.1.19",
@@ -32,6 +31,7 @@
     "@package/kafka-client": "workspace:*",
     "@package/rabbitmq-client": "workspace:*",
     "@package/redis": "workspace:*",
+    "@package/redis-client": "workspace:*",
     "@package/tracing": "workspace:*",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",

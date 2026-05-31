@@ -1,4 +1,4 @@
-import { KafkaJS } from '@confluentinc/kafka-javascript';
+import { Kafka } from 'kafkajs';
 import { KafkaSslOptions } from './kafka-client.module';
 
 export interface KafkaInstanceOptions {
@@ -8,21 +8,19 @@ export interface KafkaInstanceOptions {
   retry?: { retries?: number; initialRetryTime?: number; maxRetryTime?: number };
 }
 
-export function createKafkaInstance(options: KafkaInstanceOptions): InstanceType<typeof KafkaJS.Kafka> {
+export function createKafkaInstance(options: KafkaInstanceOptions): Kafka {
   const { clientId, brokers, ssl, retry } = options;
-  return new KafkaJS.Kafka({
-    kafkaJS: {
-      clientId,
-      brokers,
-      ...(retry ? { retry } : {}),
-      ...(ssl ? { ssl: true } : {}),
-    },
-    // Force IPv4 to avoid noisy IPv6 connection failures on Windows/local dev
-    'broker.address.family': 'v4',
+  return new Kafka({
+    clientId,
+    brokers,
+    ...(retry ? { retry } : {}),
     ...(ssl ? {
-      'ssl.ca.pem': ssl.ca,
-      'ssl.certificate.pem': ssl.cert,
-      'ssl.key.pem': ssl.key,
+      ssl: {
+        rejectUnauthorized: ssl.rejectUnauthorized,
+        ca: [ssl.ca],
+        cert: ssl.cert,
+        key: ssl.key,
+      },
     } : {}),
-  } as any);
+  });
 }
