@@ -1,0 +1,22 @@
+# Railway configuration — áp dụng chung cho tất cả 9 service trong monorepo.
+#
+# Mỗi service khi tạo trên Railway UI cần thêm Build Arg riêng:
+#   SERVICE_NAME=auth-service   ← tên folder trong apps/, không có "mon-"
+#
+# Tên service trong Railway UI phải có prefix "mon-":
+#   mon-auth-service, mon-iam-service, mon-cms-service, ...
+# (Tên này quyết định địa chỉ private networking: <tên>.railway.internal)
+
+[build]
+  builder = "dockerfile"
+  dockerfilePath = "infrastructure/docker/Dockerfile.service"
+  # Build context là repo root — Dockerfile cần COPY cả apps/ và packages/
+  dockerContext = "."
+
+[deploy]
+  # NestJS + Prisma migrate deploy cần thời gian khởi động
+  healthcheckPath = "/api/v1/health/ready"
+  healthcheckTimeout = 120
+  restartPolicyType = "on_failure"
+  restartPolicyMaxRetries = 3
+  numReplicas = 1
