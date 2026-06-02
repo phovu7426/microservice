@@ -15,7 +15,7 @@
 
 [deploy]
   # NestJS + Prisma migrate deploy cần thời gian khởi động
-  healthcheckPath = "/api/v1/health/ready"
+  healthcheckPath = "/health/ready"
   healthcheckTimeout = 120
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 3

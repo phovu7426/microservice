@@ -45,11 +45,8 @@ export async function createApp(options: BootstrapOptions): Promise<NestExpressA
   const prefix = process.env.GLOBAL_PREFIX ?? 'api';
   const isProd = process.env.NODE_ENV === 'production';
 
-  if (options.excludePrefixes?.length) {
-    app.setGlobalPrefix(prefix, { exclude: options.excludePrefixes });
-  } else {
-    app.setGlobalPrefix(prefix);
-  }
+  const excludePrefixes = ['health', 'health/*path', ...(options.excludePrefixes ?? [])];
+  app.setGlobalPrefix(prefix, { exclude: excludePrefixes });
 
   app.use(cookieParser());
   app.use(compression());

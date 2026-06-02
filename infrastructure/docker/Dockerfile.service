@@ -114,7 +114,7 @@ WORKDIR /app/apps/${SERVICE_NAME}
 EXPOSE ${SERVICE_PORT}
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD curl -fsS "http://localhost:${PORT}/api/v1/health/ready" >/dev/null || exit 1
+  CMD curl -fsS "http://localhost:${PORT}/health/ready" >/dev/null || exit 1
 
 ENTRYPOINT ["dumb-init", "--", "/usr/local/bin/entrypoint.sh"]
 CMD ["node", "-r", "tsconfig-paths/register", "dist/main.js"]
