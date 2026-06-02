@@ -6,7 +6,7 @@
   "license": "MIT",
   "packageManager": "pnpm@11.4.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
     "postinstall": "pnpm run build:shared",
