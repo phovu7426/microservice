@@ -31,9 +31,7 @@ COPY apps apps
 
 # `--ignore-scripts` skips Prisma postinstall; we run `prisma generate` per
 # service explicitly inside the build stage with the right schema.
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm config set store-dir /pnpm/store && \
-    pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 3: build — compile packages/ then the target service, then assemble
@@ -51,9 +49,7 @@ RUN pnpm --filter ${SERVICE_NAME} build
 # `pnpm deploy --prod` resolves workspace deps and copies them flattened into
 # the target's node_modules/. Replaces the old `cp -r node_modules` hack
 # which broke under pnpm's symlink layout.
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm config set store-dir /pnpm/store && \
-    pnpm --filter ${SERVICE_NAME} deploy --prod --legacy /deploy
+RUN pnpm --filter ${SERVICE_NAME} deploy --prod --legacy /deploy
 
 # Replicate runtime-asset wiring that tsc doesn't handle:
 #  - src/ mirror of dist/: the codebase imports `from 'src/types'` (baseUrl-
