@@ -9,8 +9,9 @@
 
 [build]
   builder = "dockerfile"
-  dockerfilePath = "infrastructure/docker/Dockerfile.service"
-  # Build context là repo root — Dockerfile cần COPY cả apps/ và packages/
+  # dockerfilePath không set ở đây — mỗi service tự cấu hình trong Railway UI:
+  #   - NestJS services:  infrastructure/docker/Dockerfile.service
+  #   - nginx gateway:    infrastructure/docker/Dockerfile.gateway
   dockerContext = "."
 
 [deploy]
