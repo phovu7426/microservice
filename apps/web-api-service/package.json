@@ -1,5 +1,5 @@
 {
-  "name": "gateway-service",
+  "name": "web-api-service",
   "version": "1.0.0",
   "description": "API gateway aggregating upstream services for frontend clients",
   "private": true,
